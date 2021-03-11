@@ -1,5 +1,5 @@
 name: CI
-on: [pull_request]
+on: [ pull_request ]
 
 jobs:
   commit-lint:
@@ -19,44 +19,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Setup node
-        uses: actions/setup-node@v2-beta
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.5
         with:
           node-version: '14'
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
+      - uses: actions/cache@v2
         with:
           path: '**/node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node-14-modules-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: Prettier check
+      - name: Format
         run: yarn run format
       - name: Lint
         run: yarn run lint
-  tests:
+  test-with-node:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 12.x, 14.x, 15.x ]
+        node-version: [ 10, 12, 14, 15 ]
     steps:
-      - uses: actions/checkout@v2
+      - name: Run tests with Node version ${{ matrix.node-version }}
+        uses: docker/build-push-action@v2.3.0
         with:
-          fetch-depth: 0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2-beta
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Cache node_modules
-        uses: actions/cache@v2
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-modules-${{ hashFiles('**/yarn.lock') }}
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Test
-        run: yarn run test
+          build-args: |
+            NODE_VERSION=${{ matrix.node-version }}

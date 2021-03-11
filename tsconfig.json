@@ -1,12 +1,8 @@
 {
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "target": "es2017",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "dist"
-  },
-  "include": ["src/**/*"]
+    "paths": {
+      "calendar-date": ["src"]
+    }
+  }
 }
