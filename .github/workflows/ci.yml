@@ -1,0 +1,46 @@
+name: CI
+on: [ pull_request ]
+
+jobs:
+  commit-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v2
+  pr-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v3.4.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  code-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: '14'
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-14-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Format
+        run: yarn run format
+      - name: Lint
+        run: yarn run lint
+  test-with-node:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 10, 12, 14, 15 ]
+    steps:
+      - name: Run tests with Node version ${{ matrix.node-version }}
+        uses: docker/build-push-action@v2.3.0
+        with:
+          build-args: |
+            NODE_VERSION=${{ matrix.node-version }}
