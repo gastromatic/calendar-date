@@ -4,6 +4,7 @@ A calendar date is a date without time information, e.g. "2020-01-01".
 This library provides an immutable object to represent and work with a calendar date.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Coverage Status](https://coveralls.io/repos/github/gastromatic/calendar-date/badge.svg?branch=main)](https://coveralls.io/github/gastromatic/calendar-date?branch=main)
 
 ## Why another date library?
 
@@ -69,15 +70,31 @@ date1 >= date2      // true
 date1 >= date3      // false
 date1 <= date3      // true
 ```
-Utility Methods:
+
 #### addMonths, addDays
 Returns a new CalendarDate with the specified amount of months or days added.
 
+```typescript
+new CalendarDate('2020-01-01').addMonths(3);    // 2020-03-01
+new CalendarDate('2020-01-01').addDays(15);     // 2020-01-16
+```
+
 #### getLastDayOfMonth, getFirstDayOfMonth
 Returns a new CalendarDate with the first or last day of the month.
+```typescript
+new CalendarDate('2020-01-15').getFirstDayOfMonth();    // 2020-01-01
+new CalendarDate('2020-01-15').getLastDayOfMonth();     // 2020-01-31
+```
 
 #### getDifferenceInDays
 Returns the difference in days between to CalendarDate objects.
+It will subtract the input date from the base date. If you supply the optional `absolute` parameter it will always return a positive value.
+```typescript
+const date1 = new CalendarDate('2020-01-01');
+const date2 = new CalendarDate('2020-02-01');
+date1.getDifferenceInDays(date2);       // -31
+date1.getDifferenceInDays(date2, true); // 31
+```
 
 ### CalendarDateRange
 You need two CalendarDate objects to construct a new CalendarDateRange.
@@ -97,7 +114,7 @@ new CalendarDateRange(end, start, true);
 new CalendarDateRange(end, start)
 ```
 
-You can also parse a CalendarDateRange from an String representation with the format `YYYY-MM-DD/YYYY-MM-DD`:
+You can also parse a CalendarDateRange from a String representation with the format `YYYY-MM-DD/YYYY-MM-DD`:
 ```typescript
 CalendarDateRange.parse('2020-01-01/2020-12-31');
 ```
@@ -126,6 +143,12 @@ dateRange.includes(date3);                          // true
 
 #### getDifferenceInDays
 Returns the difference in days between start and end of the CalendarDateRange.
+
+```typescript
+const date1 = new CalendarDate('2020-01-01');
+const date2 = new CalendarDate('2020-02-01');
+new CalendarDateRange(date1, date2).getDifferenceInDays();  // 31
+```
 
 ## License
 
