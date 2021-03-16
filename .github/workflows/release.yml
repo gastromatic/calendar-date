@@ -1,0 +1,43 @@
+name: Release
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: '14'
+      - run: yarn install
+      - run: yarn build
+      - uses: actions/github-script@0.9.0
+        name: Disable protection temporary
+        with:
+          github-token: '${{ secrets.GASTROBOT_TOKEN}}'
+          script: |
+            await github.repos.removeProtectedBranchAdminEnforcement({
+              ...context.repo,
+              branch: 'main',
+            });
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GASTROBOT_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: actions/github-script@0.9.0
+        name: Restore protection
+        if: always()
+        with:
+          github-token: '${{ secrets.GASTROBOT_TOKEN}}'
+          script: |
+            await github.repos.addProtectedBranchAdminEnforcement({
+              ...context.repo,
+              branch: 'main',
+            });
