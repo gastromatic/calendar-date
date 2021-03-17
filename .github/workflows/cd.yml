@@ -1,0 +1,103 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  commit-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Commit Lint
+        uses: wagoid/commitlint-github-action@v2
+  code-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: '14'
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-14-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Format
+        run: yarn run format
+      - name: Lint
+        run: yarn run lint
+  test-with-node:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 10, 12, 14, 15 ]
+    steps:
+      - name: Run tests with Node version ${{ matrix.node-version }}
+        uses: docker/build-push-action@v2.3.0
+        with:
+          tags: calendar-date
+          build-args: |
+            NODE_VERSION=${{ matrix.node-version }}
+      - uses: shrink/actions-docker-extract@v1
+        id: extract
+        with:
+          image: 'calendar-date'
+          path: '/home/node/coverage/.'
+      - name: Post coverage results to coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ${{ steps.extract.outputs.destination }}/lcov.info
+          flag-name: run-with-node-version-${{ matrix.node-version }}
+          parallel: true
+  complete-coverage-results:
+    needs: test-with-node
+    runs-on: ubuntu-latest
+    steps:
+      - name: Finish coveralls parallel build
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
+  release:
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
+    needs: [commit-lint, code-lint, test-with-node]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: '14'
+      - run: yarn install
+      - run: yarn build
+      - uses: actions/github-script@0.9.0
+        name: Disable protection temporary
+        with:
+          github-token: '${{ secrets.GASTROBOT_TOKEN}}'
+          script: |
+            await github.repos.removeProtectedBranchAdminEnforcement({
+              ...context.repo,
+              branch: 'main',
+            });
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GASTROBOT_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: actions/github-script@0.9.0
+        name: Restore protection
+        if: always()
+        with:
+          github-token: '${{ secrets.GASTROBOT_TOKEN}}'
+          script: |
+            await github.repos.addProtectedBranchAdminEnforcement({
+              ...context.repo,
+              branch: 'main',
+            });

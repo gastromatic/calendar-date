@@ -1,9 +1,6 @@
 name: CI
 on:
   pull_request:
-  push:
-    branches:
-      - main
 
 jobs:
   commit-lint:
@@ -15,7 +12,6 @@ jobs:
       - name: Commit Lint
         uses: wagoid/commitlint-github-action@v2
       - name: PR Lint
-        if: "github.event_name == 'pull_request'"
         uses: amannn/action-semantic-pull-request@v3.4.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,61 +45,3 @@ jobs:
           tags: calendar-date
           build-args: |
             NODE_VERSION=${{ matrix.node-version }}
-      - uses: shrink/actions-docker-extract@v1
-        id: extract
-        with:
-          image: 'calendar-date'
-          path: '/home/node/coverage/.'
-      - name: Post coverage results to coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.github_token }}
-          path-to-lcov: '${{ steps.extract.outputs.destination }}/lcov.info'
-          flag-name: run-with-node-version-${{ matrix.node-version }}
-          parallel: true
-  complete-coverage-results:
-    needs: test-with-node
-    runs-on: ubuntu-latest
-    steps:
-      - name: Finish coveralls parallel build
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.github_token }}
-          parallel-finished: true
-  release:
-    if: "github.ref == 'refs/heads/main' && !contains(github.event.commits[0].message, '[skip ci]')"
-    needs: [commit-lint, code-lint, test-with-node]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2.1.5
-        with:
-          node-version: '14'
-      - run: yarn install
-      - run: yarn build
-      - uses: actions/github-script@0.9.0
-        name: Disable protection temporary
-        with:
-          github-token: '${{ secrets.GASTROBOT_TOKEN}}'
-          script: |
-            await github.repos.removeProtectedBranchAdminEnforcement({
-              ...context.repo,
-              branch: 'main',
-            });
-      - run: npx semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GASTROBOT_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - uses: actions/github-script@0.9.0
-        name: Restore protection
-        if: always()
-        with:
-          github-token: '${{ secrets.GASTROBOT_TOKEN}}'
-          script: |
-            await github.repos.addProtectedBranchAdminEnforcement({
-              ...context.repo,
-              branch: 'main',
-            });
