@@ -42,5 +42,27 @@ jobs:
       - name: Run tests with Node version ${{ matrix.node-version }}
         uses: docker/build-push-action@v2.3.0
         with:
+          tags: calendar-date
           build-args: |
             NODE_VERSION=${{ matrix.node-version }}
+      - uses: shrink/actions-docker-extract@v1
+        id: extract
+        with:
+          image: 'calendar-date'
+          path: '/home/node/coverage/.'
+      - name: Post coverage results to coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: '${{ steps.extract.outputs.destination }}/lcov.info'
+          flag-name: run-with-node-version-${{ matrix.node-version }}
+          parallel: true
+  complete-coverage-results:
+    needs: test-with-node
+    runs-on: ubuntu-latest
+    steps:
+      - name: Finish coveralls parallel build
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
