@@ -37,22 +37,23 @@ jobs:
       matrix:
         node-version: [ 10, 12, 14, 15 ]
     steps:
-      - name: Run tests with Node version ${{ matrix.node-version }}
-        uses: docker/build-push-action@v2.3.0
+      - uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.5
         with:
-          tags: calendar-date
-          build-args: |
-            NODE_VERSION=${{ matrix.node-version }}
-      - uses: shrink/actions-docker-extract@v1
-        id: extract
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache@v2
         with:
-          image: 'calendar-date'
-          path: '/home/node/coverage/.'
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Run Tests with coverage
+        run: yarn test:coverage
       - name: Post coverage results to coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ${{ steps.extract.outputs.destination }}/lcov.info
           flag-name: run-with-node-version-${{ matrix.node-version }}
           parallel: true
   complete-coverage-results:
@@ -76,10 +77,12 @@ jobs:
         uses: actions/setup-node@v2.1.5
         with:
           node-version: '14'
-      - run: yarn install
-      - run: yarn build
-      - uses: actions/github-script@0.9.0
-        name: Disable protection temporary
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn build
+      - name: Disable protection temporary
+        uses: actions/github-script@0.9.0
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
           script: |
@@ -91,8 +94,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GASTROBOT_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - uses: actions/github-script@0.9.0
-        name: Restore protection
+      - name: Restore protection
+        uses: actions/github-script@0.9.0
         if: always()
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
