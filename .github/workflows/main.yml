@@ -43,7 +43,8 @@ jobs:
           tags: calendar-date
           build-args: |
             NODE_VERSION=${{ matrix.node-version }}
-      - uses: shrink/actions-docker-extract@v1
+      - name: Extract coverage results
+        uses: shrink/actions-docker-extract@v1
         id: extract
         with:
           image: 'calendar-date'
@@ -76,10 +77,12 @@ jobs:
         uses: actions/setup-node@v2.1.5
         with:
           node-version: '14'
-      - run: yarn install
-      - run: yarn build
-      - uses: actions/github-script@0.9.0
-        name: Disable protection temporary
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn build
+      - name: Disable protection temporary
+        uses: actions/github-script@0.9.0
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
           script: |
@@ -91,8 +94,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GASTROBOT_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - uses: actions/github-script@0.9.0
-        name: Restore protection
+      - name: Restore protection
+        uses: actions/github-script@0.9.0
         if: always()
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
