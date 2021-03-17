@@ -28,4 +28,4 @@ COPY --from=build /home/node/node_modules/ ./node_modules/
 COPY --from=build /home/node/dist/ ./src/
 
 ENV NODE_ENV=test
-RUN yarn run test
+RUN yarn run test:coverage
