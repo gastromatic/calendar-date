@@ -51,7 +51,7 @@ jobs:
       - name: Post coverage results to coveralls
         uses: coverallsapp/github-action@master
         with:
-          github-token: ${{ secrets.github_token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ${{ steps.extract.outputs.destination }}/lcov.info
           flag-name: run-with-node-version-${{ matrix.node-version }}
           parallel: true
@@ -62,7 +62,7 @@ jobs:
       - name: Finish coveralls parallel build
         uses: coverallsapp/github-action@master
         with:
-          github-token: ${{ secrets.github_token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
   release:
     if: "!contains(github.event.commits[0].message, '[skip ci]')"
