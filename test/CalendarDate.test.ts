@@ -130,23 +130,6 @@ describe('CalendarDate', () => {
         );
       });
     });
-
-    describe('input type: unix timestamp', () => {
-      test('Construct CalendarDate from unix timestamp', () => {
-        fc.assert(
-          fc.property(fc.integer(-10000000000, 10000000000), (timestamp) => {
-            // Arrange
-            const timestampOfDay = Math.floor(timestamp / DAY_IN_SECONDS) * DAY_IN_SECONDS;
-
-            // Act
-            const calendarDate = new CalendarDate(timestamp);
-
-            // Assert
-            expect(calendarDate.valueOf()).toBe(timestampOfDay);
-          }),
-        );
-      });
-    });
   });
 
   describe('Test of parseString', () => {

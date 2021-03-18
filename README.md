@@ -4,6 +4,7 @@ A calendar date is a date without time information, e.g. "2020-01-01".
 This library provides an immutable object to represent and work with a calendar date.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![npm version](https://badge.fury.io/js/calendar-date.svg)](https://badge.fury.io/js/calendar-date)
 [![Coverage Status](https://coveralls.io/repos/github/gastromatic/calendar-date/badge.svg?branch=main)](https://coveralls.io/github/gastromatic/calendar-date?branch=main)
 
 ## Why another date library?
@@ -45,12 +46,11 @@ npm install calendar-date
 
 ### CalendarDate
 
-You can construct a CalendarDate from a String `YYYY-MM-DD` according to ISO 8601, a unix timestamp in seconds or the year, month and date values.
+You can construct a CalendarDate from a String `YYYY-MM-DD` according to ISO 8601 or the year, month and date values.
 The following constructor calls return the same calendar date.
 
 ```typescript
 new CalendarDate('2020-01-01');
-new CalendarDate(1577833200);
 new CalendarDate(2020, 0, 1);
 ```
 

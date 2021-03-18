@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
 import { CalendarDate, CalendarDateRange } from 'calendar-date';
-import { DAY_IN_SECONDS, ensureValidDay } from './helpers';
+import { DAY_IN_SECONDS, ensureValidDay, unixTimestampToCalendarDate } from './helpers';
 
 describe('CalendarDateRange', () => {
   describe('Test of constructor', () => {
@@ -11,7 +11,7 @@ describe('CalendarDateRange', () => {
           (data) => {
             // Arrange
             const datesInOrder = data
-              .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+              .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
               .sort();
             const startDate = datesInOrder[1].addDays(1);
             const endDate = datesInOrder[0];
@@ -32,7 +32,7 @@ describe('CalendarDateRange', () => {
           (data) => {
             // Arrange
             const datesInOrder = data
-              .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+              .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
               .sort();
             const startDate = datesInOrder[0];
             const endDate = datesInOrder[1];
@@ -54,7 +54,9 @@ describe('CalendarDateRange', () => {
           fc.array(fc.integer(-100000, 100000), { minLength: 2, maxLength: 2 }),
           (data) => {
             // Arrange
-            const datesUnordered = data.map((number) => new CalendarDate(number * DAY_IN_SECONDS));
+            const datesUnordered = data.map((number) =>
+              unixTimestampToCalendarDate(number * DAY_IN_SECONDS),
+            );
             const startDate = datesUnordered[0];
             const endDate = datesUnordered[1];
             const differenceInDays = Math.abs(data[1] - data[0]);
@@ -311,7 +313,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRange = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
               const dateBefore = datesInOrder[0].addDays(-1);
@@ -332,7 +334,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRange = new CalendarDateRange(datesInOrder[0], datesInOrder[1]);
 
@@ -351,7 +353,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRange = new CalendarDateRange(datesInOrder[0], datesInOrder[1]);
 
@@ -370,7 +372,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRange = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
 
@@ -390,7 +392,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRangeBase = new CalendarDateRange(datesInOrder[1], datesInOrder[3]);
               const dateRangeInput = new CalendarDateRange(
@@ -412,7 +414,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
               const dateRangeInput = new CalendarDateRange(
@@ -434,7 +436,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRangeBase = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
               const dateRangeInput = new CalendarDateRange(
@@ -456,7 +458,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
               const dateRangeInput = new CalendarDateRange(datesInOrder[0], datesInOrder[1]);
@@ -476,7 +478,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
               const dateRangeInput = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
@@ -496,7 +498,7 @@ describe('CalendarDateRange', () => {
             (data) => {
               // Arrange
               const datesInOrder = data
-                .map((number) => new CalendarDate(number * DAY_IN_SECONDS))
+                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
                 .sort();
               const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[3]);
               const dateRangeInput = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
