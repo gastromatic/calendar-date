@@ -5,6 +5,31 @@ import { DAY_IN_SECONDS, ensureValidDay } from './helpers';
 describe('CalendarDate', () => {
   describe('Test of constructor', () => {
     describe('Input type: year/month/day', () => {
+      test('Throws error if second or third inputs are missing', () => {
+        fc.assert(
+          fc.property(
+            fc.integer(200, 9800),
+            fc.integer(0, 11),
+            fc.integer(1, 31),
+            (year, month, day) => {
+              // Arrange
+              const undefinedAsNumber: number = (undefined as unknown) as number;
+
+              // Assert
+              expect(
+                () => new CalendarDate(year, undefinedAsNumber, undefinedAsNumber),
+              ).toThrowError(`CalendarDate Validation Error: Input [ ${year} ] is not valid.`);
+              expect(() => new CalendarDate(year, month, undefinedAsNumber)).toThrowError(
+                `CalendarDate Validation Error: Input [ ${year} , ${month} ] is not valid.`,
+              );
+              expect(() => new CalendarDate(year, undefinedAsNumber, day)).toThrowError(
+                `CalendarDate Validation Error: Input [ ${year} , ${day} ] is not valid.`,
+              );
+            },
+          ),
+        );
+      });
+
       test('Throws error if year is below 0 or above 9999', () => {
         fc.assert(
           fc.property(

@@ -55,9 +55,9 @@ export class CalendarDate {
       }
     } else {
       throw new Error(
-        `CalendarDate Validation Error: Input ${[input1, input2, input3]
+        `CalendarDate Validation Error: Input [ ${[input1, input2, input3]
           .filter((input) => input !== undefined)
-          .join(', ')} is not a valid.`,
+          .join(' , ')} ] is not valid.`,
       );
     }
     this.unixTimestampInSeconds = new Date(`${this.toString()}T00:00:00.000Z`).getTime() / 1000;
