@@ -20,7 +20,6 @@ export class CalendarDate {
   readonly unixTimestampInSeconds!: number;
 
   constructor(isoString: string);
-  constructor(unixTimestampSeconds: number);
   constructor(year: number, month: number, day: number);
   /**
    * If you supply a Date object, it will take the values for year month and day for the local time.
@@ -55,7 +54,11 @@ export class CalendarDate {
         );
       }
     } else {
-      return CalendarDate.parse(new Date(input1 * 1000).toISOString().slice(0, 10));
+      throw new Error(
+        `CalendarDate Validation Error: Input ${[input1, input2, input3]
+          .filter((input) => input !== undefined)
+          .join(', ')} is not a valid.`,
+      );
     }
     this.unixTimestampInSeconds = new Date(`${this.toString()}T00:00:00.000Z`).getTime() / 1000;
     Object.freeze(this);
@@ -144,7 +147,9 @@ export class CalendarDate {
    * Allows overflow.
    */
   addDays(amount: number): CalendarDate {
-    return new CalendarDate(this.valueOf() + DAY_IN_SECONDS * amount);
+    return CalendarDate.parse(
+      new Date((this.valueOf() + DAY_IN_SECONDS * amount) * 1000).toISOString().slice(0, 10),
+    );
   }
 
   getLastDayOfMonth(): CalendarDate {
