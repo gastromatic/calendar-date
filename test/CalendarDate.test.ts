@@ -424,6 +424,7 @@ describe('CalendarDate', () => {
       // Assert
       expect(newDate.month).toBe(2);
       expect(newDate.day).toBe(3);
+      expect(newDate.year).toBe(2021);
     });
 
     test('The day should not overflow into the next month if enforceEndOfMonth is set to true', () => {
