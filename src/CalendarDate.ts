@@ -136,8 +136,8 @@ export class CalendarDate {
       day = Math.min(maxDayOfMonth, day);
     } else if (day > maxDayOfMonth) {
       day = day - maxDayOfMonth;
-      month = (month + 1) % 12;
       year = year + Math.floor((month + 1) / 12);
+      month = (month + 1) % 12;
     }
     return new CalendarDate(year, month, day);
   }
