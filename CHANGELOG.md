@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/gastromatic/calendar-date/compare/v1.1.1...v1.1.2) (2021-03-22)
+
+
+### Bug Fixes
+
+* addMonths not returning correct year for overflow into december 564e2dd
+
 ## [1.1.1](https://github.com/gastromatic/calendar-date/compare/v1.1.0...v1.1.1) (2021-03-18)
 
 
