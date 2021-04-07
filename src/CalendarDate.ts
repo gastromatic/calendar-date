@@ -92,13 +92,10 @@ export class CalendarDate {
         'CalendarDate.max Validation Error: Function max requires at least one input argument.',
       );
     }
-    let maxCalendarDate = values[0];
-    values.forEach((value) => {
-      if (value > maxCalendarDate) {
-        maxCalendarDate = value;
-      }
-    });
-    return maxCalendarDate;
+    return values.reduce(
+      (maxValue, currentValue) => (currentValue > maxValue ? currentValue : maxValue),
+      values[0],
+    );
   }
 
   static min(...values: CalendarDate[]): CalendarDate {
@@ -107,13 +104,10 @@ export class CalendarDate {
         'CalendarDate.min Validation Error: Function min requires at least one input argument.',
       );
     }
-    let minCalendarDate = values[0];
-    values.forEach((value) => {
-      if (value < minCalendarDate) {
-        minCalendarDate = value;
-      }
-    });
-    return minCalendarDate;
+    return values.reduce(
+      (minValue, currentValue) => (currentValue < minValue ? currentValue : minValue),
+      values[0],
+    );
   }
 
   /**

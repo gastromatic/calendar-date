@@ -351,7 +351,7 @@ describe('CalendarDate', () => {
           fc.array(fc.integer(200, 9800), { maxLength: 10, minLength: 10 }),
           fc.array(fc.integer(0, 11), { maxLength: 10, minLength: 10 }),
           fc.array(fc.integer(1, 31), { maxLength: 10, minLength: 10 }),
-          fc.integer(2, 10),
+          fc.integer(1, 10),
           (years, months, days, amount) => {
             // Arrange
             const calendarDates = Array.from(Array(amount).keys()).map(
@@ -362,15 +362,15 @@ describe('CalendarDate', () => {
                   ensureValidDay(years[idx], months[idx], days[idx]),
                 ),
             );
-            let maxCalendarDate = calendarDates[0];
-            calendarDates.forEach((d) => {
-              if (d > maxCalendarDate) {
-                maxCalendarDate = d;
-              }
-            });
+            const maxCalendarDate = new CalendarDate(
+              9801,
+              months[0],
+              ensureValidDay(199, months[0], days[0]),
+            );
 
             // Assert
-            expect(CalendarDate.max(...calendarDates)).toBe(maxCalendarDate);
+            expect(CalendarDate.max(...calendarDates, maxCalendarDate)).toBe(maxCalendarDate);
+            expect(CalendarDate.max(maxCalendarDate, ...calendarDates)).toBe(maxCalendarDate);
           },
         ),
       );
@@ -407,7 +407,7 @@ describe('CalendarDate', () => {
           fc.array(fc.integer(200, 9800), { maxLength: 10, minLength: 10 }),
           fc.array(fc.integer(0, 11), { maxLength: 10, minLength: 10 }),
           fc.array(fc.integer(1, 31), { maxLength: 10, minLength: 10 }),
-          fc.integer(2, 10),
+          fc.integer(1, 10),
           (years, months, days, amount) => {
             // Arrange
             const calendarDates = Array.from(Array(amount).keys()).map(
@@ -418,15 +418,15 @@ describe('CalendarDate', () => {
                   ensureValidDay(years[idx], months[idx], days[idx]),
                 ),
             );
-            let minCalendarDate = calendarDates[0];
-            calendarDates.forEach((d) => {
-              if (d < minCalendarDate) {
-                minCalendarDate = d;
-              }
-            });
+            const minCalendarDate = new CalendarDate(
+              199,
+              months[0],
+              ensureValidDay(199, months[0], days[0]),
+            );
 
             // Assert
-            expect(CalendarDate.min(...calendarDates)).toBe(minCalendarDate);
+            expect(CalendarDate.min(...calendarDates, minCalendarDate)).toBe(minCalendarDate);
+            expect(CalendarDate.min(minCalendarDate, ...calendarDates)).toBe(minCalendarDate);
           },
         ),
       );
