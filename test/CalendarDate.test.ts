@@ -364,7 +364,7 @@ describe('CalendarDate', () => {
             );
             let maxCalendarDate = calendarDates[0];
             calendarDates.forEach((d) => {
-              if (d.unixTimestampInSeconds > maxCalendarDate.unixTimestampInSeconds) {
+              if (d > maxCalendarDate) {
                 maxCalendarDate = d;
               }
             });
@@ -420,7 +420,7 @@ describe('CalendarDate', () => {
             );
             let minCalendarDate = calendarDates[0];
             calendarDates.forEach((d) => {
-              if (d.unixTimestampInSeconds < minCalendarDate.unixTimestampInSeconds) {
+              if (d < minCalendarDate) {
                 minCalendarDate = d;
               }
             });
