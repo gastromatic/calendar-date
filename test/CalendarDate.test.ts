@@ -321,6 +321,118 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of max', () => {
+    test('Throws Error for no input arguments', () => {
+      expect(() => CalendarDate.max()).toThrowError(
+        'CalendarDate.max Validation Error: Function max requires at least one input argument.',
+      );
+    });
+
+    test('Returns input value for 1 input argument', () => {
+      fc.assert(
+        fc.property(
+          fc.integer(200, 9800),
+          fc.integer(0, 11),
+          fc.integer(1, 31),
+          (year, month, day) => {
+            // Arrange
+            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+
+            // Assert
+            expect(CalendarDate.max(calendarDate)).toBe(calendarDate);
+          },
+        ),
+      );
+    });
+
+    test('Returns the calendarDate from the inputs with the highest unixTimestamp', () => {
+      fc.assert(
+        fc.property(
+          fc.array(fc.integer(200, 9800), { maxLength: 10, minLength: 10 }),
+          fc.array(fc.integer(0, 11), { maxLength: 10, minLength: 10 }),
+          fc.array(fc.integer(1, 31), { maxLength: 10, minLength: 10 }),
+          fc.integer(1, 10),
+          (years, months, days, amount) => {
+            // Arrange
+            const calendarDates = Array.from(Array(amount).keys()).map(
+              (idx) =>
+                new CalendarDate(
+                  years[idx],
+                  months[idx],
+                  ensureValidDay(years[idx], months[idx], days[idx]),
+                ),
+            );
+            const maxCalendarDate = new CalendarDate(
+              9801,
+              months[0],
+              ensureValidDay(199, months[0], days[0]),
+            );
+
+            // Assert
+            expect(CalendarDate.max(...calendarDates, maxCalendarDate)).toBe(maxCalendarDate);
+            expect(CalendarDate.max(maxCalendarDate, ...calendarDates)).toBe(maxCalendarDate);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of min', () => {
+    test('Throws Error for no input arguments', () => {
+      expect(() => CalendarDate.min()).toThrowError(
+        'CalendarDate.min Validation Error: Function min requires at least one input argument.',
+      );
+    });
+
+    test('Returns input value for 1 input argument', () => {
+      fc.assert(
+        fc.property(
+          fc.integer(200, 9800),
+          fc.integer(0, 11),
+          fc.integer(1, 31),
+          (year, month, day) => {
+            // Arrange
+            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+
+            // Assert
+            expect(CalendarDate.min(calendarDate)).toBe(calendarDate);
+          },
+        ),
+      );
+    });
+
+    test('Returns the calendarDate from the inputs with the lowest unixTimestamp', () => {
+      fc.assert(
+        fc.property(
+          fc.array(fc.integer(200, 9800), { maxLength: 10, minLength: 10 }),
+          fc.array(fc.integer(0, 11), { maxLength: 10, minLength: 10 }),
+          fc.array(fc.integer(1, 31), { maxLength: 10, minLength: 10 }),
+          fc.integer(1, 10),
+          (years, months, days, amount) => {
+            // Arrange
+            const calendarDates = Array.from(Array(amount).keys()).map(
+              (idx) =>
+                new CalendarDate(
+                  years[idx],
+                  months[idx],
+                  ensureValidDay(years[idx], months[idx], days[idx]),
+                ),
+            );
+            const minCalendarDate = new CalendarDate(
+              199,
+              months[0],
+              ensureValidDay(199, months[0], days[0]),
+            );
+
+            // Assert
+            expect(CalendarDate.min(...calendarDates, minCalendarDate)).toBe(minCalendarDate);
+            expect(CalendarDate.min(minCalendarDate, ...calendarDates)).toBe(minCalendarDate);
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of getFirstDayOfMonth', () => {
     test('Returns new instance with same year and month but day set to 1', () => {
       fc.assert(

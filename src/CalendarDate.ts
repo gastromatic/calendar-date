@@ -86,6 +86,30 @@ export class CalendarDate {
     return new CalendarDate(parseInt(split[0]), parseInt(split[1]) - 1, parseInt(split[2]));
   }
 
+  static max(...values: CalendarDate[]): CalendarDate {
+    if (!values?.length) {
+      throw new Error(
+        'CalendarDate.max Validation Error: Function max requires at least one input argument.',
+      );
+    }
+    return values.reduce(
+      (maxValue, currentValue) => (currentValue > maxValue ? currentValue : maxValue),
+      values[0],
+    );
+  }
+
+  static min(...values: CalendarDate[]): CalendarDate {
+    if (!values?.length) {
+      throw new Error(
+        'CalendarDate.min Validation Error: Function min requires at least one input argument.',
+      );
+    }
+    return values.reduce(
+      (minValue, currentValue) => (currentValue < minValue ? currentValue : minValue),
+      values[0],
+    );
+  }
+
   /**
    * Returns the ISO string representation yyyy-MM-dd
    */
