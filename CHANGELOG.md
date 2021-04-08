@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/gastromatic/calendar-date/compare/v1.2.0...v1.3.0) (2021-04-08)
+
+
+### Features
+
+* add methods to check for last and first of month 0711de4
+
 # [1.2.0](https://github.com/gastromatic/calendar-date/compare/v1.1.2...v1.2.0) (2021-04-07)
 
 
