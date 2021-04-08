@@ -188,6 +188,14 @@ export class CalendarDate {
     return new CalendarDate(this.year, this.month, 1);
   }
 
+  isFirstDayOfMonth(): boolean {
+    return this.day === 1;
+  }
+
+  isLastDayOfMonth(): boolean {
+    return this.day === CalendarDate.getMaxDayOfMonth(this.year, this.month);
+  }
+
   /**
    * subtracts the input CalendarDate from this CalendarDate and returns the difference in days
    */
