@@ -500,6 +500,87 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of isFirstDayOfMonth', () => {
+    test('Returns true if the day is 1', () => {
+      fc.assert(
+        fc.property(fc.integer(200, 9900), fc.integer(0, 11), (year, month) => {
+          // Arrange
+          const calendarDate = new CalendarDate(year, month, 1);
+
+          // Act
+          const firstOfMonth = calendarDate.isFirstDayOfMonth();
+
+          // Assert
+          expect(firstOfMonth).toEqual(true);
+        }),
+      );
+    });
+
+    test('Returns false if the day is not equal to 1', () => {
+      fc.assert(
+        fc.property(
+          fc.integer(200, 9900),
+          fc.integer(0, 11),
+          fc.integer(2, 31),
+          (year, month, day) => {
+            /// Arrange
+            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+
+            // Act
+            const firstOfMonth = calendarDate.isFirstDayOfMonth();
+
+            // Assert
+            expect(firstOfMonth).toEqual(false);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of isLastDayOfMonth', () => {
+    test('Returns true if the day is the last day of the month', () => {
+      fc.assert(
+        fc.property(fc.integer(200, 9900), fc.integer(0, 11), (year, month) => {
+          // Arrange
+          const calendarDate = new CalendarDate(
+            year,
+            month,
+            CalendarDate.getMaxDayOfMonth(year, month),
+          );
+
+          // Act
+          const lastDayOfMonth = calendarDate.isLastDayOfMonth();
+
+          // Assert
+          expect(lastDayOfMonth).toEqual(true);
+        }),
+      );
+    });
+
+    test('Returns false if the day is not the last day of the month', () => {
+      fc.assert(
+        fc.property(
+          fc.integer(200, 9900),
+          fc.integer(0, 11),
+          fc.integer(1, 30),
+          (year, month, day) => {
+            /// Arrange
+            let calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+            if (calendarDate.day === CalendarDate.getMaxDayOfMonth(year, month)) {
+              calendarDate = calendarDate.addDays(-1);
+            }
+
+            // Act
+            const lastDayOfMonth = calendarDate.isLastDayOfMonth();
+
+            // Assert
+            expect(lastDayOfMonth).toEqual(false);
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of addMonths', () => {
     test('The day is always the same for the new date and the base date if the base day is 28 or lower', () => {
       fc.assert(
