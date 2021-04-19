@@ -23,29 +23,6 @@
       "calendar-date": "<rootDir>/src"
     }
   },
-  "release": {
-    "branches": [
-      "main"
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      [
-        "@semantic-release/release-notes-generator",
-        {
-          "linkReferences": false
-        }
-      ],
-      "@semantic-release/changelog",
-      "@semantic-release/npm",
-      [
-        "@semantic-release/git",
-        {
-          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-        }
-      ],
-      "@semantic-release/github"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/gastromatic/calendar-date.git"
@@ -63,15 +40,6 @@
     "url": "https://github.com/gastromatic/calendar-date/issues"
   },
   "homepage": "https://github.com/gastromatic/calendar-date#readme",
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "lint-staged": {
-    "*.ts": "eslint --fix",
-    "*.{ts, json}": "prettier --write"
-  },
   "devDependencies": {
     "@commitlint/cli": "^12.0.1",
     "@commitlint/config-conventional": "^12.0.1",
