@@ -1,10 +1,14 @@
 .github/
 .husky/
 test/
+.commitlintrc.yml
 .eslintignore
 .eslintrc.json
 .gitignore
+.lintstagedrc.yml
 .prettierrc.yml
+.releaserc.yml
+jest.config.ts
 Dockerfile
 tsconfig.build.json
 tsconfig.json
