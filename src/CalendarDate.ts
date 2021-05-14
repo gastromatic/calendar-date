@@ -120,6 +120,30 @@ export class CalendarDate {
   }
 
   /**
+   * Returns a string representation formatted according to the specified format string.
+   * Supports the following Tokens:
+   *
+   * - **yyyy**: four digit year
+   * - **yy**: two digit year
+   * - **y**: year without padding
+   * - **MM**: month padded to 2 digits
+   * - **M**: month without padding
+   * - **dd**: day padded to 2 digits
+   * - **d**: day without padding
+   *
+   */
+  toFormat(pattern: string): string {
+    return pattern
+      .replace(/yyyy/g, this.year.toString().padStart(4, '0'))
+      .replace(/yy/g, this.year.toString().slice(-2).padStart(2, '0'))
+      .replace(/y/g, this.year.toString())
+      .replace(/MM/g, (this.month + 1).toString().padStart(2, '0'))
+      .replace(/M/g, (this.month + 1).toString())
+      .replace(/dd/g, this.day.toString().padStart(2, '0'))
+      .replace(/d/g, this.day.toString());
+  }
+
+  /**
    * Used by JSON stringify method.
    */
   toJSON(): string {

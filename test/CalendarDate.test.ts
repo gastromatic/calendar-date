@@ -234,6 +234,20 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of toFormat', () => {
+    test('Should replace all supported tokens correctly', () => {
+      // Assert
+      expect(new CalendarDate('2020-01-05').toFormat('dd:MM:yyyy')).toBe('05:01:2020');
+      expect(new CalendarDate('2020-01-05').toFormat('yyyy-MM-dd')).toBe('2020-01-05');
+      expect(new CalendarDate('1920-01-05').toFormat('MM::dd::yy')).toBe('01::05::20');
+      expect(new CalendarDate('2020-01-05').toFormat('d_M_y')).toBe('5_1_2020');
+      expect(new CalendarDate('2020-11-20').toFormat('d.M.y')).toBe('20.11.2020');
+      expect(new CalendarDate('2020-01-05').toFormat('dd:MM:yyyy , dd-MM-yyyy')).toBe(
+        '05:01:2020 , 05-01-2020',
+      );
+    });
+  });
+
   describe('Test of toJSON', () => {
     test('The returned string is the same as from toString', () => {
       fc.assert(
