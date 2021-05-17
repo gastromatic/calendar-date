@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/gastromatic/calendar-date/compare/v1.3.0...v1.4.0) (2021-05-17)
+
+
+### Features
+
+* add toFormat function 17b9b37
+
 # [1.3.0](https://github.com/gastromatic/calendar-date/compare/v1.2.0...v1.3.0) (2021-04-08)
 
 
