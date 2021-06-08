@@ -19,11 +19,22 @@ export class CalendarDate {
    */
   readonly unixTimestampInSeconds!: number;
 
-  constructor(isoString: string);
-  constructor(year: number, month: number, day: number);
   /**
-   * If you supply a Date object, it will take the values for year month and day for the local time.
+   * Throws an Error for invalid inputs.
+   *
+   * @param isoString Format: yyyy-MM-dd
    */
+  constructor(isoString: string);
+
+  /**
+   * Throws an Error for invalid inputs.
+   *
+   * @param year Integer between 1 - 9999, other inputs may lead to unstable behaviour
+   * @param month Integer between 0-11
+   * @param day Integer between 1-31
+   */
+  constructor(year: number, month: number, day: number);
+
   constructor(input1: string | number, input2?: number, input3?: number) {
     if (typeof input1 === 'string') {
       return CalendarDate.parse(input1);
