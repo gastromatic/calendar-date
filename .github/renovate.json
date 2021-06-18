@@ -1,0 +1,24 @@
+{
+  "extends": ["config:base"],
+  "assignees": ["p.klein@gastromatic.de", "d.saplatkin@gastromatic.de"],
+  "assigneesSampleSize": 1,
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "groupName": "devDependencies (non-major)",
+      "addLabels": ["devDependencies"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "schedule": ["before 8am on Monday"]
+    },
+    {
+      "groupName": "devDependencies",
+      "addLabels": ["devDependencies"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["major"]
+    }
+  ],
+  "schedule": ["before 8am"]
+}
