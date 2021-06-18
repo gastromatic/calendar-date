@@ -13,7 +13,7 @@ describe('CalendarDate', () => {
             fc.integer(1, 31),
             (year, month, day) => {
               // Arrange
-              const undefinedAsNumber: number = (undefined as unknown) as number;
+              const undefinedAsNumber: number = undefined as unknown as number;
 
               // Assert
               expect(
