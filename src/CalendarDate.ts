@@ -43,20 +43,20 @@ export class CalendarDate {
       this.year = input1;
       this.month = input2;
       this.day = input3;
-      if (this.year < 0 || this.year > 9999) {
+      if (!Number.isInteger(this.year) || this.year < 0 || this.year > 9999) {
         throw new Error(
-          `CalendarDate Validation Error: Input year ${this.year} is not valid. Year must be a number between 0 and 9999.`,
+          `CalendarDate Validation Error: Input year ${this.year} is not valid. Year must be an integer between 0 and 9999.`,
         );
       }
-      if (this.month < 0 || this.month > 11) {
+      if (!Number.isInteger(this.month) || this.month < 0 || this.month > 11) {
         throw new Error(
-          `CalendarDate Validation Error: Input month ${this.month} is not valid. Month must be a number between 0 and 11.`,
+          `CalendarDate Validation Error: Input month ${this.month} is not valid. Month must be an integer between 0 and 11.`,
         );
       }
       const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(this.year, this.month);
-      if (this.day < 1) {
+      if (!Number.isInteger(this.day) || this.day < 1) {
         throw new Error(
-          `CalendarDate Validation Error: Input day ${this.day} is not valid. Day must be a number greater than 0.`,
+          `CalendarDate Validation Error: Input day ${this.day} is not valid. Day must be an integer greater than 0.`,
         );
       }
       if (this.day > maxDayOfMonth) {
