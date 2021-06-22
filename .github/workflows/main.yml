@@ -86,8 +86,9 @@ jobs:
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
           script: |
-            await github.repos.removeProtectedBranchAdminEnforcement({
-              ...context.repo,
+            await github.repos.deleteAdminBranchProtection({
+              repo: '${{ github.event.repository.name }}',
+              owner: '${{ github.repository_owner }}',
               branch: 'main',
             });
       - run: npx semantic-release
@@ -100,7 +101,8 @@ jobs:
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
           script: |
-            await github.repos.addProtectedBranchAdminEnforcement({
-              ...context.repo,
+            await github.repos.setAdminBranchProtection({
+              repo: '${{ github.event.repository.name }}',
+              owner: '${{ github.repository_owner }}',
               branch: 'main',
             });
