@@ -82,12 +82,13 @@ jobs:
       - name: Build
         run: yarn build
       - name: Disable protection temporary
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v4.0.2
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
           script: |
-            await github.repos.removeProtectedBranchAdminEnforcement({
-              ...context.repo,
+            await github.repos.deleteAdminBranchProtection({
+              repo: '${{ github.event.repository.name }}',
+              owner: '${{ github.repository_owner }}',
               branch: 'main',
             });
       - run: npx semantic-release
@@ -95,12 +96,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GASTROBOT_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Restore protection
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v4.0.2
         if: always()
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
           script: |
-            await github.repos.addProtectedBranchAdminEnforcement({
-              ...context.repo,
+            await github.repos.setAdminBranchProtection({
+              repo: '${{ github.event.repository.name }}',
+              owner: '${{ github.repository_owner }}',
               branch: 'main',
             });
