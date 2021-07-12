@@ -20,5 +20,6 @@
       "matchUpdateTypes": ["major"]
     }
   ],
+  "ignoreDeps": ["husky"],
   "schedule": ["before 8am"]
 }
