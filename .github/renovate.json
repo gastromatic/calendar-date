@@ -1,7 +1,7 @@
 {
   "extends": ["config:base"],
-  "assignees": ["p.klein@gastromatic.de", "d.saplatkin@gastromatic.de"],
-  "assigneesSampleSize": 1,
+  "reviewers": ["p.klein@gastromatic.de", "d.saplatkin@gastromatic.de"],
+  "reviewersSampleSize": 1,
   "dependencyDashboard": true,
   "labels": ["dependencies"],
   "packageRules": [
