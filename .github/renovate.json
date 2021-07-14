@@ -1,6 +1,6 @@
 {
   "extends": ["config:base"],
-  "reviewers": ["p.klein@gastromatic.de", "d.saplatkin@gastromatic.de"],
+  "reviewers": ["co-sic", "dimitriSaplatkin"],
   "reviewersSampleSize": 1,
   "dependencyDashboard": true,
   "labels": ["dependencies"],
