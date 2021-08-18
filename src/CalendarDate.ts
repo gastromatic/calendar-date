@@ -98,7 +98,7 @@ export class CalendarDate {
   }
 
   static max(...values: CalendarDate[]): CalendarDate {
-    if (!values?.length) {
+    if (!values.length) {
       throw new Error(
         'CalendarDate.max Validation Error: Function max requires at least one input argument.',
       );
@@ -110,7 +110,7 @@ export class CalendarDate {
   }
 
   static min(...values: CalendarDate[]): CalendarDate {
-    if (!values?.length) {
+    if (!values.length) {
       throw new Error(
         'CalendarDate.min Validation Error: Function min requires at least one input argument.',
       );
