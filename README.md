@@ -81,19 +81,52 @@ new CalendarDate('2020-01-01').addDays(15);     // 2020-01-16
 
 #### getLastDayOfMonth, getFirstDayOfMonth
 Returns a new CalendarDate with the first or last day of the month.
+
 ```typescript
 new CalendarDate('2020-01-15').getFirstDayOfMonth();    // 2020-01-01
 new CalendarDate('2020-01-15').getLastDayOfMonth();     // 2020-01-31
 ```
 
+#### isFirstDayOfMonth, isLastDayOfMonth
+Returns true if the CalendarDate is the first day of the month / last day of the month;
+
+```typescript
+new CalendarDate('2020-01-15').isFirstDayOfMonth();   // false
+new CalendarDate('2020-01-01').isFirstDayOfMonth();   // true
+new CalendarDate('2020-01-30').isLastDayOfMonth();    // false
+new CalendarDate('2020-01-31').isLastDayOfMonth();    // true
+```
+
 #### getDifferenceInDays
 Returns the difference in days between to CalendarDate objects.
 It will subtract the input date from the base date. If you supply the optional `absolute` parameter it will always return a positive value.
+
 ```typescript
 const date1 = new CalendarDate('2020-01-01');
 const date2 = new CalendarDate('2020-02-01');
 date1.getDifferenceInDays(date2);       // -31
 date1.getDifferenceInDays(date2, true); // 31
+```
+
+#### max, min
+Returns the max/min CalendarDate for an array of CalendarDates.
+
+```typescript
+const date1 = new CalendarDate('2020-01-01');
+const date2 = new CalendarDate('2020-02-01');
+const date3 = new CalendarDate('2021-01-01');
+const maxDate = CalendarDate.max(date1, date2, date3); // 2021-01-01
+```
+
+#### toFormat
+Returns the formatted string based on a provided pattern.
+
+```typescript
+const date1 = new CalendarDate('2020-06-01');
+date1.format('dd.MM.yy');     // 01.06.20
+date1.format('d-M-yy');       // 1.6.20
+date1.format('yyyy/dd/MM');   // 2020/01/06
+
 ```
 
 ### CalendarDateRange
