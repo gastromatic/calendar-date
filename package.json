@@ -46,17 +46,17 @@
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
     "@types/jest": "27.0.1",
-    "@typescript-eslint/eslint-plugin": "4.29.2",
-    "@typescript-eslint/parser": "4.29.2",
+    "@typescript-eslint/eslint-plugin": "4.29.3",
+    "@typescript-eslint/parser": "4.29.3",
     "eslint": "7.32.0",
     "fast-check": "2.17.0",
-    "husky": "7.0.1",
-    "jest": "27.0.6",
+    "husky": "7.0.2",
+    "jest": "27.1.0",
     "lint-staged": "11.1.2",
     "prettier": "2.3.2",
     "rimraf": "3.0.2",
     "ts-jest": "27.0.5",
     "ts-node": "10.2.1",
-    "typescript": "4.3.5"
+    "typescript": "4.4.2"
   }
 }
