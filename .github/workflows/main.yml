@@ -86,7 +86,7 @@ jobs:
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
           script: |
-            await github.repos.deleteAdminBranchProtection({
+            await github.rest.repos.deleteAdminBranchProtection({
               repo: '${{ github.event.repository.name }}',
               owner: '${{ github.repository_owner }}',
               branch: 'main',
@@ -101,7 +101,7 @@ jobs:
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
           script: |
-            await github.repos.setAdminBranchProtection({
+            await github.rest.repos.setAdminBranchProtection({
               repo: '${{ github.event.repository.name }}',
               owner: '${{ github.repository_owner }}',
               branch: 'main',
