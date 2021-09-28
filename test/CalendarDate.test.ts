@@ -157,6 +157,36 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of nowUTC', () => {
+    test('should return calendar date object for the current UTC Date', () => {
+      // Arrange
+      const date = new Date();
+
+      // Act
+      const calendarDate = CalendarDate.nowUTC();
+
+      // Assert
+      expect(calendarDate.year).toBe(date.getUTCFullYear());
+      expect(calendarDate.month).toBe(date.getUTCMonth());
+      expect(calendarDate.day).toBe(date.getUTCDate());
+    });
+  });
+
+  describe('Test of nowLocal', () => {
+    test('should return calendar date object for the current Local Date', () => {
+      // Arrange
+      const date = new Date();
+
+      // Act
+      const calendarDate = CalendarDate.nowLocal();
+
+      // Assert
+      expect(calendarDate.year).toBe(date.getFullYear());
+      expect(calendarDate.month).toBe(date.getMonth());
+      expect(calendarDate.day).toBe(date.getDate());
+    });
+  });
+
   describe('Test of parseString', () => {
     test('Should throw error if input is not a valid iso string', () => {
       fc.assert(

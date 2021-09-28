@@ -54,6 +54,13 @@ new CalendarDate('2020-01-01');
 new CalendarDate(2020, 0, 1);
 ```
 
+You can also get the current UTC CalendarDate, and the current local CalendarDate based on the timezone of your local environment with the static methods `nowUTC` and `nowLocal`
+
+```typescript
+CalendarDate.nowUTC();
+CalendarDate.nowLocal();
+```
+
 The year, month, day and unix timestamp can be accessed as read-only properties on the object.
 
 To compare to CalendarDate objects you can use the `equals` function or `>=` and `<=` operators.
