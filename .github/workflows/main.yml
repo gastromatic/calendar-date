@@ -47,7 +47,7 @@ jobs:
           path: '**/node_modules'
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-modules-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-engines
       - name: Run Tests with coverage
         run: yarn test:coverage
       - name: Post coverage results to coveralls
