@@ -13,12 +13,12 @@ There are a lot of date libraries in the javascript world, but there is currentl
 Most SQL Databases like MySQL and PostgreSQL have a datatype for representing a date without time information.
 
 Using the built-in date object for a calendar date poses a number of disadvantages:
-- If you are using typescript you can not tell if the object is representing a timestamp or a calendar date by looking at the type definition.
-- If you want to compare two date objects it's harder to do it without knowing if the time and timezone information are the same.
+- If you are using typescript you can not tell if the object is representing a timestamp, or a calendar date by looking at the type definition.
+- If you want to compare two date objects it is harder to do it without knowing if the time and timezone information are the same.
 - Overhead by including time and timezone information in the representation.
 - Error prone when working with different timezones and converting from and to Strings.
-  For example `new Date(2020, 0, 1)` and `new Date('2020-01-01')` return date objects with a difference of one hour.
-  If you call `toISOString()` on date objects it would return `2019-12-31T23:00:00.000Z` for the first and `2020-01-01T00:00:00.000Z` for the second.
+  For example `new Date(2020, 0, 1)` and `new Date('2020-01-01')` return different Date objects depending on your local timezone.
+  If you call `toISOString()` on both date objects based on a timezone of UTC+1 it would return `2019-12-31T23:00:00.000Z` for the first and `2020-01-01T00:00:00.000Z` for the second.
   
 ## Features
 
@@ -46,7 +46,7 @@ npm install calendar-date
 
 ### CalendarDate
 
-You can construct a CalendarDate from a String `YYYY-MM-DD` according to ISO 8601 or the year, month and date values.
+You can construct a CalendarDate from a String `YYYY-MM-DD` according to ISO 8601 or the year, month and day values.
 The following constructor calls return the same calendar date.
 
 ```typescript
