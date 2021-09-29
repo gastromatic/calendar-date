@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/gastromatic/calendar-date/compare/v1.4.0...v1.5.0) (2021-09-29)
+
+
+### Features
+
+* add static constructor for nowLocal and nowUTC ([f14f93c](https://github.com/gastromatic/calendar-date/commit/f14f93c68ebf3e09a283a7385d328e4412669968))
+
 # [1.4.0](https://github.com/gastromatic/calendar-date/compare/v1.3.0...v1.4.0) (2021-05-17)
 
 
