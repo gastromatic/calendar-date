@@ -12,7 +12,7 @@ jobs:
       - name: Commit Lint
         uses: wagoid/commitlint-github-action@v4
       - name: PR Lint
-        uses: amannn/action-semantic-pull-request@v3.4.2
+        uses: amannn/action-semantic-pull-request@v3.4.6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   code-lint:
