@@ -7,7 +7,7 @@ describe('CalendarDateRange', () => {
     test('Throw Error if end date is before start date', () => {
       fc.assert(
         fc.property(
-          fc.array(fc.integer(-100000, 100000), { minLength: 2, maxLength: 2 }),
+          fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
           (data) => {
             // Arrange
             const datesInOrder = data
@@ -28,7 +28,7 @@ describe('CalendarDateRange', () => {
     test('Construct new CalendarDateRange instance if end date ist equal to or after start date', () => {
       fc.assert(
         fc.property(
-          fc.array(fc.integer(-100000, 100000), { minLength: 2, maxLength: 2 }),
+          fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
           (data) => {
             // Arrange
             const datesInOrder = data
@@ -51,7 +51,7 @@ describe('CalendarDateRange', () => {
     test('Construct new CalendarDateRange instance with autoArrange option regardless of the order of end and start date if ', () => {
       fc.assert(
         fc.property(
-          fc.array(fc.integer(-100000, 100000), { minLength: 2, maxLength: 2 }),
+          fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
           (data) => {
             // Arrange
             const datesUnordered = data.map((number) =>
@@ -90,12 +90,12 @@ describe('CalendarDateRange', () => {
     test('Returns a new CalendarDateRange instance for a valid iso string input', () => {
       fc.assert(
         fc.property(
-          fc.integer(200, 9900),
-          fc.integer(200, 9900),
-          fc.integer(0, 11),
-          fc.integer(0, 11),
-          fc.integer(1, 31),
-          fc.integer(1, 31),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
             // Arrange
             const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
@@ -118,12 +118,12 @@ describe('CalendarDateRange', () => {
     test('The returned string is in ISO format', () => {
       fc.assert(
         fc.property(
-          fc.integer(200, 9900),
-          fc.integer(200, 9900),
-          fc.integer(0, 11),
-          fc.integer(0, 11),
-          fc.integer(1, 31),
-          fc.integer(1, 31),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
             // Arrange
             const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
@@ -150,12 +150,12 @@ describe('CalendarDateRange', () => {
     test('The returned string is the same as from toString', () => {
       fc.assert(
         fc.property(
-          fc.integer(200, 9900),
-          fc.integer(200, 9900),
-          fc.integer(0, 11),
-          fc.integer(0, 11),
-          fc.integer(1, 31),
-          fc.integer(1, 31),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
             // Arrange
             const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
@@ -174,12 +174,12 @@ describe('CalendarDateRange', () => {
     test('Returns true if the input date range has the same start and end date', () => {
       fc.assert(
         fc.property(
-          fc.integer(200, 9900),
-          fc.integer(200, 9900),
-          fc.integer(0, 11),
-          fc.integer(0, 11),
-          fc.integer(1, 31),
-          fc.integer(1, 31),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
             // Arrange
             const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
@@ -197,13 +197,13 @@ describe('CalendarDateRange', () => {
     test('Returns false if the input date range has a different start date.', () => {
       fc.assert(
         fc.property(
-          fc.integer(200, 9900),
-          fc.integer(200, 9900),
-          fc.integer(0, 11),
-          fc.integer(0, 11),
-          fc.integer(1, 31),
-          fc.integer(1, 31),
-          fc.integer(-1000, -1),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: -1000, max: -1 }),
           (year1, year2, month1, month2, day1, day2, offset) => {
             // Arrange
             const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
@@ -225,13 +225,13 @@ describe('CalendarDateRange', () => {
     test('Returns false if the input date range has a different end date.', () => {
       fc.assert(
         fc.property(
-          fc.integer(200, 9900),
-          fc.integer(200, 9900),
-          fc.integer(0, 11),
-          fc.integer(0, 11),
-          fc.integer(1, 31),
-          fc.integer(1, 31),
-          fc.integer(1, 1000),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 1000 }),
           (year1, year2, month1, month2, day1, day2, offset) => {
             // Arrange
             const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
@@ -253,14 +253,14 @@ describe('CalendarDateRange', () => {
     test('Returns false if the input date range has a different start and end date.', () => {
       fc.assert(
         fc.property(
-          fc.integer(200, 9900),
-          fc.integer(200, 9900),
-          fc.integer(0, 11),
-          fc.integer(0, 11),
-          fc.integer(1, 31),
-          fc.integer(1, 31),
-          fc.integer(-1000, -1),
-          fc.integer(1, 1000),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: -1000, max: -1 }),
+          fc.integer({ min: 1, max: 1000 }),
           (year1, year2, month1, month2, day1, day2, offset1, offset2) => {
             // Arrange
             const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
@@ -284,12 +284,12 @@ describe('CalendarDateRange', () => {
     test('Result should always be equal to or greater than zero', () => {
       fc.assert(
         fc.property(
-          fc.integer(200, 9900),
-          fc.integer(200, 9900),
-          fc.integer(0, 11),
-          fc.integer(0, 11),
-          fc.integer(1, 31),
-          fc.integer(1, 31),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
             // Arrange
             const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
@@ -309,7 +309,7 @@ describe('CalendarDateRange', () => {
       test('Return false if the input date is before the start date or after the end date of the dateRange', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 4, maxLength: 4 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
             (data) => {
               // Arrange
               const datesInOrder = data
@@ -330,7 +330,7 @@ describe('CalendarDateRange', () => {
       test('Return false if the input date is the same as the start date of the dateRange and excludeStart option is true', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 2, maxLength: 2 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
             (data) => {
               // Arrange
               const datesInOrder = data
@@ -349,7 +349,7 @@ describe('CalendarDateRange', () => {
       test('Return false if the input date is the same as the end date of the dateRange and excludeEnd option is true', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 2, maxLength: 2 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
             (data) => {
               // Arrange
               const datesInOrder = data
@@ -368,7 +368,7 @@ describe('CalendarDateRange', () => {
       test('Return true if the input date is inside the dateRange', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 3, maxLength: 3 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 3, maxLength: 3 }),
             (data) => {
               // Arrange
               const datesInOrder = data
@@ -388,7 +388,7 @@ describe('CalendarDateRange', () => {
       test('Return false if the start date of the input date range is not inside the base date range ', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 4, maxLength: 4 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
             (data) => {
               // Arrange
               const datesInOrder = data
@@ -410,7 +410,7 @@ describe('CalendarDateRange', () => {
       test('Return false if the end date of the input date range is not inside the base date range ', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 4, maxLength: 4 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
             (data) => {
               // Arrange
               const datesInOrder = data
@@ -432,7 +432,7 @@ describe('CalendarDateRange', () => {
       test('Return false if both the end and start date of the input date range are not inside the base date range ', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 4, maxLength: 4 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
             (data) => {
               // Arrange
               const datesInOrder = data
@@ -454,7 +454,7 @@ describe('CalendarDateRange', () => {
       test('Return false if the start date of the input date range is the same as the base start date and excludeStart option is true ', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 3, maxLength: 3 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 3, maxLength: 3 }),
             (data) => {
               // Arrange
               const datesInOrder = data
@@ -474,7 +474,7 @@ describe('CalendarDateRange', () => {
       test('Return false if the end date of the input date range is the same as the base end date and excludeEnd option is true ', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 3, maxLength: 3 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 3, maxLength: 3 }),
             (data) => {
               // Arrange
               const datesInOrder = data
@@ -494,7 +494,7 @@ describe('CalendarDateRange', () => {
       test('Return true if both start and end dates of the input date range are inside the base date range ', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer(-100000, 100000), { minLength: 4, maxLength: 4 }),
+            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
             (data) => {
               // Arrange
               const datesInOrder = data
