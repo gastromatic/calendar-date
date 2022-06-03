@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/gastromatic/calendar-date/compare/v1.5.0...v1.6.0) (2022-06-03)
+
+
+### Features
+
+* add difference in months method for CalendarDateRange ([e6465c8](https://github.com/gastromatic/calendar-date/commit/e6465c831d3a00914ea8c7c4a95f75a9fc70f994))
+
 # [1.5.0](https://github.com/gastromatic/calendar-date/compare/v1.4.0...v1.5.0) (2021-09-29)
 
 
