@@ -45,6 +45,13 @@ export class CalendarDateRange {
     return this.end.getDifferenceInDays(this.start);
   }
 
+  /**
+   * Returns the difference in months as an integer, ignoring the day values.
+   */
+  getDifferenceInMonths(): number {
+    return (this.end.year - this.start.year) * 12 + (this.end.month - this.start.month);
+  }
+
   includes(
     calendarDate: CalendarDate,
     options?: { excludeStart?: boolean; excludeEnd?: boolean },

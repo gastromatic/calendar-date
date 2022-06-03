@@ -304,6 +304,48 @@ describe('CalendarDateRange', () => {
     });
   });
 
+  describe('Test of getDifferenceInMonths', () => {
+    test('Result should be zero for the same year and month', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year1, month1, day1, day2) => {
+            // Arrange
+            const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
+            const date2 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day2));
+            const dateRange1 = new CalendarDateRange(date1, date2, true);
+
+            // Assert
+            expect(dateRange1.getDifferenceInMonths()).toBe(0);
+          },
+        ),
+      );
+    });
+
+    test('Different test cases', () => {
+      // Arrange
+      const date1 = new CalendarDate('2020-05-15');
+      const date2 = new CalendarDate('2022-02-01');
+      const dateRange1 = new CalendarDateRange(date1, date2);
+
+      const date3 = new CalendarDate('2018-02-28');
+      const date4 = new CalendarDate('2018-03-01');
+      const dateRange2 = new CalendarDateRange(date3, date4);
+
+      const date5 = new CalendarDate('2015-05-12');
+      const date6 = new CalendarDate('2016-08-28');
+      const dateRange3 = new CalendarDateRange(date5, date6);
+
+      // Assert
+      expect(dateRange1.getDifferenceInMonths()).toBe(21);
+      expect(dateRange2.getDifferenceInMonths()).toBe(1);
+      expect(dateRange3.getDifferenceInMonths()).toBe(15);
+    });
+  });
+
   describe('Test of includes', () => {
     describe('Input type CalendarDate', () => {
       test('Return false if the input date is before the start date or after the end date of the dateRange', () => {

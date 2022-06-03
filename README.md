@@ -190,6 +190,15 @@ const date2 = new CalendarDate('2020-02-01');
 new CalendarDateRange(date1, date2).getDifferenceInDays();  // 31
 ```
 
+#### getDifferenceInMonths
+Returns the difference in months between start and end of the CalendarDateRange as an integer, ignoring the day values.
+
+```typescript
+const date1 = new CalendarDate('2020-05-15');
+const date2 = new CalendarDate('2022-02-01');
+new CalendarDateRange(date1, date2).getDifferenceInMonths();  // 21
+```
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
