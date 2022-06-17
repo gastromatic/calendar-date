@@ -10,7 +10,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Commit Lint
-        uses: wagoid/commitlint-github-action@v4
+        uses: wagoid/commitlint-github-action@v5
       - name: PR Lint
         uses: amannn/action-semantic-pull-request@v4.5.0
         env:
