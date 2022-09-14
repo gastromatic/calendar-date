@@ -84,19 +84,31 @@ export class CalendarDate {
   }
 
   /**
+   * returns a CalendarDate instance for the supplied Date, using UTC values
+   */
+  static fromDateUTC(date: Date): CalendarDate {
+    return new CalendarDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  }
+
+  /**
+   * returns a CalendarDate instance for the supplied Date, using local timezone values
+   */
+  static fromDateLocal(date: Date): CalendarDate {
+    return new CalendarDate(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  /**
    * returns a CalendarDate instance for the current UTC Date
    */
   static nowUTC(): CalendarDate {
-    const date = new Date();
-    return new CalendarDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+    return CalendarDate.fromDateUTC(new Date());
   }
 
   /**
    * returns a CalendarDate instance for the current Date using the local timezone of your environment
    */
   static nowLocal(): CalendarDate {
-    const date = new Date();
-    return new CalendarDate(date.getFullYear(), date.getMonth(), date.getDate());
+    return CalendarDate.fromDateLocal(new Date());
   }
 
   /**
