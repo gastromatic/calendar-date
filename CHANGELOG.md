@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/gastromatic/calendar-date/compare/v1.6.0...v1.7.0) (2022-09-14)
+
+
+### Features
+
+* add static methods to construct CalendarDate from a Date object ([9d2edc4](https://github.com/gastromatic/calendar-date/commit/9d2edc4bf1a7effc457d9acf2331701819dbb1ad))
+
 # [1.6.0](https://github.com/gastromatic/calendar-date/compare/v1.5.0...v1.6.0) (2022-06-03)
 
 
