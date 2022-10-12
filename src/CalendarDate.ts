@@ -91,10 +91,21 @@ export class CalendarDate {
   }
 
   /**
-   * returns a CalendarDate instance for the supplied Date, using local timezone values
+   * returns a CalendarDate instance for the supplied Date, using local time zone values
    */
   static fromDateLocal(date: Date): CalendarDate {
     return new CalendarDate(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  /**
+   * returns a CalendarDate instance for the supplied Date, using the supplied time zone string
+   */
+  static fromDateWithTimeZone(date: Date, timeZone: string): CalendarDate {
+    const calendarValues = date
+      .toLocaleDateString('de-DE', { timeZone })
+      .split('.')
+      .map((value) => parseInt(value));
+    return new CalendarDate(calendarValues[2], calendarValues[1] - 1, calendarValues[0]);
   }
 
   /**
@@ -105,10 +116,17 @@ export class CalendarDate {
   }
 
   /**
-   * returns a CalendarDate instance for the current Date using the local timezone of your environment
+   * returns a CalendarDate instance for the current Date using the local time zone of your environment
    */
   static nowLocal(): CalendarDate {
     return CalendarDate.fromDateLocal(new Date());
+  }
+
+  /**
+   * returns a CalendarDate instance for the current Date using the supplied time zone string
+   */
+  static nowTimeZone(timeZone: string): CalendarDate {
+    return CalendarDate.fromDateWithTimeZone(new Date(), timeZone);
   }
 
   /**
