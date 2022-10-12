@@ -54,11 +54,20 @@ new CalendarDate('2020-01-01');
 new CalendarDate(2020, 0, 1);
 ```
 
-You can also get the current UTC CalendarDate, and the current local CalendarDate based on the timezone of your local environment with the static methods `nowUTC` and `nowLocal`
+You can also get the current UTC CalendarDate, the current local CalendarDate based on the timezone of your local environment or a CalendarDate for a specific time zone with the static methods `nowUTC`, `nowLocal` and `nowTimeZone`.
 
 ```typescript
 CalendarDate.nowUTC();
 CalendarDate.nowLocal();
+CalendarDate.nowTimeZone('Europe/Berlin');
+```
+
+If you want to construct a CalendarDate from an existing Date object instead of the current Time you can use the static methods `fromDateUTC`, `fromDateLocal` and `fromDateTimeZone`.
+```typescript
+const date = new Date();
+CalendarDate.fromDateUTC(date);
+CalendarDate.fromDateLocal(date);
+CalendarDate.fromDateTimeZone(date, 'Europe/Berlin');
 ```
 
 The year, month, day and unix timestamp can be accessed as read-only properties on the object.

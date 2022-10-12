@@ -187,6 +187,21 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of nowTimeZone', () => {
+    test('should return calendar date object for the specified time zone', () => {
+      // Arrange
+      const date = new Date();
+
+      // Act
+      const calendarDate = CalendarDate.nowTimeZone('America/New_York');
+
+      // Assert
+      expect(calendarDate.toFormat('dd.MM.yyyy')).toBe(
+        date.toLocaleDateString('de-DE', { timeZone: 'America/New_York' }),
+      );
+    });
+  });
+
   describe('Test of parseString', () => {
     test('Should throw error if input is not a valid iso string', () => {
       fc.assert(
