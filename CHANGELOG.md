@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/gastromatic/calendar-date/compare/v1.7.0...v1.8.0) (2022-10-13)
+
+
+### Features
+
+* add static constructors with the option to pass the time zone ([ddeceb5](https://github.com/gastromatic/calendar-date/commit/ddeceb5871531c158852f6200989ab283391917f))
+
 # [1.7.0](https://github.com/gastromatic/calendar-date/compare/v1.6.0...v1.7.0) (2022-09-14)
 
 
