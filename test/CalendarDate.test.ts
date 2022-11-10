@@ -196,7 +196,7 @@ describe('CalendarDate', () => {
       const calendarDate = CalendarDate.nowTimeZone('America/New_York');
 
       // Assert
-      expect(calendarDate.toFormat('dd.MM.yyyy')).toBe(
+      expect(calendarDate.toFormat('d.M.yyyy')).toBe(
         date.toLocaleDateString('de-DE', { timeZone: 'America/New_York' }),
       );
     });
