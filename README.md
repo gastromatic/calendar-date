@@ -129,9 +129,10 @@ Returns the max/min CalendarDate for an array of CalendarDates.
 
 ```typescript
 const date1 = new CalendarDate('2020-01-01');
-const date2 = new CalendarDate('2020-02-01');
-const date3 = new CalendarDate('2021-01-01');
-const maxDate = CalendarDate.max(date1, date2, date3); // 2021-01-01
+const date2 = new CalendarDate('2020-06-10');
+const date3 = new CalendarDate('2021-03-15');
+const maxDate = CalendarDate.max(date1, date2, date3); // 2021-03-15
+const minDate = CalendarDate.min(date1, date2, date3); // 2020-01-01
 ```
 
 #### toFormat
