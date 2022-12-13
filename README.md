@@ -51,7 +51,7 @@ The following constructor calls return the same calendar date.
 
 ```typescript
 new CalendarDate('2020-01-01');
-new CalendarDate(2020, 0, 1);
+new CalendarDate(2020, 1, 1);
 ```
 
 You can also get the current UTC CalendarDate, the current local CalendarDate based on the timezone of your local environment or a CalendarDate for a specific time zone with the static methods `nowUTC`, `nowLocal` and `nowTimeZone`.
@@ -71,6 +71,7 @@ CalendarDate.fromDateTimeZone(date, 'Europe/Berlin');
 ```
 
 The year, month, day and unix timestamp can be accessed as read-only properties on the object.
+Since version 2 of calendar-date the month value is now in the range of 1 to 12 and not of 0 to 11 anymore.
 
 To compare to CalendarDate objects you can use the `equals` function or `>=` and `<=` operators.
 The comparison works based on the unix timestamp.

@@ -9,7 +9,7 @@ describe('CalendarDate', () => {
         fc.assert(
           fc.property(
             fc.integer({ min: 200, max: 9800 }),
-            fc.integer({ min: 0, max: 11 }),
+            fc.integer({ min: 1, max: 12 }),
             fc.integer({ min: 1, max: 31 }),
             (year, month, day) => {
               // Arrange
@@ -35,7 +35,7 @@ describe('CalendarDate', () => {
           fc.property(
             fc.integer({ max: -1 }),
             fc.integer({ min: 10000 }),
-            fc.integer({ min: 0, max: 11 }),
+            fc.integer({ min: 1, max: 12 }),
             fc.integer({ min: 1, max: 31 }),
             (yearLowerInterval, yearUpperInterval, month, day) => {
               // Assert
@@ -50,20 +50,20 @@ describe('CalendarDate', () => {
         );
       });
 
-      test('Throws error if month is below 0 or above 11', () => {
+      test('Throws error if month is below 1 or above 12', () => {
         fc.assert(
           fc.property(
             fc.integer({ min: 0, max: 9999 }),
-            fc.integer({ max: -1 }),
-            fc.integer({ min: 12 }),
+            fc.integer({ max: 0 }),
+            fc.integer({ min: 13 }),
             fc.integer({ min: 1, max: 31 }),
             (year, monthLowerInterval, monthUpperInterval, day) => {
               // Assert
               expect(() => new CalendarDate(year, monthLowerInterval, day)).toThrowError(
-                `CalendarDate Validation Error: Input month ${monthLowerInterval} is not valid. Month must be a number between 0 and 11.`,
+                `CalendarDate Validation Error: Input month ${monthLowerInterval} is not valid. Month must be a number between 1 and 12.`,
               );
               expect(() => new CalendarDate(year, monthUpperInterval, day)).toThrowError(
-                `CalendarDate Validation Error: Input month ${monthUpperInterval} is not valid. Month must be a number between 0 and 11.`,
+                `CalendarDate Validation Error: Input month ${monthUpperInterval} is not valid. Month must be a number between 1 and 12.`,
               );
             },
           ),
@@ -74,7 +74,7 @@ describe('CalendarDate', () => {
         fc.assert(
           fc.property(
             fc.integer({ min: 0, max: 9999 }),
-            fc.integer({ min: 0, max: 11 }),
+            fc.integer({ min: 1, max: 12 }),
             fc.integer({ max: 0 }),
             (year, month, day) => {
               // Assert
@@ -90,7 +90,7 @@ describe('CalendarDate', () => {
         fc.assert(
           fc.property(
             fc.integer({ min: 0, max: 9999 }),
-            fc.integer({ min: 0, max: 11 }),
+            fc.integer({ min: 1, max: 12 }),
             fc.integer({ min: 29 }),
             (year, month, day) => {
               // Arrange
@@ -110,7 +110,7 @@ describe('CalendarDate', () => {
         fc.assert(
           fc.property(
             fc.integer({ min: 200, max: 9900 }),
-            fc.integer({ min: 0, max: 11 }),
+            fc.integer({ min: 1, max: 12 }),
             fc.integer({ min: 1, max: 31 }),
             (year, month, day) => {
               // Arrange
@@ -134,12 +134,12 @@ describe('CalendarDate', () => {
         fc.assert(
           fc.property(
             fc.integer({ min: 200, max: 9900 }),
-            fc.integer({ min: 0, max: 11 }),
+            fc.integer({ min: 1, max: 12 }),
             fc.integer({ min: 1, max: 31 }),
             (year, month, day) => {
               // Arrange
               day = ensureValidDay(year, month, day);
-              const isoString = `${year.toString().padStart(4, '0')}-${(month + 1)
+              const isoString = `${year.toString().padStart(4, '0')}-${month
                 .toString()
                 .padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
@@ -167,7 +167,7 @@ describe('CalendarDate', () => {
 
       // Assert
       expect(calendarDate.year).toBe(date.getUTCFullYear());
-      expect(calendarDate.month).toBe(date.getUTCMonth());
+      expect(calendarDate.month).toBe(date.getUTCMonth() + 1);
       expect(calendarDate.day).toBe(date.getUTCDate());
     });
   });
@@ -182,7 +182,7 @@ describe('CalendarDate', () => {
 
       // Assert
       expect(calendarDate.year).toBe(date.getFullYear());
-      expect(calendarDate.month).toBe(date.getMonth());
+      expect(calendarDate.month).toBe(date.getMonth() + 1);
       expect(calendarDate.day).toBe(date.getDate());
     });
   });
@@ -233,12 +233,12 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
             day = ensureValidDay(year, month, day);
-            const isoString = `${year.toString().padStart(4, '0')}-${(month + 1)
+            const isoString = `${year.toString().padStart(4, '0')}-${month
               .toString()
               .padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
@@ -260,7 +260,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
@@ -298,7 +298,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
@@ -318,7 +318,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
@@ -339,7 +339,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
@@ -359,8 +359,8 @@ describe('CalendarDate', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
@@ -391,7 +391,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9800 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
@@ -408,7 +408,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.array(fc.integer({ min: 200, max: 9800 }), { maxLength: 10, minLength: 10 }),
-          fc.array(fc.integer({ min: 0, max: 11 }), { maxLength: 10, minLength: 10 }),
+          fc.array(fc.integer({ min: 1, max: 12 }), { maxLength: 10, minLength: 10 }),
           fc.array(fc.integer({ min: 1, max: 31 }), { maxLength: 10, minLength: 10 }),
           fc.integer({ min: 1, max: 10 }),
           (years, months, days, amount) => {
@@ -447,7 +447,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9800 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
@@ -464,7 +464,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.array(fc.integer({ min: 200, max: 9800 }), { maxLength: 10, minLength: 10 }),
-          fc.array(fc.integer({ min: 0, max: 11 }), { maxLength: 10, minLength: 10 }),
+          fc.array(fc.integer({ min: 1, max: 12 }), { maxLength: 10, minLength: 10 }),
           fc.array(fc.integer({ min: 1, max: 31 }), { maxLength: 10, minLength: 10 }),
           fc.integer({ min: 1, max: 10 }),
           (years, months, days, amount) => {
@@ -497,7 +497,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
@@ -520,7 +520,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           (year, month) => {
             // Arrange
             const baseDate = new CalendarDate(year, month, 1);
@@ -542,7 +542,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
@@ -568,7 +568,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           (year, month) => {
             // Arrange
             const calendarDate = new CalendarDate(year, month, 1);
@@ -587,7 +587,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 2, max: 31 }),
           (year, month, day) => {
             /// Arrange
@@ -609,7 +609,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           (year, month) => {
             // Arrange
             const calendarDate = new CalendarDate(
@@ -632,7 +632,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 30 }),
           (year, month, day) => {
             /// Arrange
@@ -657,7 +657,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 100, max: 9989 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 28 }),
           fc.integer({ min: -100, max: 100 }),
           (year, month, day, monthsAdded) => {
@@ -680,26 +680,26 @@ describe('CalendarDate', () => {
 
     test('If the base day is greater than the max day of the new month the difference should overflow into the next month', () => {
       // Arrange
-      const baseDate = new CalendarDate(2021, 0, 31);
+      const baseDate = new CalendarDate(2021, 1, 31);
 
       // Act
       const newDate = baseDate.addMonths(1);
 
       // Assert
-      expect(newDate.month).toBe(2);
+      expect(newDate.month).toBe(3);
       expect(newDate.day).toBe(3);
       expect(newDate.year).toBe(2021);
     });
 
     test('The day should not overflow into the next month if enforceEndOfMonth is set to true', () => {
       // Arrange
-      const baseDate = new CalendarDate(2021, 0, 31);
+      const baseDate = new CalendarDate(2021, 1, 31);
 
       // Act
       const newDate = baseDate.addMonths(1, true);
 
       // Assert
-      expect(newDate.month).toBe(1);
+      expect(newDate.month).toBe(2);
       expect(newDate.day).toBe(28);
     });
   });
@@ -709,7 +709,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9995 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: -1000, max: 1000 }),
           (year, month, day, daysAdded) => {
@@ -734,7 +734,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.boolean(),
           (year, month, day, absolute) => {
@@ -756,7 +756,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 0, max: 1000 }),
           (year, month, day, offset) => {
@@ -779,7 +779,7 @@ describe('CalendarDate', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 0, max: 1000 }),
           (year, month, day, offset) => {
@@ -803,8 +803,8 @@ describe('CalendarDate', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
@@ -826,14 +826,14 @@ describe('CalendarDate', () => {
   });
 
   describe('Test of getMaxDayOfMonth', () => {
-    test('Returns 30 for input months of 3-5-8-10', () => {
+    test('Returns 30 for input months of 4-6-9-11', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 0, max: 3 }),
           (year, monthIndex) => {
             // Arrange
-            const month = [3, 5, 8, 10][monthIndex];
+            const month = [4, 6, 9, 11][monthIndex];
 
             // Act
             const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, month);
@@ -845,14 +845,14 @@ describe('CalendarDate', () => {
       );
     });
 
-    test('Returns 31 for input months of 0-2-4-6-7-9-11', () => {
+    test('Returns 31 for input months of 1-3-5-7-8-10-12', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 0, max: 6 }),
           (year, monthIndex) => {
             // Arrange
-            const month = [0, 2, 4, 6, 7, 9, 11][monthIndex];
+            const month = [1, 3, 5, 7, 8, 10, 12][monthIndex];
 
             // Act
             const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, month);
@@ -874,7 +874,7 @@ describe('CalendarDate', () => {
           }
 
           /// Act
-          const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, 1);
+          const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, 2);
 
           // Assert
           expect(maxDayOfMonth).toBe(29);
@@ -891,7 +891,7 @@ describe('CalendarDate', () => {
           }
 
           /// Act
-          const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, 1);
+          const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, 2);
 
           // Assert
           expect(maxDayOfMonth).toBe(28);
