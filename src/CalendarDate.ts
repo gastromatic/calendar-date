@@ -5,7 +5,7 @@ export class CalendarDate {
   readonly year!: number;
 
   /**
-   * Month of the year starting from 0
+   * Month of the year starting from 1
    */
   readonly month!: number;
 
@@ -29,8 +29,8 @@ export class CalendarDate {
   /**
    * Throws an Error for invalid inputs.
    *
-   * @param year Integer between 1 - 9999, other inputs may lead to unstable behaviour
-   * @param month Integer between 0-11
+   * @param year Integer between 1-9999, other inputs may lead to unstable behaviour
+   * @param month Integer between 1-12
    * @param day Integer between 1-31
    */
   constructor(year: number, month: number, day: number);
@@ -48,9 +48,9 @@ export class CalendarDate {
           `CalendarDate Validation Error: Input year ${this.year} is not valid. Year must be a number between 0 and 9999.`,
         );
       }
-      if (this.month < 0 || this.month > 11) {
+      if (this.month < 1 || this.month > 12) {
         throw new Error(
-          `CalendarDate Validation Error: Input month ${this.month} is not valid. Month must be a number between 0 and 11.`,
+          `CalendarDate Validation Error: Input month ${this.month} is not valid. Month must be a number between 1 and 12.`,
         );
       }
       const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(this.year, this.month);
@@ -80,21 +80,21 @@ export class CalendarDate {
   }
 
   public static getMaxDayOfMonth(year: number, month: number): number {
-    return month === 1 && CalendarDate.isLeapYear(year) ? 29 : DAYS_IN_MONTH[month];
+    return month === 2 && CalendarDate.isLeapYear(year) ? 29 : DAYS_IN_MONTH[month - 1];
   }
 
   /**
    * returns a CalendarDate instance for the supplied Date, using UTC values
    */
   static fromDateUTC(date: Date): CalendarDate {
-    return new CalendarDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+    return new CalendarDate(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
   }
 
   /**
    * returns a CalendarDate instance for the supplied Date, using local time zone values
    */
   static fromDateLocal(date: Date): CalendarDate {
-    return new CalendarDate(date.getFullYear(), date.getMonth(), date.getDate());
+    return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
   }
 
   /**
@@ -105,7 +105,7 @@ export class CalendarDate {
       .toLocaleDateString('de-DE', { timeZone })
       .split('.')
       .map((value) => parseInt(value));
-    return new CalendarDate(calendarValues[2], calendarValues[1] - 1, calendarValues[0]);
+    return new CalendarDate(calendarValues[2], calendarValues[1], calendarValues[0]);
   }
 
   /**
@@ -140,7 +140,7 @@ export class CalendarDate {
       );
     }
     const split = isoString.split('-');
-    return new CalendarDate(parseInt(split[0]), parseInt(split[1]) - 1, parseInt(split[2]));
+    return new CalendarDate(parseInt(split[0]), parseInt(split[1]), parseInt(split[2]));
   }
 
   static max(...values: CalendarDate[]): CalendarDate {
@@ -171,7 +171,7 @@ export class CalendarDate {
    * Returns the ISO string representation yyyy-MM-dd
    */
   toString(): string {
-    return `${this.year.toString().padStart(4, '0')}-${(this.month + 1)
+    return `${this.year.toString().padStart(4, '0')}-${this.month
       .toString()
       .padStart(2, '0')}-${this.day.toString().padStart(2, '0')}`;
   }
@@ -194,8 +194,8 @@ export class CalendarDate {
       .replace(/yyyy/g, this.year.toString().padStart(4, '0'))
       .replace(/yy/g, this.year.toString().slice(-2).padStart(2, '0'))
       .replace(/y/g, this.year.toString())
-      .replace(/MM/g, (this.month + 1).toString().padStart(2, '0'))
-      .replace(/M/g, (this.month + 1).toString())
+      .replace(/MM/g, this.month.toString().padStart(2, '0'))
+      .replace(/M/g, this.month.toString())
       .replace(/dd/g, this.day.toString().padStart(2, '0'))
       .replace(/d/g, this.day.toString());
   }
@@ -229,14 +229,14 @@ export class CalendarDate {
    * @param enforceEndOfMonth If set to true the addition will never cause an overflow to the next month.
    */
   addMonths(amount: number, enforceEndOfMonth = false): CalendarDate {
-    const totalMonths = this.month + amount;
+    const totalMonths = this.month + amount - 1;
     let year = this.year + Math.floor(totalMonths / 12);
     let month = totalMonths % 12;
     let day = this.day;
     if (month < 0) {
       month = (month + 12) % 12;
     }
-    const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, month);
+    const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, month + 1);
     if (enforceEndOfMonth) {
       day = Math.min(maxDayOfMonth, day);
     } else if (day > maxDayOfMonth) {
@@ -244,7 +244,7 @@ export class CalendarDate {
       year = year + Math.floor((month + 1) / 12);
       month = (month + 1) % 12;
     }
-    return new CalendarDate(year, month, day);
+    return new CalendarDate(year, month + 1, day);
   }
 
   /**

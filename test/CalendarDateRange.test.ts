@@ -92,8 +92,8 @@ describe('CalendarDateRange', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
@@ -120,8 +120,8 @@ describe('CalendarDateRange', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
@@ -152,8 +152,8 @@ describe('CalendarDateRange', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
@@ -176,8 +176,8 @@ describe('CalendarDateRange', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
@@ -199,8 +199,8 @@ describe('CalendarDateRange', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: -1000, max: -1 }),
@@ -227,8 +227,8 @@ describe('CalendarDateRange', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 1000 }),
@@ -255,8 +255,8 @@ describe('CalendarDateRange', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: -1000, max: -1 }),
@@ -286,8 +286,8 @@ describe('CalendarDateRange', () => {
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           (year1, year2, month1, month2, day1, day2) => {
@@ -309,7 +309,7 @@ describe('CalendarDateRange', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 0, max: 11 }),
+          fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: 1, max: 31 }),
           (year1, month1, day1, day2) => {
