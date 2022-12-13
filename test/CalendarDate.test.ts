@@ -590,7 +590,7 @@ describe('CalendarDate', () => {
           fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 2, max: 31 }),
           (year, month, day) => {
-            /// Arrange
+            // Arrange
             const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
 
             // Act
@@ -635,7 +635,7 @@ describe('CalendarDate', () => {
           fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 30 }),
           (year, month, day) => {
-            /// Arrange
+            // Arrange
             let calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
             if (calendarDate.day === CalendarDate.getMaxDayOfMonth(year, month)) {
               calendarDate = calendarDate.addDays(-1);
@@ -646,6 +646,144 @@ describe('CalendarDate', () => {
 
             // Assert
             expect(lastDayOfMonth).toEqual(false);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of getFirstDayOfWeek', () => {
+    test('Returns new instance with the day of the week of 1', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
+
+            // Act
+            const firstDayOfWeekDate = baseDate.getFirstDayOfWeek();
+
+            // Assert
+            expect(firstDayOfWeekDate.weekday).toBe(1);
+            expect(firstDayOfWeekDate.unixTimestampInSeconds).toBe(
+              baseDate.unixTimestampInSeconds - (baseDate.weekday - 1) * DAY_IN_SECONDS,
+            );
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of getLastDayOfWeek', () => {
+    test('Returns new instance with the day of the week of 7', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
+
+            // Act
+            const lastDayOfWeek = baseDate.getLastDayOfWeek();
+
+            // Assert
+            expect(lastDayOfWeek.weekday).toBe(7);
+            expect(lastDayOfWeek.unixTimestampInSeconds).toBe(
+              baseDate.unixTimestampInSeconds + (7 - baseDate.weekday) * DAY_IN_SECONDS,
+            );
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of isFirstDayOfWeek', () => {
+    test('Returns true if the weekday is 1', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            let calendarDate = new CalendarDate(year, month, day);
+            if (calendarDate.weekday !== 1) {
+              calendarDate = calendarDate.addDays(-(calendarDate.weekday - 1));
+            }
+
+            // Assert
+            expect(calendarDate.isFirstDayOfWeek()).toEqual(true);
+          },
+        ),
+      );
+    });
+
+    test('Returns false if the weekday is not equal to 1', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            let calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+            if (calendarDate.weekday === 1) {
+              calendarDate = calendarDate.addDays(+1);
+            }
+
+            // Assert
+            expect(calendarDate.isFirstDayOfWeek()).toEqual(false);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of isLastDayOfWeek', () => {
+    test('Returns true if the weekday is 7', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            let calendarDate = new CalendarDate(year, month, day);
+            if (calendarDate.weekday !== 7) {
+              calendarDate = calendarDate.addDays(7 - calendarDate.weekday);
+            }
+
+            // Assert
+            expect(calendarDate.isLastDayOfWeek()).toEqual(true);
+          },
+        ),
+      );
+    });
+
+    test('Returns false if the weekday is not equal to 7', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            let calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+            if (calendarDate.weekday === 7) {
+              calendarDate = calendarDate.addDays(-1);
+            }
+
+            // Assert
+            expect(calendarDate.isLastDayOfWeek()).toEqual(false);
           },
         ),
       );
@@ -873,7 +1011,7 @@ describe('CalendarDate', () => {
             year += 4;
           }
 
-          /// Act
+          // Act
           const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, 2);
 
           // Assert
@@ -890,7 +1028,7 @@ describe('CalendarDate', () => {
             year += 1;
           }
 
-          /// Act
+          // Act
           const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, 2);
 
           // Assert

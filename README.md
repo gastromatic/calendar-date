@@ -96,7 +96,7 @@ new CalendarDate('2020-01-01').addMonths(3);    // 2020-03-01
 new CalendarDate('2020-01-01').addDays(15);     // 2020-01-16
 ```
 
-#### getLastDayOfMonth, getFirstDayOfMonth
+#### getFirstDayOfMonth, getLastDayOfMonth
 Returns a new CalendarDate with the first or last day of the month.
 
 ```typescript
@@ -146,6 +146,20 @@ date1.format('d-M-yy');       // 1.6.20
 date1.format('yyyy/dd/MM');   // 2020/01/06
 
 ```
+
+#### DayOfTheWeek
+You can access the weekday according to ISO 8601 as a read only property on the calendar date object. The values are in the range from 1 to 7 starting from Monday.
+
+#### getFirstDayOfWeek, getLastDayOfWeek
+Returns a new CalendarDate with the first or last day of the week.
+
+```typescript
+new CalendarDate('2020-01-15').getFirstDayOfWeek();    // 2020-01-13 (Monday)
+new CalendarDate('2020-01-15').getLastDayOfWeek();     // 2020-01-19 (Friday)
+```
+
+#### isFirstDayOfWeek, isLastDayOfWeek
+Returns true if the CalendarDate is the first day of the week / last day of the week;
 
 ### CalendarDateRange
 You need two CalendarDate objects to construct a new CalendarDateRange.

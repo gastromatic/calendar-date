@@ -1,6 +1,16 @@
 const DAY_IN_SECONDS = 86400;
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
+export enum DayOfTheWeek {
+  MONDAY = 1,
+  TUESDAY = 2,
+  WEDNESDAY = 3,
+  THURSDAY = 4,
+  FRIDAY = 5,
+  SATURDAY = 6,
+  SUNDAY = 7,
+}
+
 export class CalendarDate {
   readonly year!: number;
 
@@ -18,6 +28,11 @@ export class CalendarDate {
    * Seconds passed since the unix epoch. Always calculated with a time and timezone set to T00:00:00.00Z.
    */
   readonly unixTimestampInSeconds!: number;
+
+  /**
+   * Day of the week starting from monday according to ISO 8601. Values from 1-7.
+   */
+  readonly weekday!: number;
 
   /**
    * Throws an Error for invalid inputs.
@@ -71,7 +86,9 @@ export class CalendarDate {
           .join(' , ')} ] is not valid.`,
       );
     }
-    this.unixTimestampInSeconds = new Date(`${this.toString()}T00:00:00.000Z`).getTime() / 1000;
+    const date = new Date(`${this.toString()}T00:00:00.000Z`);
+    this.unixTimestampInSeconds = date.getTime() / 1000;
+    this.weekday = date.getDay() === 0 ? 7 : date.getDay();
     Object.freeze(this);
   }
 
@@ -275,6 +292,34 @@ export class CalendarDate {
 
   isLastDayOfMonth(): boolean {
     return this.day === CalendarDate.getMaxDayOfMonth(this.year, this.month);
+  }
+
+  /**
+   * returns the last day (sunday) of the week of this calendar date as a new calendar date object.
+   */
+  getLastDayOfWeek(): CalendarDate {
+    return this.addDays(7 - this.weekday);
+  }
+
+  /**
+   * returns the first day (monday) of the week of this calendar date as a new calendar date object.
+   */
+  getFirstDayOfWeek(): CalendarDate {
+    return this.addDays(-(this.weekday - 1));
+  }
+
+  /**
+   * returns true if the weekday is monday(1)
+   */
+  isFirstDayOfWeek(): boolean {
+    return this.weekday === 1;
+  }
+
+  /**
+   * returns true if the weekday is sunday(7)
+   */
+  isLastDayOfWeek(): boolean {
+    return this.weekday === 7;
   }
 
   /**
