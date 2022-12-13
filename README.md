@@ -42,6 +42,9 @@ or
 npm install calendar-date
 ```
 
+## Migration from v1 to v2
+If you want to upgrade from v1 to v2 of calendar-date you need to check if you access the read only month property on the calendar date object or use the number constructor anywhere and change the code according to the change (Range of month changed from 0-11 to 1-12). All other functions and properties work the same as before.
+
 ## Documentation
 
 ### CalendarDate
