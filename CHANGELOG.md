@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/gastromatic/calendar-date/compare/v1.8.0...v2.0.0) (2022-12-14)
+
+
+### Features
+
+* add day of the week and some weekday helper functions ([b33bff3](https://github.com/gastromatic/calendar-date/commit/b33bff3eb643bb0af3a1e35947d5b02425a198a9))
+* change month range from 0-11 to 1-12 ([9e18851](https://github.com/gastromatic/calendar-date/commit/9e18851e8a06a48b6adc7a274ba4eab16714bbdf))
+
+
+### BREAKING CHANGES
+
+* change month range from 0-11 to 1-12
+
 # [1.8.0](https://github.com/gastromatic/calendar-date/compare/v1.7.0...v1.8.0) (2022-10-13)
 
 
