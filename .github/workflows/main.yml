@@ -82,7 +82,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Disable protection temporary
-        uses: actions/github-script@v6.4.0
+        uses: actions/github-script@v6.4.1
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
           script: |
@@ -96,7 +96,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GASTROBOT_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Restore protection
-        uses: actions/github-script@v6.4.0
+        uses: actions/github-script@v6.4.1
         if: always()
         with:
           github-token: '${{ secrets.GASTROBOT_TOKEN}}'
