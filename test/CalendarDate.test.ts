@@ -127,6 +127,17 @@ describe('CalendarDate', () => {
           ),
         );
       });
+
+      test('Save correct weekday for date', () => {
+        expect(new CalendarDate(`2023-01-01`).weekday).toBe(7);
+        expect(new CalendarDate(`2023-01-02`).weekday).toBe(1);
+        expect(new CalendarDate(`2023-01-03`).weekday).toBe(2);
+        expect(new CalendarDate(`2023-01-04`).weekday).toBe(3);
+        expect(new CalendarDate(`2023-01-05`).weekday).toBe(4);
+        expect(new CalendarDate(`2023-01-06`).weekday).toBe(5);
+        expect(new CalendarDate(`2023-01-07`).weekday).toBe(6);
+        expect(new CalendarDate(`2023-01-08`).weekday).toBe(7);
+      });
     });
 
     describe('input type: string', () => {
