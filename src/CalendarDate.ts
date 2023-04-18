@@ -88,7 +88,7 @@ export class CalendarDate {
     }
     const date = new Date(`${this.toString()}T00:00:00.000Z`);
     this.unixTimestampInSeconds = date.getTime() / 1000;
-    this.weekday = date.getDay() === 0 ? 7 : date.getDay();
+    this.weekday = date.getUTCDay() === 0 ? 7 : date.getUTCDay();
     Object.freeze(this);
   }
 
