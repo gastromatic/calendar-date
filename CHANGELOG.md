@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/gastromatic/calendar-date/compare/v2.0.0...v2.0.1) (2023-04-18)
+
+
+### Bug Fixes
+
+* use UTC Day to get the correct weekday in the constructor ([c2d9365](https://github.com/gastromatic/calendar-date/commit/c2d93653f2c80cd851906bd988bc3c728ecb5e9b))
+
 # [2.0.0](https://github.com/gastromatic/calendar-date/compare/v1.8.0...v2.0.0) (2022-12-14)
 
 
