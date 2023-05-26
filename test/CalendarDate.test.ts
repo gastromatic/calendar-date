@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
 import { CalendarDate } from 'calendar-date';
-import { DAY_IN_SECONDS, ensureValidDay } from './helpers';
+import { DAY_IN_SECONDS, ensureValidDay, unixTimestampToCalendarDate } from './helpers';
 
 describe('CalendarDate', () => {
   describe('Test of constructor', () => {
@@ -497,6 +497,66 @@ describe('CalendarDate', () => {
             // Assert
             expect(CalendarDate.min(...calendarDates, minCalendarDate)).toBe(minCalendarDate);
             expect(CalendarDate.min(minCalendarDate, ...calendarDates)).toBe(minCalendarDate);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of sortAscending', () => {
+    test('Returns a copy of an input array that is sorted ascending', () => {
+      const lowerRange = new CalendarDate(2000, 1, 1).valueOf();
+      const upperRange = new CalendarDate(2100, 12, 31).valueOf();
+      fc.assert(
+        fc.property(
+          fc.array(fc.integer({ min: 0, max: 1 }), { maxLength: 10, minLength: 0 }),
+          (arr) => {
+            // Arrange
+            const calendarDates = arr.map((val) =>
+              unixTimestampToCalendarDate(val * (upperRange - lowerRange) + lowerRange),
+            );
+
+            // Act
+            const sortedCalendarDate = CalendarDate.sortAscending(calendarDates);
+
+            // Assert
+            expect(sortedCalendarDate.length).toBe(calendarDates.length);
+            expect(sortedCalendarDate).not.toBe(calendarDates);
+            for (let idx = 1; idx < sortedCalendarDate.length; idx++) {
+              expect(sortedCalendarDate[idx].valueOf()).toBeGreaterThanOrEqual(
+                sortedCalendarDate[idx - 1].valueOf(),
+              );
+            }
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of sortDescending', () => {
+    test('Returns a copy of an input array that is sorted descending', () => {
+      const lowerRange = new CalendarDate(2000, 1, 1).valueOf();
+      const upperRange = new CalendarDate(2100, 12, 31).valueOf();
+      fc.assert(
+        fc.property(
+          fc.array(fc.integer({ min: 0, max: 1 }), { maxLength: 10, minLength: 0 }),
+          (arr) => {
+            // Arrange
+            const calendarDates = arr.map((val) =>
+              unixTimestampToCalendarDate(val * (upperRange - lowerRange) + lowerRange),
+            );
+
+            // Act
+            const sortedCalendarDate = CalendarDate.sortDescending(calendarDates);
+
+            // Assert
+            expect(sortedCalendarDate.length).toBe(calendarDates.length);
+            expect(sortedCalendarDate).not.toBe(calendarDates);
+            for (let idx = 1; idx < sortedCalendarDate.length; idx++) {
+              expect(sortedCalendarDate[idx].valueOf()).toBeLessThanOrEqual(
+                sortedCalendarDate[idx - 1].valueOf(),
+              );
+            }
           },
         ),
       );

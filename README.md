@@ -139,6 +139,14 @@ const maxDate = CalendarDate.max(date1, date2, date3); // 2021-03-15
 const minDate = CalendarDate.min(date1, date2, date3); // 2020-01-01
 ```
 
+#### sortAscending, sortDescending
+Returns a sorted copy of an array of CalendarDates.
+
+```typescript
+const sortedArrayAscending = CalendarDate.sortAscending([new CalendarDate('2020-01-01'), new CalendarDate('2020-06-10'), new CalendarDate('2021-03-15')]);
+const sortedArrayDescending = CalendarDate.sortDescending([new CalendarDate('2020-01-01'), new CalendarDate('2020-06-10'), new CalendarDate('2021-03-15')]);
+```
+
 #### toFormat
 Returns the formatted string based on a provided pattern.
 

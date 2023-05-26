@@ -185,6 +185,20 @@ export class CalendarDate {
   }
 
   /**
+   * Returns a copy of the supplied array of CalendarDates sorted ascending
+   */
+  static sortAscending(calendarDates: CalendarDate[]): CalendarDate[] {
+    return [...calendarDates].sort((a, b) => a.valueOf() - b.valueOf());
+  }
+
+  /**
+   * Returns a copy of the supplied array of CalendarDates sorted descending
+   */
+  static sortDescending(calendarDates: CalendarDate[]): CalendarDate[] {
+    return [...calendarDates].sort((a, b) => b.valueOf() - a.valueOf());
+  }
+
+  /**
    * Returns the ISO string representation yyyy-MM-dd
    */
   toString(): string {
