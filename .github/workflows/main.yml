@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.6.0
         with:
-          node-version: '18'
+          node-version: '20'
       - uses: actions/cache@v3
         with:
           path: '**/node_modules'
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 14, 16, 18 ]
+        node-version: [ 14, 16, 18, 20 ]
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node.js environment
@@ -78,7 +78,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.6.0
         with:
-          node-version: '18'
+          node-version: '20'
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Build
