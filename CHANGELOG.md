@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/gastromatic/calendar-date/compare/v2.1.0...v2.2.0) (2023-06-29)
+
+
+### Features
+
+* add isBefore and isAfter functions ([2760e66](https://github.com/gastromatic/calendar-date/commit/2760e6663001604689452d568f1282a452ff8772))
+
 # [2.1.0](https://github.com/gastromatic/calendar-date/compare/v2.0.1...v2.1.0) (2023-05-30)
 
 
