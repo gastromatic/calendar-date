@@ -253,6 +253,14 @@ export class CalendarDate {
     return this.valueOf() === calendarDate.valueOf();
   }
 
+  isBefore(calendarDate: CalendarDate): boolean {
+    return this.valueOf() < calendarDate.valueOf();
+  }
+
+  isAfter(calendarDate: CalendarDate): boolean {
+    return this.valueOf() > calendarDate.valueOf();
+  }
+
   /**
    * Returns a new CalendarDate with the specified amount of months added.
    *

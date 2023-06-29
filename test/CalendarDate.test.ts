@@ -391,6 +391,90 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of isBefore', () => {
+    test('Returns true if the input object has a greater unix timestamp', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 1000 }),
+          (year, month, day, days) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = date1.addDays(days);
+
+            // Assert
+            expect(date1.isBefore(date2)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('Returns false if the input object has a smaller unix timestamp', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 1000 }),
+          (year, month, day, days) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = date1.addDays(-days);
+
+            // Assert
+            expect(date1.isBefore(date2)).toBe(false);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of isAfter', () => {
+    test('Returns true if the input object has a smaller unix timestamp', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 1000 }),
+          (year, month, day, days) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = date1.addDays(-days);
+
+            // Assert
+            expect(date1.isAfter(date2)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('Returns false if the input object has a greater unix timestamp', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 1000 }),
+          (year, month, day, days) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = date1.addDays(days);
+
+            // Assert
+            expect(date1.isAfter(date2)).toBe(false);
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of max', () => {
     test('Throws Error for no input arguments', () => {
       expect(() => CalendarDate.max()).toThrowError(
