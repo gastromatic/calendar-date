@@ -76,7 +76,7 @@ CalendarDate.fromDateTimeZone(date, 'Europe/Berlin');
 The year, month, day and unix timestamp can be accessed as read-only properties on the object.
 Since version 2 of calendar-date the month value is now in the range of 1 to 12 and not of 0 to 11 anymore.
 
-To compare to CalendarDate objects you can use the `equals` function or `>=` and `<=` operators.
+To compare to CalendarDate objects you can use the `equals`, `isBefore` and `isAfter` function or `>=`, `<=`, `>` and `<` operators.
 The comparison works based on the unix timestamp.
 
 ```typescript
@@ -84,11 +84,15 @@ const date1 = new CalendarDate('2020-01-01');
 const date2 = new CalendarDate('2020-01-01');
 const date3 = new CalendarDate('2020-02-02');
 
-date1.equals(date2) // true
-date1.equals(date3) // false
-date1 >= date2      // true
-date1 >= date3      // false
-date1 <= date3      // true
+date1.equals(date2)   // true
+date1 === date2       // false
+date1.equals(date3)   // false
+date1.isBefore(date3) // true
+date1.isAfter(date3)  // false
+date1 >= date2        // true
+date1 > date2         // false
+date1 >= date3        // false
+date1 <= date3        // true
 ```
 
 #### addMonths, addDays
