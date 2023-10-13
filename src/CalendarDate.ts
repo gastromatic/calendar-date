@@ -35,6 +35,14 @@ export class CalendarDate {
   readonly weekday!: number;
 
   /**
+   * Customizes the default string description for instances of `CalendarDate`.
+   * @returns {string} The string 'CalendarDate' which indicates the custom type of the object.
+   */
+  get [Symbol.toStringTag]() {
+    return 'CalendarDate';
+  }
+
+  /**
    * Throws an Error for invalid inputs.
    *
    * @param isoString Format: yyyy-MM-dd
