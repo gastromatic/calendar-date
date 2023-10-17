@@ -36,7 +36,6 @@ export class CalendarDate {
 
   /**
    * Customizes the default string description for instances of `CalendarDate`.
-   * @returns {string} The string 'CalendarDate' which indicates the custom type of the object.
    */
   get [Symbol.toStringTag]() {
     return 'CalendarDate';
