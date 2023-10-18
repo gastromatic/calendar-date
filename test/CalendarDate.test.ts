@@ -1193,8 +1193,8 @@ describe('CalendarDate', () => {
     });
   });
 
-  describe('Test of instanceOf', () => {
-    test('Returns true for instanceOf CalendarDate', () => {
+  describe('Test of custom string description', () => {
+    test('the default string description of CalendarDate should be CalendarDate', () => {
       const dateInstance = new CalendarDate('2021-01-01');
       const tag = Object.prototype.toString.call(dateInstance);
       expect(tag).toBe('[object CalendarDate]');
