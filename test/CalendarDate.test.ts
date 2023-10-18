@@ -1,7 +1,6 @@
 import * as fc from 'fast-check';
 import { CalendarDate } from 'calendar-date';
 import { DAY_IN_SECONDS, ensureValidDay, unixTimestampToCalendarDate } from './helpers';
-import { instanceOf } from 'graphql/jsutils/instanceOf';
 
 describe('CalendarDate', () => {
   describe('Test of constructor', () => {
@@ -1196,21 +1195,9 @@ describe('CalendarDate', () => {
 
   describe('Test of instanceOf', () => {
     test('Returns true for instanceOf CalendarDate', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9995 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year, month, day) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const calendarDate = new CalendarDate(year, month, day);
-
-            // Assert
-            expect(instanceOf(calendarDate, CalendarDate)).toBeTruthy();
-          },
-        ),
-      );
+      const dateInstance = new CalendarDate('2021-01-01');
+      const tag = Object.prototype.toString.call(dateInstance);
+      expect(tag).toBe('[object CalendarDate]');
     });
   });
 });
