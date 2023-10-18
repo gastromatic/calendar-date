@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/gastromatic/calendar-date/compare/v2.2.0...v2.2.1) (2023-10-18)
+
+
+### Bug Fixes
+
+* add well known symbol method ([#247](https://github.com/gastromatic/calendar-date/issues/247)) ([e84177b](https://github.com/gastromatic/calendar-date/commit/e84177bf115ededa48fe54f48de8c8e01a226e86))
+
 # [2.2.0](https://github.com/gastromatic/calendar-date/compare/v2.1.0...v2.2.0) (2023-06-29)
 
 
