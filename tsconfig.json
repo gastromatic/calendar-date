@@ -2,7 +2,7 @@
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
     "paths": {
-      "calendar-date": ["src"]
-    }
-  }
+      "calendar-date": ["src"],
+    },
+  },
 }
