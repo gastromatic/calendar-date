@@ -1,3 +1,15 @@
+# [2.3.0](https://github.com/gastromatic/calendar-date/compare/v2.2.1...v2.3.0) (2024-02-08)
+
+
+### Bug Fixes
+
+* update to format function to work correctly in different timezones ([15ffa0e](https://github.com/gastromatic/calendar-date/commit/15ffa0ee3c4e23a3a277199c65226ca91ccc6162))
+
+
+### Features
+
+* add additional formatting variant with Intl api ([d4c7823](https://github.com/gastromatic/calendar-date/commit/d4c7823ed326671271441448f568e96afe3eab25))
+
 ## [2.2.1](https://github.com/gastromatic/calendar-date/compare/v2.2.0...v2.2.1) (2023-10-18)
 
 
