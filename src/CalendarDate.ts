@@ -243,7 +243,7 @@ export class CalendarDate {
   ): string {
     if (options) {
       const formatter = new Intl.DateTimeFormat(input, options);
-      return formatter.format(this.toDate());
+      return formatter.format(new Date(this.year, this.month - 1, this.day));
     } else {
       return input
         .replace(/yyyy/g, this.year.toString().padStart(4, '0'))

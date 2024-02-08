@@ -52,3 +52,5 @@ jobs:
         run: yarn install --frozen-lockfile --ignore-engines
       - name: Run Tests
         run: yarn test
+      - name: Run Tests with different timezones
+        run: yarn test:with-different-timezones
