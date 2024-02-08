@@ -291,7 +291,7 @@ describe('CalendarDate', () => {
   });
 
   describe('Test of toFormat', () => {
-    test('Should replace all supported tokens correctly', () => {
+    test('Should replace all supported tokens correctly for pattern variant', () => {
       // Assert
       expect(new CalendarDate('2020-01-05').toFormat('dd:MM:yyyy')).toBe('05:01:2020');
       expect(new CalendarDate('2020-01-05').toFormat('yyyy-MM-dd')).toBe('2020-01-05');
@@ -301,6 +301,34 @@ describe('CalendarDate', () => {
       expect(new CalendarDate('2020-01-05').toFormat('dd:MM:yyyy , dd-MM-yyyy')).toBe(
         '05:01:2020 , 05-01-2020',
       );
+    });
+
+    test('Should print correct date for the Intl Api version', () => {
+      // Assert
+      expect(
+        new CalendarDate('2020-01-05').toFormat('en', { month: 'long', year: '2-digit' }),
+      ).toBe('January 20');
+      expect(
+        new CalendarDate('2020-01-05').toFormat('en', {
+          month: '2-digit',
+          year: 'numeric',
+          day: '2-digit',
+        }),
+      ).toBe('01/05/2020');
+      expect(
+        new CalendarDate('2020-01-05').toFormat('de', {
+          month: '2-digit',
+          year: 'numeric',
+          day: '2-digit',
+        }),
+      ).toBe('05.01.2020');
+      expect(
+        new CalendarDate('2020-01-05').toFormat('en', {
+          month: 'short',
+          day: '2-digit',
+          weekday: 'long',
+        }),
+      ).toBe('Sunday, Jan 05');
     });
   });
 

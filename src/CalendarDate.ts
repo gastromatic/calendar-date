@@ -227,15 +227,33 @@ export class CalendarDate {
    * - **d**: day without padding
    *
    */
-  toFormat(pattern: string): string {
-    return pattern
-      .replace(/yyyy/g, this.year.toString().padStart(4, '0'))
-      .replace(/yy/g, this.year.toString().slice(-2).padStart(2, '0'))
-      .replace(/y/g, this.year.toString())
-      .replace(/MM/g, this.month.toString().padStart(2, '0'))
-      .replace(/M/g, this.month.toString())
-      .replace(/dd/g, this.day.toString().padStart(2, '0'))
-      .replace(/d/g, this.day.toString());
+  toFormat(pattern: string): string;
+
+  /**
+   * Returns a string representation formatted with the Intl.DateTimeFormat API.
+   */
+  toFormat(
+    locales: string,
+    options: Pick<Intl.DateTimeFormatOptions, 'year' | 'month' | 'day' | 'weekday'>,
+  ): string;
+
+  toFormat(
+    input: string,
+    options?: Pick<Intl.DateTimeFormatOptions, 'year' | 'month' | 'day' | 'weekday'>,
+  ): string {
+    if (options) {
+      const formatter = new Intl.DateTimeFormat(input, options);
+      return formatter.format(this.toDate());
+    } else {
+      return input
+        .replace(/yyyy/g, this.year.toString().padStart(4, '0'))
+        .replace(/yy/g, this.year.toString().slice(-2).padStart(2, '0'))
+        .replace(/y/g, this.year.toString())
+        .replace(/MM/g, this.month.toString().padStart(2, '0'))
+        .replace(/M/g, this.month.toString())
+        .replace(/dd/g, this.day.toString().padStart(2, '0'))
+        .replace(/d/g, this.day.toString());
+    }
   }
 
   /**
