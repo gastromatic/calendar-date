@@ -155,11 +155,19 @@ const sortedArrayDescending = CalendarDate.sortDescending([new CalendarDate('202
 Returns the formatted string based on a provided pattern.
 
 ```typescript
-const date1 = new CalendarDate('2020-06-01');
-date1.format('dd.MM.yy');     // 01.06.20
-date1.format('d-M-yy');       // 1.6.20
-date1.format('yyyy/dd/MM');   // 2020/01/06
+const date = new CalendarDate('2020-06-01');
+date.toFormat('dd.MM.yy');     // 01.06.20
+date.toFormat('d-M-yy');       // 1.6.20
+date.toFormat('yyyy/dd/MM');   // 2020/01/06
 
+```
+
+You can also supply a locale and options object from the [Intl DateTimeFormat Api](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat).
+    
+```typescript
+const date = new CalendarDate('2020-06-01');
+date.toFormat('en', { year: 'numeric', month: 'numeric', day: 'numeric' });     // 6/1/2020
+date.toFormat('en', { weekday: 'long', month: 'short', day: 'numeric' });     // Monday, Jun 1
 ```
 
 #### DayOfTheWeek
