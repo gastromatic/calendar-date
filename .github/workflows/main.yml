@@ -48,6 +48,8 @@ jobs:
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-modules-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-engines
+      - name: Run Tests
+        run: yarn test
       - name: Run Tests with different timezones
         run: yarn test:with-different-timezones
       - name: Run Tests with coverage
