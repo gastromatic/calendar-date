@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/gastromatic/calendar-date/compare/v2.3.0...v2.4.0) (2024-02-09)
+
+
+### Features
+
+* add iso week number according ISO-8601 ([acb4d09](https://github.com/gastromatic/calendar-date/commit/acb4d096d5bc5e1352568778f2ee9cc08f16d3d1))
+
 # [2.3.0](https://github.com/gastromatic/calendar-date/compare/v2.2.1...v2.3.0) (2024-02-08)
 
 
