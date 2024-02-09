@@ -35,6 +35,13 @@ export class CalendarDate {
   readonly weekday!: number;
 
   /**
+   * The number of the week of the year that the day is in. By definition (ISO 8601), the first week of a year contains January 4 of that year.
+   * (The ISO-8601 week starts on Monday.) In other words, the first Thursday of a year is in week 1 of that year. (for timestamp values only).
+   * [source: https://www.postgresql.org/docs/8.1/functions-datetime.html]
+   */
+  readonly week!: number;
+
+  /**
    * Customizes the default string description for instances of `CalendarDate`.
    */
   get [Symbol.toStringTag]() {
@@ -96,6 +103,7 @@ export class CalendarDate {
     const date = new Date(`${this.toString()}T00:00:00.000Z`);
     this.unixTimestampInSeconds = date.getTime() / 1000;
     this.weekday = date.getUTCDay() === 0 ? 7 : date.getUTCDay();
+    this.week = CalendarDate.getWeekNumber(this.year, this.month, this.day);
     Object.freeze(this);
   }
 
@@ -375,5 +383,24 @@ export class CalendarDate {
   getDifferenceInDays(calendarDate: CalendarDate, absolute?: boolean): number {
     const days = (this.valueOf() - calendarDate.valueOf()) / DAY_IN_SECONDS;
     return absolute ? Math.abs(days) : days;
+  }
+
+  /**
+   * Source: https://weeknumber.com/how-to/javascript
+   */
+  private static getWeekNumber(year: number, month: number, day: number): number {
+    const date = new Date(year, month - 1, day);
+    date.setHours(0, 0, 0, 0);
+    // Thursday in current week decides the year.
+    date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+    // January 4 is always in week 1.
+    const week1 = new Date(date.getFullYear(), 0, 4);
+    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+    return (
+      1 +
+      Math.round(
+        ((date.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7,
+      )
+    );
   }
 }
