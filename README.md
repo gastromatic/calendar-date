@@ -170,8 +170,19 @@ date.toFormat('en', { year: 'numeric', month: 'numeric', day: 'numeric' });     
 date.toFormat('en', { weekday: 'long', month: 'short', day: 'numeric' });     // Monday, Jun 1
 ```
 
+#### WeekOfYear (ISO-8601)
+You can access the week of year according to ISO 8601 as a read only property on the calendar date object.
+```typescript
+new CalendarDate('2023-01-01').week;    // 52 (of year 2022)
+new CalendarDate('2023-01-01').week;    // 1 (of year 2023)
+```
+
 #### DayOfTheWeek
 You can access the weekday according to ISO 8601 as a read only property on the calendar date object. The values are in the range from 1 to 7 starting from Monday.
+```typescript
+new CalendarDate('2020-01-13').weekday;    // 1 (Monday)
+new CalendarDate('2020-01-19').weekday;    // 7 (Sunday)
+```
 
 #### getFirstDayOfWeek, getLastDayOfWeek
 Returns a new CalendarDate with the first or last day of the week.

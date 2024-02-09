@@ -1,4 +1,5 @@
 import * as fc from 'fast-check';
+import fs from 'fs';
 import { CalendarDate } from 'calendar-date';
 import { DAY_IN_SECONDS, ensureValidDay, unixTimestampToCalendarDate } from './helpers';
 
@@ -1226,6 +1227,20 @@ describe('CalendarDate', () => {
       const dateInstance = new CalendarDate('2021-01-01');
       const tag = Object.prototype.toString.call(dateInstance);
       expect(tag).toBe('[object CalendarDate]');
+    });
+  });
+
+  describe('Test of getWeekNumber', () => {
+    test('week number of CalendarDate should be the same as expected for time range 1970-01-01 - 2100-12-31', () => {
+      const start = new CalendarDate('1970-01-01');
+      const end = new CalendarDate('2101-01-01');
+      const json = fs.readFileSync('./test/expectedIsoWeek_1970_01_01-2100_12_31.json', {
+        encoding: 'utf8',
+      });
+      const expectedWeekNumbers: Record<string, number> = JSON.parse(json);
+      for (let date = start; date.isBefore(end); date = date.addDays(1)) {
+        expect(expectedWeekNumbers[date.toString()]).toBe(date.week);
+      }
     });
   });
 });
