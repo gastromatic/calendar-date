@@ -1,3 +1,10 @@
+## [2.4.1](https://github.com/gastromatic/calendar-date/compare/v2.4.0...v2.4.1) (2024-02-16)
+
+
+### Bug Fixes
+
+* calculate week of the year during runtime ([22b1f8f](https://github.com/gastromatic/calendar-date/commit/22b1f8fe55c0b4ff29ce9a42944612f312a78cbf))
+
 # [2.4.0](https://github.com/gastromatic/calendar-date/compare/v2.3.0...v2.4.0) (2024-02-09)
 
 
