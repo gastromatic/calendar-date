@@ -504,8 +504,8 @@ describe('CalendarDate', () => {
     });
   });
 
-  describe('Test isEqualsOrBefore', () => {
-    test('isEqualsOrBefore returns true if the comparing date is greater', () => {
+  describe('Test isBeforeOrEqual', () => {
+    test('isBeforeOrEqual returns true if the comparing date is greater', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -519,13 +519,13 @@ describe('CalendarDate', () => {
             const date2 = date1.addDays(days);
 
             // Assert
-            expect(date1.isEqualsOrBefore(date2)).toBe(true);
+            expect(date1.isBeforeOrEqual(date2)).toBe(true);
           },
         ),
       );
     });
 
-    test('isEqualsOrBefore returns true if the comparing date is equal', () => {
+    test('isBeforeOrEqual returns true if the comparing date is equal', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -538,13 +538,13 @@ describe('CalendarDate', () => {
             const date2 = new CalendarDate(year, month, day);
 
             // Assert
-            expect(date1.isEqualsOrBefore(date2)).toBe(true);
+            expect(date1.isBeforeOrEqual(date2)).toBe(true);
           },
         ),
       );
     });
 
-    test('isEqualsOrAfter returns false if the comparing date is smaller', () => {
+    test('isBeforeOrEqual returns false if the comparing date is smaller', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -558,15 +558,15 @@ describe('CalendarDate', () => {
             const date2 = date1.addDays(-days);
 
             // Assert
-            expect(date1.isEqualsOrBefore(date2)).toBe(false);
+            expect(date1.isBeforeOrEqual(date2)).toBe(false);
           },
         ),
       );
     });
   });
 
-  describe('Test isEqualsOrAfter', () => {
-    test('isEqualsOrAfter returns true if the comparing date is smaller', () => {
+  describe('Test isAfterOrEqual', () => {
+    test('isAfterOrEqual returns true if the comparing date is smaller', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -580,13 +580,13 @@ describe('CalendarDate', () => {
             const date2 = date1.addDays(-days);
 
             // Assert
-            expect(date1.isEqualsOrAfter(date2)).toBe(true);
+            expect(date1.isAfterOrEqual(date2)).toBe(true);
           },
         ),
       );
     });
 
-    test('isEqualsOrAfter returns true if the comparing date is equal', () => {
+    test('isAfterOrEqual returns true if the comparing date is equal', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -599,13 +599,13 @@ describe('CalendarDate', () => {
             const date2 = new CalendarDate(year, month, day);
 
             // Assert
-            expect(date1.isEqualsOrAfter(date2)).toBe(true);
+            expect(date1.isAfterOrEqual(date2)).toBe(true);
           },
         ),
       );
     });
 
-    test('isEqualsOrAfter returns false if the comparing date is greater', () => {
+    test('isAfterOrEqual returns false if the comparing date is greater', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -619,7 +619,7 @@ describe('CalendarDate', () => {
             const date2 = date1.addDays(days);
 
             // Assert
-            expect(date1.isEqualsOrAfter(date2)).toBe(false);
+            expect(date1.isAfterOrEqual(date2)).toBe(false);
           },
         ),
       );

@@ -286,11 +286,11 @@ export class CalendarDate {
     return this.valueOf() > calendarDate.valueOf();
   }
 
-  isEqualsOrBefore(calendarDate: CalendarDate): boolean {
+  isBeforeOrEqual(calendarDate: CalendarDate): boolean {
     return this.isBefore(calendarDate) || this.equals(calendarDate);
   }
 
-  isEqualsOrAfter(calendarDate: CalendarDate): boolean {
+  isAfterOrEqual(calendarDate: CalendarDate): boolean {
     return this.isAfter(calendarDate) || this.equals(calendarDate);
   }
 
