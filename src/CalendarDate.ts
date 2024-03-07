@@ -287,11 +287,11 @@ export class CalendarDate {
   }
 
   isBeforeOrEqual(calendarDate: CalendarDate): boolean {
-    return this.isBefore(calendarDate) || this.equals(calendarDate);
+    return this.valueOf() <= calendarDate.valueOf();
   }
 
   isAfterOrEqual(calendarDate: CalendarDate): boolean {
-    return this.isAfter(calendarDate) || this.equals(calendarDate);
+    return this.valueOf() >= calendarDate.valueOf();
   }
 
   /**
