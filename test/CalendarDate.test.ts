@@ -504,6 +504,128 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test isBeforeOrEqual', () => {
+    test('isBeforeOrEqual returns true if the comparing date is greater', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 1000 }),
+          (year, month, day, days) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = date1.addDays(days);
+
+            // Assert
+            expect(date1.isBeforeOrEqual(date2)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('isBeforeOrEqual returns true if the comparing date is equal', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = new CalendarDate(year, month, day);
+
+            // Assert
+            expect(date1.isBeforeOrEqual(date2)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('isBeforeOrEqual returns false if the comparing date is smaller', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 1000 }),
+          (year, month, day, days) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = date1.addDays(-days);
+
+            // Assert
+            expect(date1.isBeforeOrEqual(date2)).toBe(false);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test isAfterOrEqual', () => {
+    test('isAfterOrEqual returns true if the comparing date is smaller', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 1000 }),
+          (year, month, day, days) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = date1.addDays(-days);
+
+            // Assert
+            expect(date1.isAfterOrEqual(date2)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('isAfterOrEqual returns true if the comparing date is equal', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = new CalendarDate(year, month, day);
+
+            // Assert
+            expect(date1.isAfterOrEqual(date2)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('isAfterOrEqual returns false if the comparing date is greater', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 1000 }),
+          (year, month, day, days) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date1 = new CalendarDate(year, month, day);
+            const date2 = date1.addDays(days);
+
+            // Assert
+            expect(date1.isAfterOrEqual(date2)).toBe(false);
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of max', () => {
     test('Throws Error for no input arguments', () => {
       expect(() => CalendarDate.max()).toThrowError(
