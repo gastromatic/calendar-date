@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/gastromatic/calendar-date/compare/v2.4.1...v2.5.0) (2024-03-08)
+
+
+### Features
+
+* add isEqualsOrBefore and isEqualsOrAfter methods ([#286](https://github.com/gastromatic/calendar-date/issues/286)) ([8b6f286](https://github.com/gastromatic/calendar-date/commit/8b6f286b4ebda4ec8480e9a57810733a28866786))
+
 ## [2.4.1](https://github.com/gastromatic/calendar-date/compare/v2.4.0...v2.4.1) (2024-02-16)
 
 
