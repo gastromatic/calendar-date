@@ -374,6 +374,29 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of toLocalDate', () => {
+    test('The returned date object represents the start of the day in the local timezone', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const calendarDate = new CalendarDate(year, month, day);
+            const date = calendarDate.toLocalDate();
+
+            // Assert
+            expect(
+              `${date.getFullYear().toString().padStart(4, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`,
+            ).toEqual(calendarDate.toString());
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of equals', () => {
     test('Returns true if the input object has the same unix timestamp', () => {
       fc.assert(

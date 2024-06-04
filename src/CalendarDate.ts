@@ -267,6 +267,10 @@ export class CalendarDate {
     return new Date(this.unixTimestampInSeconds * 1000);
   }
 
+  toLocalDate(): Date {
+    return new Date(this.year, this.month - 1, this.day);
+  }
+
   /**
    * Returns the unix timestamp in seconds.
    */
