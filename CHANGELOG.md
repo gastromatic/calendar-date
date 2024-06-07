@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/gastromatic/calendar-date/compare/v2.5.0...v2.6.0) (2024-06-07)
+
+
+### Features
+
+* add toDateLocal and rename toDate to toDateUTC ([#303](https://github.com/gastromatic/calendar-date/issues/303)) ([4fcc5f1](https://github.com/gastromatic/calendar-date/commit/4fcc5f1b99da6b1d579ea94b9778e9ea19bfffb7))
+
 # [2.5.0](https://github.com/gastromatic/calendar-date/compare/v2.4.1...v2.5.0) (2024-03-08)
 
 
