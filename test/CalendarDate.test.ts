@@ -353,7 +353,7 @@ describe('CalendarDate', () => {
     });
   });
 
-  describe('Test of toDate', () => {
+  describe('Test of toDateUTC', () => {
     test('The returned date object represents the start of the day of the calendarDate in UTC timezone', () => {
       fc.assert(
         fc.property(
@@ -364,7 +364,7 @@ describe('CalendarDate', () => {
             // Arrange
             day = ensureValidDay(year, month, day);
             const calendarDate = new CalendarDate(year, month, day);
-            const date = calendarDate.toDate();
+            const date = calendarDate.toDateUTC();
 
             // Assert
             expect(date.toISOString()).toEqual(`${calendarDate.toString()}T00:00:00.000Z`);
@@ -374,7 +374,7 @@ describe('CalendarDate', () => {
     });
   });
 
-  describe('Test of toLocalDate', () => {
+  describe('Test of toDateLocal', () => {
     test('The returned date object represents the start of the day in the local timezone', () => {
       fc.assert(
         fc.property(
@@ -385,7 +385,7 @@ describe('CalendarDate', () => {
             // Arrange
             day = ensureValidDay(year, month, day);
             const calendarDate = new CalendarDate(year, month, day);
-            const date = calendarDate.toLocalDate();
+            const date = calendarDate.toDateLocal();
 
             // Assert
             expect(
