@@ -353,7 +353,7 @@ describe('CalendarDate', () => {
     });
   });
 
-  describe('Test of toDate', () => {
+  describe('Test of toDateUTC', () => {
     test('The returned date object represents the start of the day of the calendarDate in UTC timezone', () => {
       fc.assert(
         fc.property(
@@ -364,10 +364,33 @@ describe('CalendarDate', () => {
             // Arrange
             day = ensureValidDay(year, month, day);
             const calendarDate = new CalendarDate(year, month, day);
-            const date = calendarDate.toDate();
+            const date = calendarDate.toDateUTC();
 
             // Assert
             expect(date.toISOString()).toEqual(`${calendarDate.toString()}T00:00:00.000Z`);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of toDateLocal', () => {
+    test('The returned date object represents the start of the day in the local timezone', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const calendarDate = new CalendarDate(year, month, day);
+            const date = calendarDate.toDateLocal();
+
+            // Assert
+            expect(
+              `${date.getFullYear().toString().padStart(4, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`,
+            ).toEqual(calendarDate.toString());
           },
         ),
       );

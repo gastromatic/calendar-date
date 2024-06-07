@@ -263,8 +263,12 @@ export class CalendarDate {
     return this.toString();
   }
 
-  toDate(): Date {
+  toDateUTC(): Date {
     return new Date(this.unixTimestampInSeconds * 1000);
+  }
+
+  toDateLocal(): Date {
+    return new Date(this.year, this.month - 1, this.day);
   }
 
   /**
