@@ -1,3 +1,10 @@
+## [2.6.1](https://github.com/gastromatic/calendar-date/compare/v2.6.0...v2.6.1) (2024-07-12)
+
+
+### Bug Fixes
+
+* add better constructor validation and error logging ([#312](https://github.com/gastromatic/calendar-date/issues/312)) ([05f95b0](https://github.com/gastromatic/calendar-date/commit/05f95b0d4021ec191b2dad9dba7c7180143cb3dc))
+
 # [2.6.0](https://github.com/gastromatic/calendar-date/compare/v2.5.0...v2.6.0) (2024-06-07)
 
 
