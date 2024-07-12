@@ -19,12 +19,14 @@ describe('CalendarDate', () => {
               // Assert
               expect(
                 () => new CalendarDate(year, undefinedAsNumber, undefinedAsNumber),
-              ).toThrowError(`CalendarDate Validation Error: Input [ ${year} ] is not valid.`);
+              ).toThrowError(
+                `CalendarDate Validation Error: Input [ ${year} ] of type [ number ] is not valid.`,
+              );
               expect(() => new CalendarDate(year, month, undefinedAsNumber)).toThrowError(
-                `CalendarDate Validation Error: Input [ ${year} , ${month} ] is not valid.`,
+                `CalendarDate Validation Error: Input [ ${year} , ${month} ] of type [ number , number ] is not valid.`,
               );
               expect(() => new CalendarDate(year, undefinedAsNumber, day)).toThrowError(
-                `CalendarDate Validation Error: Input [ ${year} , ${day} ] is not valid.`,
+                `CalendarDate Validation Error: Input [ ${year} , ${day} ] of type [ number , number ] is not valid.`,
               );
             },
           ),

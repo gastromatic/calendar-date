@@ -61,7 +61,7 @@ export class CalendarDate {
     if (typeof input1 === 'string') {
       return CalendarDate.parse(input1);
     }
-    if (typeof input2 === 'number' && typeof input3 === 'number') {
+    if (typeof input1 === 'number' && typeof input2 === 'number' && typeof input3 === 'number') {
       this.year = input1;
       this.month = input2;
       this.day = input3;
@@ -87,10 +87,11 @@ export class CalendarDate {
         );
       }
     } else {
+      const inputs = [input1, input2, input3].filter((input) => input !== undefined);
       throw new Error(
-        `CalendarDate Validation Error: Input [ ${[input1, input2, input3]
-          .filter((input) => input !== undefined)
-          .join(' , ')} ] is not valid.`,
+        `CalendarDate Validation Error: Input [ ${inputs.join(
+          ' , ',
+        )} ] of type [ ${inputs.map((input) => typeof input).join(' , ')} ] is not valid.`,
       );
     }
     const date = new Date(`${this.toString()}T00:00:00.000Z`);
