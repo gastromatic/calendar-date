@@ -2,8 +2,7 @@
 .husky/
 test/
 .commitlintrc.yml
-.eslintignore
-.eslintrc.json
+eslint.config.mjs
 .gitignore
 .lintstagedrc.yml
 .prettierrc.yml
