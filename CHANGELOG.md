@@ -1,3 +1,10 @@
+## [2.6.2](https://github.com/gastromatic/calendar-date/compare/v2.6.1...v2.6.2) (2024-07-15)
+
+
+### Bug Fixes
+
+* add removed toDate method again and mark as deprecated ([#314](https://github.com/gastromatic/calendar-date/issues/314)) ([cf487e7](https://github.com/gastromatic/calendar-date/commit/cf487e777c0495f3c1ef7c3c088ce2610e30e436))
+
 ## [2.6.1](https://github.com/gastromatic/calendar-date/compare/v2.6.0...v2.6.1) (2024-07-12)
 
 
