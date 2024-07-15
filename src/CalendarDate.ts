@@ -268,6 +268,13 @@ export class CalendarDate {
     return new Date(this.unixTimestampInSeconds * 1000);
   }
 
+  /**
+   * @deprecated use toDateUTC instead. This method will be removed in the next major version.
+   */
+  toDate(): Date {
+    return this.toDateUTC();
+  }
+
   toDateLocal(): Date {
     return new Date(this.year, this.month - 1, this.day);
   }
