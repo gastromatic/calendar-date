@@ -376,6 +376,27 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of toDate', () => {
+    test('The returned date object represents the start of the day of the calendarDate in UTC timezone', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const calendarDate = new CalendarDate(year, month, day);
+            const date = calendarDate.toDate();
+
+            // Assert
+            expect(date.toISOString()).toEqual(`${calendarDate.toString()}T00:00:00.000Z`);
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of toDateLocal', () => {
     test('The returned date object represents the start of the day in the local timezone', () => {
       fc.assert(
