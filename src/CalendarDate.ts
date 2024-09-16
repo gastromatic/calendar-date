@@ -424,4 +424,11 @@ export class CalendarDate {
       )
     );
   }
+
+  /**
+   * Returns the quarter of the year that the day is in.
+   */
+  public getQuarter(): number {
+    return Math.floor((this.month - 1) / 3) + 1;
+  }
 }
