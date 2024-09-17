@@ -1413,7 +1413,7 @@ describe('CalendarDate', () => {
   });
 
   describe('Test of quarter', () => {
-    test('result is always between 1 and 4', () => {
+    test('Result is always between 1 and 4', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -1433,7 +1433,7 @@ describe('CalendarDate', () => {
         ),
       );
     });
-    test('Correct quarter for month', () => {
+    test('Correct quarter for each month', () => {
       expect(new CalendarDate(2023, 1, 1).quarter).toBe(1);
       expect(new CalendarDate(2023, 2, 1).quarter).toBe(1);
       expect(new CalendarDate(2023, 3, 1).quarter).toBe(1);
