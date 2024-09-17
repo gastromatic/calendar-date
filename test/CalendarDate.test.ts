@@ -1411,4 +1411,41 @@ describe('CalendarDate', () => {
       }
     });
   });
+
+  describe('Test of quarter', () => {
+    test('result is always between 1 and 4', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+
+            // Act
+            const quarter = calendarDate.quarter;
+
+            // Assert
+            expect(quarter).toBeLessThan(5);
+            expect(quarter).toBeGreaterThan(0);
+          },
+        ),
+      );
+    });
+    test('Correct quarter for month', () => {
+      expect(new CalendarDate(2023, 1, 1).quarter).toBe(1);
+      expect(new CalendarDate(2023, 2, 1).quarter).toBe(1);
+      expect(new CalendarDate(2023, 3, 1).quarter).toBe(1);
+      expect(new CalendarDate(2023, 4, 1).quarter).toBe(2);
+      expect(new CalendarDate(2023, 5, 1).quarter).toBe(2);
+      expect(new CalendarDate(2023, 6, 1).quarter).toBe(2);
+      expect(new CalendarDate(2023, 7, 1).quarter).toBe(3);
+      expect(new CalendarDate(2023, 8, 1).quarter).toBe(3);
+      expect(new CalendarDate(2023, 9, 1).quarter).toBe(3);
+      expect(new CalendarDate(2023, 10, 1).quarter).toBe(4);
+      expect(new CalendarDate(2023, 11, 1).quarter).toBe(4);
+      expect(new CalendarDate(2023, 12, 1).quarter).toBe(4);
+    });
+  });
 });
