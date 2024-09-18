@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/gastromatic/calendar-date/compare/v2.6.2...v2.7.0) (2024-09-18)
+
+
+### Features
+
+* add quarter in calendar date ([#328](https://github.com/gastromatic/calendar-date/issues/328)) ([79c18e4](https://github.com/gastromatic/calendar-date/commit/79c18e431142e0f21c91e251288eb6bb8feed4e0))
+
 ## [2.6.2](https://github.com/gastromatic/calendar-date/compare/v2.6.1...v2.6.2) (2024-07-15)
 
 
