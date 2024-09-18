@@ -424,4 +424,17 @@ export class CalendarDate {
       )
     );
   }
+
+  /**
+   * The quarter of the year (1-4) based on the month of the date.
+   *
+   * Quarter breakdown:
+   * - 1st Quarter: January to March (1-3)
+   * - 2nd Quarter: April to June (4-6)
+   * - 3rd Quarter: July to September (7-9)
+   * - 4th Quarter: October to December (10-12)
+   */
+  public get quarter(): number {
+    return Math.floor((this.month - 1) / 3) + 1;
+  }
 }
