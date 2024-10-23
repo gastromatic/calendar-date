@@ -35,6 +35,12 @@ export class CalendarDate {
   readonly weekday!: number;
 
   /**
+   * cache for Intl.DateTimeFormat instances
+   * @private
+   */
+  private static dateTimeFormatterByTimezone = new Map<string, Intl.DateTimeFormat>();
+
+  /**
    * Customizes the default string description for instances of `CalendarDate`.
    */
   get [Symbol.toStringTag]() {
@@ -108,6 +114,20 @@ export class CalendarDate {
     return month === 2 && CalendarDate.isLeapYear(year) ? 29 : DAYS_IN_MONTH[month - 1];
   }
 
+  private static getIntlDateTimeFormatter(timeZone: string): Intl.DateTimeFormat {
+    let formatter = CalendarDate.dateTimeFormatterByTimezone.get(timeZone);
+    if (!formatter) {
+      formatter = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        timeZone,
+      });
+      CalendarDate.dateTimeFormatterByTimezone.set(timeZone, formatter);
+    }
+    return formatter;
+  }
+
   /**
    * returns a CalendarDate instance for the supplied Date, using UTC values
    */
@@ -126,11 +146,7 @@ export class CalendarDate {
    * returns a CalendarDate instance for the supplied Date, using the supplied time zone string
    */
   static fromDateWithTimeZone(date: Date, timeZone: string): CalendarDate {
-    const calendarValues = date
-      .toLocaleDateString('de-DE', { timeZone })
-      .split('.')
-      .map((value) => parseInt(value));
-    return new CalendarDate(calendarValues[2], calendarValues[1], calendarValues[0]);
+    return new CalendarDate(CalendarDate.getIntlDateTimeFormatter(timeZone).format(date));
   }
 
   /**
