@@ -1,3 +1,10 @@
+## [2.7.2](https://github.com/gastromatic/calendar-date/compare/v2.7.1...v2.7.2) (2024-10-23)
+
+
+### Bug Fixes
+
+* allow date below year 1000 for fromDateWithTimeZone ([67ce710](https://github.com/gastromatic/calendar-date/commit/67ce7108ab31fff70795f06f77d8670cbae0675e))
+
 ## [2.7.1](https://github.com/gastromatic/calendar-date/compare/v2.7.0...v2.7.1) (2024-10-23)
 
 
