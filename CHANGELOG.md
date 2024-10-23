@@ -1,3 +1,10 @@
+## [2.7.1](https://github.com/gastromatic/calendar-date/compare/v2.7.0...v2.7.1) (2024-10-23)
+
+
+### Bug Fixes
+
+* add caching for intl formatter ([fe98ecf](https://github.com/gastromatic/calendar-date/commit/fe98ecff04cd825eca028673f6197a093ba1703d))
+
 # [2.7.0](https://github.com/gastromatic/calendar-date/compare/v2.6.2...v2.7.0) (2024-09-18)
 
 
