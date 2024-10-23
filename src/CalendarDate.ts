@@ -146,7 +146,9 @@ export class CalendarDate {
    * returns a CalendarDate instance for the supplied Date, using the supplied time zone string
    */
   static fromDateWithTimeZone(date: Date, timeZone: string): CalendarDate {
-    return new CalendarDate(CalendarDate.getIntlDateTimeFormatter(timeZone).format(date));
+    return new CalendarDate(
+      CalendarDate.getIntlDateTimeFormatter(timeZone).format(date).padStart(10, '0'),
+    );
   }
 
   /**
