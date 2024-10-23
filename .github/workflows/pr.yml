@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4.0.4
         with:
-          node-version: '20'
+          node-version: '22'
       - uses: actions/cache@v4
         with:
           path: '**/node_modules'
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 16, 18, 20 ]
+        node-version: [ 18, 20, 22 ]
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js environment
