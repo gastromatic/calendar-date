@@ -216,6 +216,21 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of fromDateWithTimeZone', () => {
+    test('should return correct date for a year < 1000', () => {
+      // Arrange
+      const date = new Date(50, 0, 1);
+
+      // Act
+      const calendarDate = CalendarDate.fromDateWithTimeZone(date, 'America/New_York');
+
+      // Assert
+      expect(calendarDate.toFormat('d.M.yyyy')).toBe(
+        date.toLocaleDateString('de-DE', { timeZone: 'America/New_York' }),
+      );
+    });
+  });
+
   describe('Test of parseString', () => {
     test('Should throw error if input is not a valid iso string', () => {
       fc.assert(
