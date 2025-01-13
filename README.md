@@ -42,9 +42,6 @@ or
 npm install calendar-date
 ```
 
-## Migration from v1 to v2
-If you want to upgrade from v1 to v2 of calendar-date you need to check if you access the read only month property on the calendar date object or use the number constructor anywhere and change the code according to the change (Range of month changed from 0-11 to 1-12). All other functions and properties work the same as before.
-
 ## Documentation
 
 ### CalendarDate
@@ -260,6 +257,9 @@ const date1 = new CalendarDate('2020-05-15');
 const date2 = new CalendarDate('2022-02-01');
 new CalendarDateRange(date1, date2).getDifferenceInMonths();  // 21
 ```
+
+## Migration from v1 to v2
+If you want to upgrade from v1 to v2 of calendar-date you need to check if you access the read only month property on the calendar date object or use the number constructor anywhere and change the code according to the change (Range of month changed from 0-11 to 1-12). All other functions and properties work the same as before.
 
 ## License
 
