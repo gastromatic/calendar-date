@@ -11,28 +11,42 @@ export enum DayOfTheWeek {
   SUNDAY = 7,
 }
 
+function parseIsoString(isoString: string): { year: number; month: number; day: number } {
+  if (!isoString.match(new RegExp(/^\d{4}-\d{2}-\d{2}$/))) {
+    throw new Error(
+      `CalendarDate Validation Error: Input ${isoString.toString()} is not valid, it should follow the pattern YYYY-MM-DD.`,
+    );
+  }
+  const split = isoString.split('-');
+  return {
+    year: parseInt(split[0]),
+    month: parseInt(split[1]),
+    day: parseInt(split[2]),
+  };
+}
+
 export class CalendarDate {
-  readonly year!: number;
+  readonly year: number;
 
   /**
    * Month of the year starting from 1
    */
-  readonly month!: number;
+  readonly month: number;
 
   /**
    * Day of the month starting from 1
    */
-  readonly day!: number;
+  readonly day: number;
 
   /**
    * Seconds passed since the unix epoch. Always calculated with a time and timezone set to T00:00:00.00Z.
    */
-  readonly unixTimestampInSeconds!: number;
+  readonly unixTimestampInSeconds: number;
 
   /**
    * Day of the week starting from monday according to ISO 8601. Values from 1-7.
    */
-  readonly weekday!: number;
+  readonly weekday: number;
 
   /**
    * cache for Intl.DateTimeFormat instances
@@ -65,9 +79,15 @@ export class CalendarDate {
 
   constructor(input1: string | number, input2?: number, input3?: number) {
     if (typeof input1 === 'string') {
-      return CalendarDate.parse(input1);
-    }
-    if (typeof input1 === 'number' && typeof input2 === 'number' && typeof input3 === 'number') {
+      const result = parseIsoString(input1);
+      this.year = result.year;
+      this.month = result.month;
+      this.day = result.day;
+    } else if (
+      typeof input1 === 'number' &&
+      typeof input2 === 'number' &&
+      typeof input3 === 'number'
+    ) {
       this.year = input1;
       this.month = input2;
       this.day = input3;
@@ -177,13 +197,8 @@ export class CalendarDate {
    * @param isoString pattern YYYY-MM-DD
    */
   static parse(isoString: string): CalendarDate {
-    if (!isoString.match(new RegExp(/^\d{4}-\d{2}-\d{2}$/))) {
-      throw new Error(
-        `CalendarDate Validation Error: Input ${isoString.toString()} is not valid, it should follow the pattern YYYY-MM-DD.`,
-      );
-    }
-    const split = isoString.split('-');
-    return new CalendarDate(parseInt(split[0]), parseInt(split[1]), parseInt(split[2]));
+    const { year, month, day } = parseIsoString(isoString);
+    return new CalendarDate(year, month, day);
   }
 
   static max(...values: CalendarDate[]): CalendarDate {
