@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/gastromatic/calendar-date/compare/v2.7.2...v2.8.0) (2025-01-28)
+
+
+### Features
+
+* add getTotalDays function to calendar date range ([d40aaf9](https://github.com/gastromatic/calendar-date/commit/d40aaf9fc04b322372c61ef429a6541fb7851372))
+
 ## [2.7.2](https://github.com/gastromatic/calendar-date/compare/v2.7.1...v2.7.2) (2024-10-23)
 
 
