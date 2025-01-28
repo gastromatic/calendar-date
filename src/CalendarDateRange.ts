@@ -41,6 +41,18 @@ export class CalendarDateRange {
     return new CalendarDateRange(new CalendarDate(split[0]), new CalendarDate(split[1]));
   }
 
+  /**
+   * Returns the total amount of days in included in this date range
+   * including start and end day.
+   */
+  getTotalDays(): number {
+    return this.end.getDifferenceInDays(this.start) + 1;
+  }
+
+  /**
+   * Returns the difference in days between the start and end date.
+   * See documentation of CalendarDate.getDifferenceInDays for more information.
+   */
   getDifferenceInDays(): number {
     return this.end.getDifferenceInDays(this.start);
   }
