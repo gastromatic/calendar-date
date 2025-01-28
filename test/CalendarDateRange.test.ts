@@ -280,6 +280,28 @@ describe('CalendarDateRange', () => {
     });
   });
 
+  describe('Test of getTotalDays', () => {
+    test('Result should be number of days added to the start plus 1', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 0, max: 9900 }),
+          (year, month, day, addedDays) => {
+            // Arrange
+            const date1 = new CalendarDate(year, month, ensureValidDay(year, month, day));
+            const date2 = date1.addDays(addedDays);
+            const dateRange1 = new CalendarDateRange(date1, date2);
+
+            // Assert
+            expect(dateRange1.getTotalDays()).toBe(addedDays + 1);
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of getDifferenceInDays', () => {
     test('Result should always be equal to or greater than zero', () => {
       fc.assert(

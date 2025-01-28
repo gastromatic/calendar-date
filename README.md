@@ -240,6 +240,15 @@ dateRange.includes(date2, { excludeEnd: true});     // false
 dateRange.includes(date3);                          // true
 ```
 
+#### getTotalDays
+Returns the total amount of days in the CalendarDateRange, including the start and end date.
+
+```typescript
+const date1 = new CalendarDate('2020-01-01');
+const date2 = new CalendarDate('2020-01-02');
+new CalendarDateRange(date1, date2).getDifferenceInDays();  // 2
+```
+
 #### getDifferenceInDays
 Returns the difference in days between start and end of the CalendarDateRange.
 
