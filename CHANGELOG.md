@@ -1,3 +1,10 @@
+# [2.9.0](https://github.com/gastromatic/calendar-date/compare/v2.8.0...v2.9.0) (2025-03-10)
+
+
+### Features
+
+* add new hasOverlap and hasGap CalendarDateRanges functions ([58a4c97](https://github.com/gastromatic/calendar-date/commit/58a4c974f11b9f5a04d09a2af628ca1337014994))
+
 # [2.8.0](https://github.com/gastromatic/calendar-date/compare/v2.7.2...v2.8.0) (2025-01-28)
 
 
