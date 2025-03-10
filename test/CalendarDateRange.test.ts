@@ -575,4 +575,282 @@ describe('CalendarDateRange', () => {
       });
     });
   });
+
+  describe('Test of hasGap', () => {
+    test('Should return false for empty array', () => {
+      // Act
+      const result = CalendarDateRange.hasGaps([]);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    test('Should return false for a single date range', () => {
+      // Arrange
+      const dateRange = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasGaps([dateRange]);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    test('Should return false for overlapping date ranges', () => {
+      // Arrange
+      const dateRange1 = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+      const dateRange2 = new CalendarDateRange(
+        new CalendarDate('2020-01-15'),
+        new CalendarDate('2020-02-15'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasGaps([dateRange1, dateRange2]);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    test('Should return false for date range included in another date range', () => {
+      // Arrange
+      const dateRange1 = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+      const dateRange2 = new CalendarDateRange(
+        new CalendarDate('2020-01-10'),
+        new CalendarDate('2020-01-20'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasGaps([dateRange1, dateRange2]);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    test('Should return false for adjacent date ranges', () => {
+      // Arrange
+      const dateRange1 = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+      const dateRange2 = new CalendarDateRange(
+        new CalendarDate('2020-02-01'),
+        new CalendarDate('2020-02-15'),
+      );
+      const dateRange3 = new CalendarDateRange(
+        new CalendarDate('2020-02-06'),
+        new CalendarDate('2020-03-01'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasGaps([dateRange1, dateRange2, dateRange3]);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    test('Should return true for date ranges with gaps', () => {
+      // Arrange
+      const dateRange1 = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+      const dateRange2 = new CalendarDateRange(
+        new CalendarDate('2020-02-01'),
+        new CalendarDate('2020-02-15'),
+      );
+      const dateRange3 = new CalendarDateRange(
+        new CalendarDate('2020-02-20'),
+        new CalendarDate('2020-03-01'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasGaps([dateRange1, dateRange2, dateRange3]);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    test('Should work for excludeStart option', () => {
+      // Arrange
+      const ranges1 = [
+        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
+        new CalendarDateRange(new CalendarDate('2020-02-01'), new CalendarDate('2020-02-15')),
+      ];
+      const ranges2 = [
+        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
+        new CalendarDateRange(new CalendarDate('2020-01-31'), new CalendarDate('2020-02-15')),
+      ];
+
+      // Act
+      const result1 = CalendarDateRange.hasGaps(ranges1, {
+        excludeStart: true,
+      });
+      const result2 = CalendarDateRange.hasGaps(ranges2, {
+        excludeStart: true,
+      });
+
+      // Assert
+      expect(result1).toBe(true);
+      expect(result2).toBe(false);
+    });
+
+    test('Should work for excludeEnd option', () => {
+      // Arrange
+      const ranges1 = [
+        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
+        new CalendarDateRange(new CalendarDate('2020-02-01'), new CalendarDate('2020-02-15')),
+      ];
+      const ranges2 = [
+        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
+        new CalendarDateRange(new CalendarDate('2020-01-31'), new CalendarDate('2020-02-15')),
+      ];
+
+      // Act
+      const result1 = CalendarDateRange.hasGaps(ranges1, {
+        excludeEnd: true,
+      });
+      const result2 = CalendarDateRange.hasGaps(ranges2, {
+        excludeEnd: true,
+      });
+
+      // Assert
+      expect(result1).toBe(true);
+      expect(result2).toBe(false);
+    });
+  });
+
+  describe('Test of hasOverlap', () => {
+    test('Should return false for empty array', () => {
+      // Act
+      const result = CalendarDateRange.hasOverlap([]);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    test('Should return false for a single date range', () => {
+      // Arrange
+      const dateRange = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasOverlap([dateRange]);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    test('Should return false for non-overlapping date ranges', () => {
+      // Arrange
+      const dateRange1 = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+      const dateRange2 = new CalendarDateRange(
+        new CalendarDate('2020-02-01'),
+        new CalendarDate('2020-02-15'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasOverlap([dateRange1, dateRange2]);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    test('Should return true for overlapping date ranges', () => {
+      // Arrange
+      const dateRange1 = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+      const dateRange2 = new CalendarDateRange(
+        new CalendarDate('2020-01-15'),
+        new CalendarDate('2020-02-15'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasOverlap([dateRange1, dateRange2]);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    test('Should return true for one date range inside another date range', () => {
+      // Arrange
+      const dateRange1 = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+      const dateRange2 = new CalendarDateRange(
+        new CalendarDate('2020-01-10'),
+        new CalendarDate('2020-01-20'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasOverlap([dateRange1, dateRange2]);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    test('Should work for excludeStart option', () => {
+      // Arrange
+      const ranges1 = [
+        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
+        new CalendarDateRange(new CalendarDate('2020-01-31'), new CalendarDate('2020-02-15')),
+      ];
+      const ranges2 = [
+        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
+        new CalendarDateRange(new CalendarDate('2020-01-30'), new CalendarDate('2020-02-15')),
+      ];
+
+      // Act
+      const result1 = CalendarDateRange.hasOverlap(ranges1, {
+        excludeStart: true,
+      });
+      const result2 = CalendarDateRange.hasOverlap(ranges2, {
+        excludeStart: true,
+      });
+
+      // Assert
+      expect(result1).toBe(false);
+      expect(result2).toBe(true);
+    });
+
+    test('Should work for excludeEnd option', () => {
+      // Arrange
+      const ranges1 = [
+        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
+        new CalendarDateRange(new CalendarDate('2020-01-31'), new CalendarDate('2020-02-15')),
+      ];
+      const ranges2 = [
+        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
+        new CalendarDateRange(new CalendarDate('2020-01-30'), new CalendarDate('2020-02-15')),
+      ];
+
+      // Act
+      const result1 = CalendarDateRange.hasOverlap(ranges1, {
+        excludeEnd: true,
+      });
+      const result2 = CalendarDateRange.hasOverlap(ranges2, {
+        excludeEnd: true,
+      });
+
+      // Assert
+      expect(result1).toBe(false);
+      expect(result2).toBe(true);
+    });
+  });
 });

@@ -42,6 +42,54 @@ export class CalendarDateRange {
   }
 
   /**
+   * Returns true if the given date ranges have gaps.
+   * The date ranges will be sorted.
+   */
+  static hasGaps(
+    values: CalendarDateRange[],
+    options?: { excludeStart?: boolean; excludeEnd?: boolean },
+  ): boolean {
+    const sortedValues = values.sort((a, b) => a.start.valueOf() - b.start.valueOf());
+    for (let i = 1; i < sortedValues.length; i++) {
+      let differenceInDays = sortedValues[i].start.getDifferenceInDays(sortedValues[i - 1].end);
+      if (options?.excludeStart) {
+        differenceInDays += 1;
+      }
+      if (options?.excludeEnd) {
+        differenceInDays += 1;
+      }
+      if (differenceInDays > 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Returns true if the given date ranges overlap.
+   * The date ranges will be sorted.
+   */
+  static hasOverlap(
+    values: CalendarDateRange[],
+    options?: { excludeStart?: boolean; excludeEnd?: boolean },
+  ): boolean {
+    const sortedValues = values.sort((a, b) => a.start.valueOf() - b.start.valueOf());
+    for (let i = 1; i < sortedValues.length; i++) {
+      let differenceInDays = sortedValues[i].start.getDifferenceInDays(sortedValues[i - 1].end);
+      if (options?.excludeStart) {
+        differenceInDays += 1;
+      }
+      if (options?.excludeEnd) {
+        differenceInDays += 1;
+      }
+      if (differenceInDays <= 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Returns the total amount of days in included in this date range
    * including start and end day.
    */

@@ -267,6 +267,37 @@ const date2 = new CalendarDate('2022-02-01');
 new CalendarDateRange(date1, date2).getDifferenceInMonths();  // 21
 ```
 
+#### hasOverlap
+For an array of CalendarDateRanges it returns true if there is an overlap between a range and one of its neighbours.
+Values will be sorted.
+
+```typescript
+import { CalendarDateRange } from './CalendarDateRange';
+
+const dateRange1 = new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-12-31'));
+const dateRange2 = new CalendarDateRange(new CalendarDate('2020-06-01'), new CalendarDate('2021-06-01'));
+const dateRange3 = new CalendarDateRange(new CalendarDate('2021-01-01'), new CalendarDate('2021-12-31'));
+CalendarDateRange.hasOverlap([dateRange1, dateRange2]);  // true
+CalendarDateRange.hasOverlap([dateRange1, dateRange3]);  // false
+```
+
+#### hasGap
+For an array of CalendarDateRanges it returns true if there is a gap between a range and one of its neighbours.
+Values will be sorted.
+
+```typescript
+import { CalendarDateRange } from './CalendarDateRange';
+
+const dateRange1 = new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-12-31'));
+const dateRange2 = new CalendarDateRange(new CalendarDate('2020-06-01'), new CalendarDate('2021-06-01'));
+const dateRange3 = new CalendarDateRange(new CalendarDate('2021-01-01'), new CalendarDate('2021-12-31'));
+const dateRange4 = new CalendarDateRange(new CalendarDate('2021-01-02'), new CalendarDate('2021-12-31'));
+CalendarDateRange.hasGap([dateRange1, dateRange2]);  // false
+CalendarDateRange.hasGap([dateRange1, dateRange3]);  // false
+CalendarDateRange.hasGap([dateRange1, dateRange4]);  // true
+```
+
+
 ## Migration from v1 to v2
 If you want to upgrade from v1 to v2 of calendar-date you need to check if you access the read only month property on the calendar date object or use the number constructor anywhere and change the code according to the change (Range of month changed from 0-11 to 1-12). All other functions and properties work the same as before.
 
