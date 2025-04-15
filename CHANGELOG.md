@@ -1,3 +1,10 @@
+## [2.9.1](https://github.com/gastromatic/calendar-date/compare/v2.9.0...v2.9.1) (2025-04-15)
+
+
+### Bug Fixes
+
+* reenable constructor validation for passed strings ([#369](https://github.com/gastromatic/calendar-date/issues/369)) ([331ba4a](https://github.com/gastromatic/calendar-date/commit/331ba4a82ba397a39c6bb40a731dba0392e8e7e3))
+
 # [2.9.0](https://github.com/gastromatic/calendar-date/compare/v2.8.0...v2.9.0) (2025-03-10)
 
 
