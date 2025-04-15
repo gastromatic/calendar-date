@@ -144,6 +144,19 @@ describe('CalendarDate', () => {
     });
 
     describe('input type: string', () => {
+      test('Throws error if format is wrong', () => {
+        const input = '01-01-2023';
+        expect(() => new CalendarDate(input)).toThrow(
+          `CalendarDate Validation Error: Input ${input} is not valid, it should follow the pattern YYYY-MM-DD.`,
+        );
+      });
+
+      test('Throws error if one of the numbers does not pass validation', () => {
+        expect(() => new CalendarDate('2023-18-05')).toThrow(
+          `CalendarDate Validation Error: Input month 18 is not valid. Month must be a number between 1 and 12.`,
+        );
+      });
+
       test('Construct CalendarDate from IsoString', () => {
         fc.assert(
           fc.property(
