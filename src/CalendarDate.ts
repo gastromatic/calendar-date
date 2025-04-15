@@ -91,27 +91,6 @@ export class CalendarDate {
       this.year = input1;
       this.month = input2;
       this.day = input3;
-      if (this.year < 0 || this.year > 9999) {
-        throw new Error(
-          `CalendarDate Validation Error: Input year ${this.year} is not valid. Year must be a number between 0 and 9999.`,
-        );
-      }
-      if (this.month < 1 || this.month > 12) {
-        throw new Error(
-          `CalendarDate Validation Error: Input month ${this.month} is not valid. Month must be a number between 1 and 12.`,
-        );
-      }
-      const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(this.year, this.month);
-      if (this.day < 1) {
-        throw new Error(
-          `CalendarDate Validation Error: Input day ${this.day} is not valid. Day must be a number greater than 0.`,
-        );
-      }
-      if (this.day > maxDayOfMonth) {
-        throw new Error(
-          `CalendarDate Validation Error: Input date ${this.year}-${this.month}-${this.day} is not a valid calendar date.`,
-        );
-      }
     } else {
       const inputs = [input1, input2, input3].filter((input) => input !== undefined);
       throw new Error(
@@ -120,6 +99,29 @@ export class CalendarDate {
         )} ] of type [ ${inputs.map((input) => typeof input).join(' , ')} ] is not valid.`,
       );
     }
+
+    if (this.year < 0 || this.year > 9999) {
+      throw new Error(
+        `CalendarDate Validation Error: Input year ${this.year} is not valid. Year must be a number between 0 and 9999.`,
+      );
+    }
+    if (this.month < 1 || this.month > 12) {
+      throw new Error(
+        `CalendarDate Validation Error: Input month ${this.month} is not valid. Month must be a number between 1 and 12.`,
+      );
+    }
+    const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(this.year, this.month);
+    if (this.day < 1) {
+      throw new Error(
+        `CalendarDate Validation Error: Input day ${this.day} is not valid. Day must be a number greater than 0.`,
+      );
+    }
+    if (this.day > maxDayOfMonth) {
+      throw new Error(
+        `CalendarDate Validation Error: Input date ${this.year}-${this.month}-${this.day} is not a valid calendar date.`,
+      );
+    }
+
     const date = new Date(`${this.toString()}T00:00:00.000Z`);
     this.unixTimestampInSeconds = date.getTime() / 1000;
     this.weekday = date.getUTCDay() === 0 ? 7 : date.getUTCDay();
