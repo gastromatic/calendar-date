@@ -18,7 +18,7 @@ describe('CalendarDateRange', () => {
 
             // Assert
             expect(() => new CalendarDateRange(startDate, endDate)).toThrowError(
-              "CalendarDateRange Validation Error: start date can't be before the end date.",
+              "CalendarDateRange Validation Error: end date can't be before the start date.",
             );
           },
         ),
