@@ -8,7 +8,7 @@ export class CalendarDateRange {
   constructor(start: CalendarDate, end: CalendarDate, autoArrange = false) {
     if (!autoArrange && end < start) {
       throw new Error(
-        "CalendarDateRange Validation Error: start date can't be before the end date.",
+        "CalendarDateRange Validation Error: end date can't be before the start date.",
       );
     }
     this.start = start <= end ? start : end;
