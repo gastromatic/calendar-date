@@ -1,6 +1,6 @@
 {
   "name": "calendar-date",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "description": "Immutable object to represent a calendar date with zero dependencies",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,3 +1,10 @@
+## [2.9.2](https://github.com/gastromatic/calendar-date/compare/v2.9.1...v2.9.2) (2025-05-12)
+
+
+### Bug Fixes
+
+* fix error message for invalid calendar-date range ([#371](https://github.com/gastromatic/calendar-date/issues/371)) ([7b9b17e](https://github.com/gastromatic/calendar-date/commit/7b9b17edfa8063ea7ba0fd264de6c6f00e1c9918))
+
 ## [2.9.1](https://github.com/gastromatic/calendar-date/compare/v2.9.0...v2.9.1) (2025-04-15)
 
 
