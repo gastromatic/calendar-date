@@ -1,3 +1,10 @@
+# [2.10.0](https://github.com/gastromatic/calendar-date/compare/v2.9.2...v2.10.0) (2025-06-16)
+
+
+### Features
+
+* add isSameMonth and isSameYear methods to CalendarDate ([62cb7b2](https://github.com/gastromatic/calendar-date/commit/62cb7b29cf3a699b32c9e227b884b94db42ad22a))
+
 ## [2.9.2](https://github.com/gastromatic/calendar-date/compare/v2.9.1...v2.9.2) (2025-05-12)
 
 
