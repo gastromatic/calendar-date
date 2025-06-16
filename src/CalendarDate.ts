@@ -325,6 +325,20 @@ export class CalendarDate {
     return this.valueOf() === calendarDate.valueOf();
   }
 
+  /**
+   * Checks if the month and year of this CalendarDate are the same as the month and year of the supplied CalendarDate.
+   */
+  isSameMonth(calendarDate: CalendarDate): boolean {
+    return this.year === calendarDate.year && this.month === calendarDate.month;
+  }
+
+  /**
+   * Checks if the year of this CalendarDate is the same as the year of the supplied CalendarDate.
+   */
+  isSameYear(calendarDate: CalendarDate): boolean {
+    return this.year === calendarDate.year;
+  }
+
   isBefore(calendarDate: CalendarDate): boolean {
     return this.valueOf() < calendarDate.valueOf();
   }

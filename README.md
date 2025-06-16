@@ -95,6 +95,23 @@ date1 >= date3        // false
 date1 <= date3        // true
 ```
 
+#### isSameYear
+Returns true if the CalendarDate is in the same year as the other CalendarDate.
+
+```typescript
+new CalendarDate('2020-01-01').isSameYear(new CalendarDate('2020-12-31')); // true
+new CalendarDate('2020-01-01').isSameYear(new CalendarDate('2021-01-01')); // false
+```
+
+#### isSameMonth
+Returns true if the CalendarDate is in the same month and year as the other CalendarDate.
+
+```typescript
+new CalendarDate('2020-01-01').isSameMonth(new CalendarDate('2020-01-15')); // true
+new CalendarDate('2020-01-01').isSameMonth(new CalendarDate('2020-02-01')); // false
+new CalendarDate('2020-01-01').isSameMonth(new CalendarDate('2021-01-01')); // false
+```
+
 #### addMonths, addDays
 Returns a new CalendarDate with the specified amount of months or days added.
 
