@@ -494,6 +494,95 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of isSameMonth', () => {
+    test('Returns true if the input object has the same month and year', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day1, day2) => {
+            // Arrange
+            day1 = ensureValidDay(year, month, day1);
+            day2 = ensureValidDay(year, month, day2);
+            const date1 = new CalendarDate(year, month, day1);
+            const date2 = new CalendarDate(year, month, day2);
+
+            // Assert
+            expect(date1.isSameMonth(date2)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('Returns false if the input object has a different month or year', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
+          (year1, year2, month1, month2) => {
+            fc.pre(year1 !== year2 || month1 !== month2);
+
+            // Arrange
+            const day1 = ensureValidDay(year1, month1, 1);
+            const day2 = ensureValidDay(year2, month2, 1);
+            const date1 = new CalendarDate(year1, month1, day1);
+            const date2 = new CalendarDate(year2, month2, day2);
+
+            // Assert
+            expect(date1.isSameMonth(date2)).toBe(false);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of isSameYear', () => {
+    test('Returns true if the input object has the same year', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month1, month2, day1, day2) => {
+            // Arrange
+            day1 = ensureValidDay(year, month1, day1);
+            day2 = ensureValidDay(year, month2, day2);
+            const date1 = new CalendarDate(year, month1, day1);
+            const date2 = new CalendarDate(year, month2, day2);
+
+            // Assert
+            expect(date1.isSameYear(date2)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('Returns false if the input object has a different year', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 200, max: 9900 }),
+          (year1, year2) => {
+            fc.pre(year1 !== year2); // Ensure different years
+
+            // Arrange
+            const date1 = new CalendarDate(year1, 1, 1);
+            const date2 = new CalendarDate(year2, 1, 1);
+
+            // Assert
+            expect(date1.isSameYear(date2)).toBe(false);
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of isBefore', () => {
     test('Returns true if the input object has a greater unix timestamp', () => {
       fc.assert(
