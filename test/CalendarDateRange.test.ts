@@ -17,7 +17,7 @@ describe('CalendarDateRange', () => {
             const endDate = datesInOrder[0];
 
             // Assert
-            expect(() => new CalendarDateRange(startDate, endDate)).toThrowError(
+            expect(() => new CalendarDateRange(startDate, endDate)).toThrow(
               "CalendarDateRange Validation Error: end date can't be before the start date.",
             );
           },
@@ -80,7 +80,7 @@ describe('CalendarDateRange', () => {
           const stringWithoutSlash = string.replace(new RegExp(/\//g), '');
 
           // Assert
-          expect(() => CalendarDateRange.parse(stringWithoutSlash)).toThrowError(
+          expect(() => CalendarDateRange.parse(stringWithoutSlash)).toThrow(
             `CalendarDateRange Validation Error: Input ${stringWithoutSlash.toString()} is not valid, it should follow the pattern YYYY-MM-DD/YYYY-MM-DD.`,
           );
         }),

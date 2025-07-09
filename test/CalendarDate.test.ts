@@ -17,15 +17,13 @@ describe('CalendarDate', () => {
               const undefinedAsNumber: number = undefined as unknown as number;
 
               // Assert
-              expect(
-                () => new CalendarDate(year, undefinedAsNumber, undefinedAsNumber),
-              ).toThrowError(
+              expect(() => new CalendarDate(year, undefinedAsNumber, undefinedAsNumber)).toThrow(
                 `CalendarDate Validation Error: Input [ ${year} ] of type [ number ] is not valid.`,
               );
-              expect(() => new CalendarDate(year, month, undefinedAsNumber)).toThrowError(
+              expect(() => new CalendarDate(year, month, undefinedAsNumber)).toThrow(
                 `CalendarDate Validation Error: Input [ ${year} , ${month} ] of type [ number , number ] is not valid.`,
               );
-              expect(() => new CalendarDate(year, undefinedAsNumber, day)).toThrowError(
+              expect(() => new CalendarDate(year, undefinedAsNumber, day)).toThrow(
                 `CalendarDate Validation Error: Input [ ${year} , ${day} ] of type [ number , number ] is not valid.`,
               );
             },
@@ -42,10 +40,10 @@ describe('CalendarDate', () => {
             fc.integer({ min: 1, max: 31 }),
             (yearLowerInterval, yearUpperInterval, month, day) => {
               // Assert
-              expect(() => new CalendarDate(yearLowerInterval, month, day)).toThrowError(
+              expect(() => new CalendarDate(yearLowerInterval, month, day)).toThrow(
                 `CalendarDate Validation Error: Input year ${yearLowerInterval} is not valid. Year must be a number between 0 and 9999.`,
               );
-              expect(() => new CalendarDate(yearUpperInterval, month, day)).toThrowError(
+              expect(() => new CalendarDate(yearUpperInterval, month, day)).toThrow(
                 `CalendarDate Validation Error: Input year ${yearUpperInterval} is not valid. Year must be a number between 0 and 9999.`,
               );
             },
@@ -62,10 +60,10 @@ describe('CalendarDate', () => {
             fc.integer({ min: 1, max: 31 }),
             (year, monthLowerInterval, monthUpperInterval, day) => {
               // Assert
-              expect(() => new CalendarDate(year, monthLowerInterval, day)).toThrowError(
+              expect(() => new CalendarDate(year, monthLowerInterval, day)).toThrow(
                 `CalendarDate Validation Error: Input month ${monthLowerInterval} is not valid. Month must be a number between 1 and 12.`,
               );
-              expect(() => new CalendarDate(year, monthUpperInterval, day)).toThrowError(
+              expect(() => new CalendarDate(year, monthUpperInterval, day)).toThrow(
                 `CalendarDate Validation Error: Input month ${monthUpperInterval} is not valid. Month must be a number between 1 and 12.`,
               );
             },
@@ -81,7 +79,7 @@ describe('CalendarDate', () => {
             fc.integer({ max: 0 }),
             (year, month, day) => {
               // Assert
-              expect(() => new CalendarDate(year, month, day)).toThrowError(
+              expect(() => new CalendarDate(year, month, day)).toThrow(
                 `CalendarDate Validation Error: Input day ${day} is not valid. Day must be a number greater than 0.`,
               );
             },
@@ -101,7 +99,7 @@ describe('CalendarDate', () => {
               day = Math.max(maxDayOfMonth + 1, day);
 
               // Assert
-              expect(() => new CalendarDate(year, month, day)).toThrowError(
+              expect(() => new CalendarDate(year, month, day)).toThrow(
                 `CalendarDate Validation Error: Input date ${year}-${month}-${day} is not a valid calendar date.`,
               );
             },
@@ -248,7 +246,7 @@ describe('CalendarDate', () => {
     test('Should throw error if input is not a valid iso string', () => {
       fc.assert(
         fc.property(fc.string(), (string) => {
-          expect(() => CalendarDate.parse(string)).toThrowError(
+          expect(() => CalendarDate.parse(string)).toThrow(
             `CalendarDate Validation Error: Input ${string.toString()} is not valid, it should follow the pattern YYYY-MM-DD.`,
           );
         }),
@@ -263,7 +261,7 @@ describe('CalendarDate', () => {
             const isoString = `${year}-${month}-${day}`;
 
             // Assert
-            expect(() => CalendarDate.parse(isoString)).toThrowError(
+            expect(() => CalendarDate.parse(isoString)).toThrow(
               `CalendarDate Validation Error: Input ${isoString.toString()} is not valid, it should follow the pattern YYYY-MM-DD.`,
             );
           },
@@ -791,7 +789,7 @@ describe('CalendarDate', () => {
 
   describe('Test of max', () => {
     test('Throws Error for no input arguments', () => {
-      expect(() => CalendarDate.max()).toThrowError(
+      expect(() => CalendarDate.max()).toThrow(
         'CalendarDate.max Validation Error: Function max requires at least one input argument.',
       );
     });
@@ -847,7 +845,7 @@ describe('CalendarDate', () => {
 
   describe('Test of min', () => {
     test('Throws Error for no input arguments', () => {
-      expect(() => CalendarDate.min()).toThrowError(
+      expect(() => CalendarDate.min()).toThrow(
         'CalendarDate.min Validation Error: Function min requires at least one input argument.',
       );
     });
