@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/gastromatic/calendar-date/compare/v2.10.0...v2.11.0) (2025-08-14)
+
+
+### Features
+
+* iterate and toArray function for CalendarDataRange ([9233833](https://github.com/gastromatic/calendar-date/commit/92338339477cd04010e73c7226969adb9f0c34b8))
+
 # [2.10.0](https://github.com/gastromatic/calendar-date/compare/v2.9.2...v2.10.0) (2025-06-16)
 
 
