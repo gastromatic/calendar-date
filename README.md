@@ -314,6 +314,63 @@ CalendarDateRange.hasGap([dateRange1, dateRange3]);  // false
 CalendarDateRange.hasGap([dateRange1, dateRange4]);  // true
 ```
 
+### Iteration Methods
+
+#### iterateDatesInRange
+
+Creates an iterator that yields each `CalendarDate` in the range from start to end.
+
+```typescript
+import { CalendarDateRange } from './CalendarDateRange';
+
+const range = new CalendarDateRange(new CalendarDate('2023-01-01'), new CalendarDate('2023-01-03'));
+
+// Iterate through all dates (inclusive)
+for (const date of range.iterateDatesInRange()) {
+  console.log(date.toString()); // 2023-01-01, 2023-01-02, 2023-01-03
+}
+
+// Exclude start date
+for (const date of range.iterateDatesInRange({ excludeStart: true })) {
+  console.log(date.toString()); // 2023-01-02, 2023-01-03
+}
+
+// Exclude end date
+for (const date of range.iterateDatesInRange({ excludeEnd: true })) {
+  console.log(date.toString()); // 2023-01-01, 2023-01-02
+}
+
+// Exclude both start and end dates
+for (const date of range.iterateDatesInRange({ excludeStart: true, excludeEnd: true })) {
+  console.log(date.toString()); // 2023-01-02
+}
+```
+
+#### toDatesArrayInRange
+
+Returns an array of all `CalendarDate` objects in the range.
+
+```typescript
+import { CalendarDateRange } from './CalendarDateRange';
+
+const range = new CalendarDateRange(new CalendarDate('2023-01-01'), new CalendarDate('2023-01-03'));
+
+// Get all dates as array (inclusive)
+const allDates = range.toDatesArrayInRange();
+console.log(allDates.length); // 3
+
+// Get dates excluding start
+const datesExcludingStart = range.toDatesArrayInRange({ excludeStart: true });
+console.log(datesExcludingStart.length); // 2
+
+// Get dates excluding end
+const datesExcludingEnd = range.toDatesArrayInRange({ excludeEnd: true });
+console.log(datesExcludingEnd.length); // 2
+
+// Get dates excluding both boundaries
+const innerDates = range.toDatesArrayInRange({ excludeStart: true, excludeEnd: true });
+console.log(innerDates.length); // 1
+```
 
 ## Migration from v1 to v2
 If you want to upgrade from v1 to v2 of calendar-date you need to check if you access the read only month property on the calendar date object or use the number constructor anywhere and change the code according to the change (Range of month changed from 0-11 to 1-12). All other functions and properties work the same as before.

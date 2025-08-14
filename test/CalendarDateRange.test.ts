@@ -853,4 +853,217 @@ describe('CalendarDateRange', () => {
       expect(result2).toBe(true);
     });
   });
+
+  describe('iterateDatesInRange', () => {
+    it('should iterate through all dates in a single-day range', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-01'),
+      );
+      const dates = Array.from(range.iterateDatesInRange());
+
+      expect(dates).toHaveLength(1);
+      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
+    });
+
+    it('should iterate through all dates in a multi-day range', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-03'),
+      );
+      const dates = Array.from(range.iterateDatesInRange());
+
+      expect(dates).toHaveLength(3);
+      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-02'))).toBe(true);
+      expect(dates[2].equals(new CalendarDate('2023-01-03'))).toBe(true);
+    });
+
+    it('should iterate through dates across month boundaries', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-30'),
+        new CalendarDate('2023-02-02'),
+      );
+      const dates = Array.from(range.iterateDatesInRange());
+
+      expect(dates).toHaveLength(4);
+      expect(dates[0].equals(new CalendarDate('2023-01-30'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-31'))).toBe(true);
+      expect(dates[2].equals(new CalendarDate('2023-02-01'))).toBe(true);
+      expect(dates[3].equals(new CalendarDate('2023-02-02'))).toBe(true);
+    });
+
+    it('should exclude start date when excludeStart option is true', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-03'),
+      );
+      const dates = Array.from(range.iterateDatesInRange({ excludeStart: true }));
+
+      expect(dates).toHaveLength(2);
+      expect(dates[0].equals(new CalendarDate('2023-01-02'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-03'))).toBe(true);
+    });
+
+    it('should exclude end date when excludeEnd option is true', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-03'),
+      );
+      const dates = Array.from(range.iterateDatesInRange({ excludeEnd: true }));
+
+      expect(dates).toHaveLength(2);
+      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-02'))).toBe(true);
+    });
+
+    it('should exclude both start and end dates when both options are true', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-05'),
+      );
+      const dates = Array.from(range.iterateDatesInRange({ excludeStart: true, excludeEnd: true }));
+
+      expect(dates).toHaveLength(3);
+      expect(dates[0].equals(new CalendarDate('2023-01-02'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-03'))).toBe(true);
+      expect(dates[2].equals(new CalendarDate('2023-01-04'))).toBe(true);
+    });
+
+    it('should return empty array when excluding both dates from single-day range', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-01'),
+      );
+      const dates = Array.from(range.iterateDatesInRange({ excludeStart: true, excludeEnd: true }));
+
+      expect(dates).toHaveLength(0);
+    });
+
+    it('should work with for...of loop', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-02'),
+      );
+      const dates: CalendarDate[] = [];
+
+      for (const date of range.iterateDatesInRange()) {
+        dates.push(date);
+      }
+
+      expect(dates).toHaveLength(2);
+      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-02'))).toBe(true);
+    });
+  });
+
+  describe('toDatesArrayInRange', () => {
+    it('should return array with single date for single-day range', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-01'),
+      );
+      const dates = range.toDatesArrayInRange();
+
+      expect(dates).toHaveLength(1);
+      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
+    });
+
+    it('should return array with all dates in multi-day range', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-05'),
+      );
+      const dates = range.toDatesArrayInRange();
+
+      expect(dates).toHaveLength(5);
+      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-02'))).toBe(true);
+      expect(dates[2].equals(new CalendarDate('2023-01-03'))).toBe(true);
+      expect(dates[3].equals(new CalendarDate('2023-01-04'))).toBe(true);
+      expect(dates[4].equals(new CalendarDate('2023-01-05'))).toBe(true);
+    });
+
+    it('should handle ranges across year boundaries', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2022-12-30'),
+        new CalendarDate('2023-01-02'),
+      );
+      const dates = range.toDatesArrayInRange();
+
+      expect(dates).toHaveLength(4);
+      expect(dates[0].equals(new CalendarDate('2022-12-30'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2022-12-31'))).toBe(true);
+      expect(dates[2].equals(new CalendarDate('2023-01-01'))).toBe(true);
+      expect(dates[3].equals(new CalendarDate('2023-01-02'))).toBe(true);
+    });
+
+    it('should exclude start date when excludeStart option is true', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-04'),
+      );
+      const dates = range.toDatesArrayInRange({ excludeStart: true });
+
+      expect(dates).toHaveLength(3);
+      expect(dates[0].equals(new CalendarDate('2023-01-02'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-03'))).toBe(true);
+      expect(dates[2].equals(new CalendarDate('2023-01-04'))).toBe(true);
+    });
+
+    it('should exclude end date when excludeEnd option is true', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-04'),
+      );
+      const dates = range.toDatesArrayInRange({ excludeEnd: true });
+
+      expect(dates).toHaveLength(3);
+      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-02'))).toBe(true);
+      expect(dates[2].equals(new CalendarDate('2023-01-03'))).toBe(true);
+    });
+
+    it('should exclude both start and end dates when both options are true', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-05'),
+      );
+      const dates = range.toDatesArrayInRange({ excludeStart: true, excludeEnd: true });
+
+      expect(dates).toHaveLength(3);
+      expect(dates[0].equals(new CalendarDate('2023-01-02'))).toBe(true);
+      expect(dates[1].equals(new CalendarDate('2023-01-03'))).toBe(true);
+      expect(dates[2].equals(new CalendarDate('2023-01-04'))).toBe(true);
+    });
+
+    it('should return same result as Array.from(iterateDatesInRange())', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-03'),
+      );
+      const arrayFromIterate = Array.from(range.iterateDatesInRange());
+      const arrayFromMethod = range.toDatesArrayInRange();
+
+      expect(arrayFromMethod).toHaveLength(arrayFromIterate.length);
+      arrayFromMethod.forEach((date, index) => {
+        expect(date.equals(arrayFromIterate[index])).toBe(true);
+      });
+    });
+
+    it('should return same result as Array.from(iterateDatesInRange()) with options', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-05'),
+      );
+      const options = { excludeStart: true, excludeEnd: true };
+      const arrayFromIterate = Array.from(range.iterateDatesInRange(options));
+      const arrayFromMethod = range.toDatesArrayInRange(options);
+
+      expect(arrayFromMethod).toHaveLength(arrayFromIterate.length);
+      arrayFromMethod.forEach((date, index) => {
+        expect(date.equals(arrayFromIterate[index])).toBe(true);
+      });
+    });
+  });
 });
