@@ -1,5 +1,10 @@
 import { CalendarDate } from './CalendarDate';
 
+type DateRangeExcludeOptions = {
+  excludeStart?: boolean;
+  excludeEnd?: boolean;
+};
+
 export class CalendarDateRange {
   readonly start: CalendarDate;
 
@@ -45,10 +50,7 @@ export class CalendarDateRange {
    * Returns true if the given date ranges have gaps.
    * The date ranges will be sorted.
    */
-  static hasGaps(
-    values: CalendarDateRange[],
-    options?: { excludeStart?: boolean; excludeEnd?: boolean },
-  ): boolean {
+  static hasGaps(values: CalendarDateRange[], options?: DateRangeExcludeOptions): boolean {
     const sortedValues = values.sort((a, b) => a.start.valueOf() - b.start.valueOf());
     for (let i = 1; i < sortedValues.length; i++) {
       let differenceInDays = sortedValues[i].start.getDifferenceInDays(sortedValues[i - 1].end);
@@ -69,10 +71,7 @@ export class CalendarDateRange {
    * Returns true if the given date ranges overlap.
    * The date ranges will be sorted.
    */
-  static hasOverlap(
-    values: CalendarDateRange[],
-    options?: { excludeStart?: boolean; excludeEnd?: boolean },
-  ): boolean {
+  static hasOverlap(values: CalendarDateRange[], options?: DateRangeExcludeOptions): boolean {
     const sortedValues = values.sort((a, b) => a.start.valueOf() - b.start.valueOf());
     for (let i = 1; i < sortedValues.length; i++) {
       let differenceInDays = sortedValues[i].start.getDifferenceInDays(sortedValues[i - 1].end);
@@ -112,20 +111,11 @@ export class CalendarDateRange {
     return (this.end.year - this.start.year) * 12 + (this.end.month - this.start.month);
   }
 
-  includes(
-    calendarDate: CalendarDate,
-    options?: { excludeStart?: boolean; excludeEnd?: boolean },
-  ): boolean;
+  includes(calendarDate: CalendarDate, options?: DateRangeExcludeOptions): boolean;
 
-  includes(
-    calendarDateRange: CalendarDateRange,
-    options?: { excludeStart?: boolean; excludeEnd?: boolean },
-  ): boolean;
+  includes(calendarDateRange: CalendarDateRange, options?: DateRangeExcludeOptions): boolean;
 
-  includes(
-    input: CalendarDate | CalendarDateRange,
-    options?: { excludeStart?: boolean; excludeEnd?: boolean },
-  ): boolean {
+  includes(input: CalendarDate | CalendarDateRange, options?: DateRangeExcludeOptions): boolean {
     if (input instanceof CalendarDateRange) {
       return this.includes(input.start, options) && this.includes(input.end, options);
     }
@@ -133,5 +123,31 @@ export class CalendarDateRange {
       (options?.excludeStart ? input > this.start : input >= this.start) &&
       (options?.excludeEnd ? input < this.end : input <= this.end)
     );
+  }
+
+  /**
+   * Creates an iterator that yields each CalendarDate in the range from start to end (inclusive).
+   */
+  *iterateDatesInRange(options?: DateRangeExcludeOptions): IterableIterator<CalendarDate> {
+    let current = this.start;
+
+    // Skip start date if excludeStart is true
+    if (options?.excludeStart) {
+      current = current.addDays(1);
+    }
+
+    const endDate = options?.excludeEnd ? this.end.addDays(-1) : this.end;
+
+    while (current <= endDate) {
+      yield current;
+      current = current.addDays(1);
+    }
+  }
+
+  /**
+   * Returns an array of all CalendarDate objects in the range.
+   */
+  toDatesArrayInRange(options?: DateRangeExcludeOptions): CalendarDate[] {
+    return Array.from(this.iterateDatesInRange(options));
   }
 }
