@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v6.0.0
         with:
           node-version: '22'
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-node-16-modules-${{ hashFiles('**/yarn.lock') }}
@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-node@v6.0.0
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-modules-${{ hashFiles('**/yarn.lock') }}
