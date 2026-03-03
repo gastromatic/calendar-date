@@ -351,12 +351,37 @@ export class CalendarDate {
       const testTime = new Date(baseTimestamp + minuteOffset * minuteInMs);
 
       const parts = formatter.formatToParts(testTime);
-      const tzYear = parseInt(parts.find((p) => p.type === 'year')!.value);
-      const tzMonth = parseInt(parts.find((p) => p.type === 'month')!.value);
-      const tzDay = parseInt(parts.find((p) => p.type === 'day')!.value);
-      const tzHour = parseInt(parts.find((p) => p.type === 'hour')!.value);
-      const tzMinute = parseInt(parts.find((p) => p.type === 'minute')!.value);
-      const tzSecond = parseInt(parts.find((p) => p.type === 'second')!.value);
+
+      // Extract all needed values in a single pass through the parts array
+      let tzYear = 0;
+      let tzMonth = 0;
+      let tzDay = 0;
+      let tzHour = 0;
+      let tzMinute = 0;
+      let tzSecond = 0;
+
+      for (const part of parts) {
+        switch (part.type) {
+          case 'year':
+            tzYear = parseInt(part.value);
+            break;
+          case 'month':
+            tzMonth = parseInt(part.value);
+            break;
+          case 'day':
+            tzDay = parseInt(part.value);
+            break;
+          case 'hour':
+            tzHour = parseInt(part.value);
+            break;
+          case 'minute':
+            tzMinute = parseInt(part.value);
+            break;
+          case 'second':
+            tzSecond = parseInt(part.value);
+            break;
+        }
+      }
 
       // Check if this UTC time represents midnight on our calendar date in the target timezone
       if (
