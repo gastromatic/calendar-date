@@ -342,10 +342,13 @@ export class CalendarDate {
     });
 
     // Search for the UTC time that represents midnight in the target timezone
-    // We start from the calendar date in UTC and search nearby hours
-    // We search in minute increments to handle historical timezones with non-hour offsets
-    for (let minuteOffset = -1440; minuteOffset <= 1440; minuteOffset++) {
-      const testTime = new Date(Date.UTC(this.year, this.month - 1, this.day, 0, minuteOffset, 0));
+    // We limit the search to ±14 hours (840 minutes) which covers all possible timezone offsets
+    // including extreme cases like UTC+14 (Kiribati) and UTC-12 (Baker Island)
+    const baseTimestamp = Date.UTC(this.year, this.month - 1, this.day, 0, 0, 0);
+    const minuteInMs = 60000;
+
+    for (let minuteOffset = -840; minuteOffset <= 840; minuteOffset++) {
+      const testTime = new Date(baseTimestamp + minuteOffset * minuteInMs);
 
       const parts = formatter.formatToParts(testTime);
       const tzYear = parseInt(parts.find((p) => p.type === 'year')!.value);
