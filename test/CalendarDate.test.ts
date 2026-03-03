@@ -493,12 +493,13 @@ describe('CalendarDate', () => {
 
     test('Handles DST transition - Spring forward (Europe/Berlin)', () => {
       // Arrange - March 30, 2025 is when DST starts in Europe (UTC+1 -> UTC+2)
+      // The transition happens at 2:00 AM, so midnight is still in standard time (UTC+1)
       const calendarDate = new CalendarDate('2025-03-30');
 
       // Act
       const utcDate = calendarDate.toDateUTCWithTimeZone('Europe/Berlin');
 
-      // Assert - Midnight in Berlin on this date (in DST, UTC+2) is 22:00 the previous day in UTC
+      // Assert - Midnight in Berlin on this date (UTC+1 before DST) is 23:00 the previous day in UTC
       expect(utcDate.toISOString()).toBe('2025-03-29T23:00:00.000Z');
     });
 
