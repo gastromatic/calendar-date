@@ -315,6 +315,66 @@ export class CalendarDate {
   }
 
   /**
+   * Converts a CalendarDate to a UTC Date, interpreting the CalendarDate as being in the given timezone.
+   *
+   * This ensures that a CalendarDate like "2025-12-10" in timezone "Europe/Berlin" becomes
+   * "2025-12-09T23:00:00.000Z" in UTC (because Berlin is UTC+1 in winter).
+   *
+   * @param timeZone - The IANA timezone string (e.g., 'Europe/Berlin', 'America/New_York')
+   * @returns A UTC Date object representing midnight in the specified timezone
+   *
+   * @example
+   * // CalendarDate "2025-12-10" in Europe/Berlin (UTC+1) becomes:
+   * const utcDate = new CalendarDate('2025-12-10').toDateUTCWithTimeZone('Europe/Berlin');
+   * // utcDate is 2025-12-09T23:00:00.000Z
+   */
+  toDateUTCWithTimeZone(timeZone: string): Date {
+    // Create a formatter that includes time components to find when it's midnight in the target timezone
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: false,
+      timeZone,
+    });
+
+    // Search for the UTC time that represents midnight in the target timezone
+    // We start from the calendar date in UTC and search nearby hours
+    // We search in minute increments to handle historical timezones with non-hour offsets
+    for (let minuteOffset = -1440; minuteOffset <= 1440; minuteOffset++) {
+      const testTime = new Date(Date.UTC(this.year, this.month - 1, this.day, 0, minuteOffset, 0));
+
+      const parts = formatter.formatToParts(testTime);
+      const tzYear = parseInt(parts.find((p) => p.type === 'year')!.value);
+      const tzMonth = parseInt(parts.find((p) => p.type === 'month')!.value);
+      const tzDay = parseInt(parts.find((p) => p.type === 'day')!.value);
+      const tzHour = parseInt(parts.find((p) => p.type === 'hour')!.value);
+      const tzMinute = parseInt(parts.find((p) => p.type === 'minute')!.value);
+      const tzSecond = parseInt(parts.find((p) => p.type === 'second')!.value);
+
+      // Check if this UTC time represents midnight on our calendar date in the target timezone
+      if (
+        tzYear === this.year &&
+        tzMonth === this.month &&
+        tzDay === this.day &&
+        tzHour === 0 &&
+        tzMinute === 0 &&
+        tzSecond === 0
+      ) {
+        return testTime;
+      }
+    }
+
+    // This should never happen with valid IANA timezones
+    throw new Error(
+      `CalendarDate.toDateUTCWithTimeZone: Unable to find midnight for date ${this.toString()} in timezone ${timeZone}`,
+    );
+  }
+
+  /**
    * Returns the unix timestamp in seconds.
    */
   valueOf(): number {

@@ -446,6 +446,130 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of toDateUTCWithTimeZone', () => {
+    test('Converts CalendarDate to UTC Date for Europe/Berlin timezone', () => {
+      // Arrange - December 10, 2025 in Berlin (UTC+1 in winter)
+      const calendarDate = new CalendarDate('2025-12-10');
+
+      // Act
+      const utcDate = calendarDate.toDateUTCWithTimeZone('Europe/Berlin');
+
+      // Assert - Midnight in Berlin (UTC+1) is 23:00 the previous day in UTC
+      expect(utcDate.toISOString()).toBe('2025-12-09T23:00:00.000Z');
+    });
+
+    test('Converts CalendarDate to UTC Date for America/New_York timezone', () => {
+      // Arrange - December 10, 2025 in New York (UTC-5 in winter)
+      const calendarDate = new CalendarDate('2025-12-10');
+
+      // Act
+      const utcDate = calendarDate.toDateUTCWithTimeZone('America/New_York');
+
+      // Assert - Midnight in New York (UTC-5) is 05:00 the same day in UTC
+      expect(utcDate.toISOString()).toBe('2025-12-10T05:00:00.000Z');
+    });
+
+    test('Converts CalendarDate to UTC Date for Asia/Tokyo timezone', () => {
+      // Arrange - December 10, 2025 in Tokyo (UTC+9)
+      const calendarDate = new CalendarDate('2025-12-10');
+
+      // Act
+      const utcDate = calendarDate.toDateUTCWithTimeZone('Asia/Tokyo');
+
+      // Assert - Midnight in Tokyo (UTC+9) is 15:00 the previous day in UTC
+      expect(utcDate.toISOString()).toBe('2025-12-09T15:00:00.000Z');
+    });
+
+    test('Converts CalendarDate to UTC Date for UTC timezone', () => {
+      // Arrange
+      const calendarDate = new CalendarDate('2025-12-10');
+
+      // Act
+      const utcDate = calendarDate.toDateUTCWithTimeZone('UTC');
+
+      // Assert - Midnight in UTC is midnight in UTC
+      expect(utcDate.toISOString()).toBe('2025-12-10T00:00:00.000Z');
+    });
+
+    test('Handles DST transition - Spring forward (Europe/Berlin)', () => {
+      // Arrange - March 30, 2025 is when DST starts in Europe (UTC+1 -> UTC+2)
+      const calendarDate = new CalendarDate('2025-03-30');
+
+      // Act
+      const utcDate = calendarDate.toDateUTCWithTimeZone('Europe/Berlin');
+
+      // Assert - Midnight in Berlin on this date (in DST, UTC+2) is 22:00 the previous day in UTC
+      expect(utcDate.toISOString()).toBe('2025-03-29T23:00:00.000Z');
+    });
+
+    test('Handles DST transition - Fall back (America/New_York)', () => {
+      // Arrange - November 2, 2025 is when DST ends in New York (UTC-4 -> UTC-5)
+      const calendarDate = new CalendarDate('2025-11-02');
+
+      // Act
+      const utcDate = calendarDate.toDateUTCWithTimeZone('America/New_York');
+
+      // Assert - Midnight in New York on this date (UTC-4 before DST ends) is 04:00 the same day in UTC
+      // Note: DST ends at 2 AM, so midnight is still in DST (UTC-4)
+      expect(utcDate.toISOString()).toBe('2025-11-02T04:00:00.000Z');
+    });
+
+    test('Works correctly for southern hemisphere DST (Australia/Sydney)', () => {
+      // Arrange - January 15, 2025 in Sydney (summer, UTC+11)
+      const calendarDate = new CalendarDate('2025-01-15');
+
+      // Act
+      const utcDate = calendarDate.toDateUTCWithTimeZone('Australia/Sydney');
+
+      // Assert - Midnight in Sydney (UTC+11) is 13:00 the previous day in UTC
+      expect(utcDate.toISOString()).toBe('2025-01-14T13:00:00.000Z');
+    });
+
+    test('Round-trip conversion with fromDateWithTimeZone', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1900, max: 9900 }), // Limit to modern dates to avoid historical timezone complexities
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const originalDate = new CalendarDate(year, month, day);
+            const timezone = 'Europe/Berlin';
+
+            // Act - Convert to UTC Date with timezone, then back to CalendarDate
+            const utcDate = originalDate.toDateUTCWithTimeZone(timezone);
+            const roundTripDate = CalendarDate.fromDateWithTimeZone(utcDate, timezone);
+
+            // Assert - Should get back the same calendar date
+            expect(roundTripDate.toString()).toEqual(originalDate.toString());
+          },
+        ),
+      );
+    });
+
+    test('Works with multiple timezones consistently', () => {
+      // Arrange
+      const calendarDate = new CalendarDate('2025-06-15');
+      const timezones = [
+        'UTC',
+        'Europe/London',
+        'Europe/Berlin',
+        'America/New_York',
+        'America/Los_Angeles',
+        'Asia/Tokyo',
+        'Australia/Sydney',
+      ];
+
+      // Act & Assert
+      timezones.forEach((timezone) => {
+        const utcDate = calendarDate.toDateUTCWithTimeZone(timezone);
+        const roundTrip = CalendarDate.fromDateWithTimeZone(utcDate, timezone);
+        expect(roundTrip.toString()).toEqual(calendarDate.toString());
+      });
+    });
+  });
+
   describe('Test of equals', () => {
     test('Returns true if the input object has the same unix timestamp', () => {
       fc.assert(
