@@ -403,6 +403,16 @@ export class CalendarDate {
   }
 
   /**
+   * Returns a new CalendarDate with the specified amount of years added.
+   *
+   * @param amount
+   * @param enforceEndOfMonth If set to true the addition will never cause an overflow to the next month.
+   */
+  addYears(amount: number, enforceEndOfMonth = false): CalendarDate {
+    return this.addMonths(amount * 12, enforceEndOfMonth);
+  }
+
+  /**
    * Returns a new CalendarDate with the specified amount of days added.
    * Allows overflow.
    */
@@ -410,6 +420,13 @@ export class CalendarDate {
     return CalendarDate.parse(
       new Date((this.valueOf() + DAY_IN_SECONDS * amount) * 1000).toISOString().slice(0, 10),
     );
+  }
+
+  /**
+   * Returns a new CalendarDate with the specified amount of weeks added.
+   */
+  addWeeks(amount: number): CalendarDate {
+    return this.addDays(amount * 7);
   }
 
   getLastDayOfMonth(): CalendarDate {
@@ -458,6 +475,67 @@ export class CalendarDate {
    */
   isLastDayOfWeek(): boolean {
     return this.weekday === 7;
+  }
+
+  /**
+   * returns the first day (january 1) of the year of this calendar date as a new calendar date object.
+   */
+  getFirstDayOfYear(): CalendarDate {
+    return new CalendarDate(this.year, 1, 1);
+  }
+
+  /**
+   * returns the last day (december 31) of the year of this calendar date as a new calendar date object.
+   */
+  getLastDayOfYear(): CalendarDate {
+    return new CalendarDate(this.year, 12, 31);
+  }
+
+  /**
+   * returns the first day of the quarter of this calendar date as a new calendar date object.
+   */
+  getFirstDayOfQuarter(): CalendarDate {
+    return new CalendarDate(this.year, (this.quarter - 1) * 3 + 1, 1);
+  }
+
+  /**
+   * returns the last day of the quarter of this calendar date as a new calendar date object.
+   */
+  getLastDayOfQuarter(): CalendarDate {
+    const lastMonthOfQuarter = this.quarter * 3;
+    return new CalendarDate(
+      this.year,
+      lastMonthOfQuarter,
+      CalendarDate.getMaxDayOfMonth(this.year, lastMonthOfQuarter),
+    );
+  }
+
+  /**
+   * returns true if the calendar date is january 1
+   */
+  isFirstDayOfYear(): boolean {
+    return this.month === 1 && this.day === 1;
+  }
+
+  /**
+   * returns true if the calendar date is december 31
+   */
+  isLastDayOfYear(): boolean {
+    return this.month === 12 && this.day === 31;
+  }
+
+  /**
+   * returns true if the calendar date is the first day of the quarter (january 1, april 1, july 1 or october 1)
+   */
+  isFirstDayOfQuarter(): boolean {
+    return this.month % 3 === 1 && this.day === 1;
+  }
+
+  /**
+   * returns true if the calendar date is the last day of the quarter (march 31, june 30, september 30 or december 31)
+   */
+  isLastDayOfQuarter(): boolean {
+    return this.month % 3 === 0 && this.isLastDayOfMonth();
   }
 
   /**

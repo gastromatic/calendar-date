@@ -1158,6 +1158,242 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of getFirstDayOfYear', () => {
+    test('Returns new instance with same year but month and day set to 1', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
+
+            // Act
+            const firstDayDate = baseDate.getFirstDayOfYear();
+
+            // Assert
+            expect(firstDayDate).not.toBe(baseDate);
+            expect(firstDayDate.year).toBe(baseDate.year);
+            expect(firstDayDate.month).toBe(1);
+            expect(firstDayDate.day).toBe(1);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of getLastDayOfYear', () => {
+    test('Returns new instance with same year but date set to december 31', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
+
+            // Act
+            const lastDayDate = baseDate.getLastDayOfYear();
+
+            // Assert
+            expect(lastDayDate.year).toBe(baseDate.year);
+            expect(lastDayDate.month).toBe(12);
+            expect(lastDayDate.day).toBe(31);
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of getFirstDayOfQuarter', () => {
+    test('Returns new instance with the first day of the quarter of the base date', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
+
+            // Act
+            const firstDayDate = baseDate.getFirstDayOfQuarter();
+
+            // Assert
+            expect(firstDayDate.year).toBe(baseDate.year);
+            expect(firstDayDate.quarter).toBe(baseDate.quarter);
+            expect(firstDayDate.day).toBe(1);
+            expect([1, 4, 7, 10]).toContain(firstDayDate.month);
+            expect(firstDayDate.isBeforeOrEqual(baseDate)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('Correct first day of quarter for each quarter', () => {
+      expect(new CalendarDate('2023-02-15').getFirstDayOfQuarter().toString()).toBe('2023-01-01');
+      expect(new CalendarDate('2023-05-15').getFirstDayOfQuarter().toString()).toBe('2023-04-01');
+      expect(new CalendarDate('2023-08-15').getFirstDayOfQuarter().toString()).toBe('2023-07-01');
+      expect(new CalendarDate('2023-11-15').getFirstDayOfQuarter().toString()).toBe('2023-10-01');
+    });
+  });
+
+  describe('Test of getLastDayOfQuarter', () => {
+    test('Returns new instance with the last day of the quarter of the base date', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
+
+            // Act
+            const lastDayDate = baseDate.getLastDayOfQuarter();
+
+            // Assert
+            expect(lastDayDate.year).toBe(baseDate.year);
+            expect(lastDayDate.quarter).toBe(baseDate.quarter);
+            expect(lastDayDate.isLastDayOfMonth()).toBe(true);
+            expect([3, 6, 9, 12]).toContain(lastDayDate.month);
+            expect(lastDayDate.isAfterOrEqual(baseDate)).toBe(true);
+          },
+        ),
+      );
+    });
+
+    test('Correct last day of quarter for each quarter', () => {
+      expect(new CalendarDate('2023-02-15').getLastDayOfQuarter().toString()).toBe('2023-03-31');
+      expect(new CalendarDate('2023-05-15').getLastDayOfQuarter().toString()).toBe('2023-06-30');
+      expect(new CalendarDate('2023-08-15').getLastDayOfQuarter().toString()).toBe('2023-09-30');
+      expect(new CalendarDate('2023-11-15').getLastDayOfQuarter().toString()).toBe('2023-12-31');
+    });
+  });
+
+  describe('Test of isFirstDayOfYear', () => {
+    test('Returns true only for january 1', () => {
+      expect(new CalendarDate('2023-01-01').isFirstDayOfYear()).toBe(true);
+      expect(new CalendarDate('2023-01-02').isFirstDayOfYear()).toBe(false);
+      expect(new CalendarDate('2023-02-01').isFirstDayOfYear()).toBe(false);
+      expect(new CalendarDate('2023-12-31').isFirstDayOfYear()).toBe(false);
+    });
+
+    test('Is consistent with getFirstDayOfYear', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+
+            // Assert
+            expect(calendarDate.isFirstDayOfYear()).toBe(
+              calendarDate.equals(calendarDate.getFirstDayOfYear()),
+            );
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of isLastDayOfYear', () => {
+    test('Returns true only for december 31', () => {
+      expect(new CalendarDate('2023-12-31').isLastDayOfYear()).toBe(true);
+      expect(new CalendarDate('2023-12-30').isLastDayOfYear()).toBe(false);
+      expect(new CalendarDate('2023-01-31').isLastDayOfYear()).toBe(false);
+      expect(new CalendarDate('2023-01-01').isLastDayOfYear()).toBe(false);
+    });
+
+    test('Is consistent with getLastDayOfYear', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+
+            // Assert
+            expect(calendarDate.isLastDayOfYear()).toBe(
+              calendarDate.equals(calendarDate.getLastDayOfYear()),
+            );
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of isFirstDayOfQuarter', () => {
+    test('Returns true only for the first day of a quarter', () => {
+      expect(new CalendarDate('2023-01-01').isFirstDayOfQuarter()).toBe(true);
+      expect(new CalendarDate('2023-04-01').isFirstDayOfQuarter()).toBe(true);
+      expect(new CalendarDate('2023-07-01').isFirstDayOfQuarter()).toBe(true);
+      expect(new CalendarDate('2023-10-01').isFirstDayOfQuarter()).toBe(true);
+      expect(new CalendarDate('2023-02-01').isFirstDayOfQuarter()).toBe(false);
+      expect(new CalendarDate('2023-04-02').isFirstDayOfQuarter()).toBe(false);
+    });
+
+    test('Is consistent with getFirstDayOfQuarter', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+
+            // Assert
+            expect(calendarDate.isFirstDayOfQuarter()).toBe(
+              calendarDate.equals(calendarDate.getFirstDayOfQuarter()),
+            );
+          },
+        ),
+      );
+    });
+  });
+
+  describe('Test of isLastDayOfQuarter', () => {
+    test('Returns true only for the last day of a quarter', () => {
+      expect(new CalendarDate('2023-03-31').isLastDayOfQuarter()).toBe(true);
+      expect(new CalendarDate('2023-06-30').isLastDayOfQuarter()).toBe(true);
+      expect(new CalendarDate('2023-09-30').isLastDayOfQuarter()).toBe(true);
+      expect(new CalendarDate('2023-12-31').isLastDayOfQuarter()).toBe(true);
+      expect(new CalendarDate('2023-03-30').isLastDayOfQuarter()).toBe(false);
+      expect(new CalendarDate('2020-02-29').isLastDayOfQuarter()).toBe(false);
+      expect(new CalendarDate('2023-01-31').isLastDayOfQuarter()).toBe(false);
+    });
+
+    test('Is consistent with getLastDayOfQuarter', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+
+            // Assert
+            expect(calendarDate.isLastDayOfQuarter()).toBe(
+              calendarDate.equals(calendarDate.getLastDayOfQuarter()),
+            );
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of getFirstDayOfWeek', () => {
     test('Returns new instance with the day of the week of 1', () => {
       fc.assert(
@@ -1348,6 +1584,67 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of addYears', () => {
+    test('Behaves the same as adding the equivalent amount of months', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9800 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: -100, max: 100 }),
+          fc.boolean(),
+          (year, month, day, yearsAdded, enforceEndOfMonth) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
+
+            // Act
+            const newDate = baseDate.addYears(yearsAdded, enforceEndOfMonth);
+
+            // Assert
+            expect(newDate).not.toBe(baseDate);
+            expect(newDate.equals(baseDate.addMonths(yearsAdded * 12, enforceEndOfMonth))).toBe(
+              true,
+            );
+          },
+        ),
+      );
+    });
+
+    test('The day overflows into the next month if the new date is not in a leap year', () => {
+      // Arrange
+      const baseDate = new CalendarDate(2020, 2, 29);
+
+      // Act
+      const newDate = baseDate.addYears(1);
+
+      // Assert
+      expect(newDate.toString()).toBe('2021-03-01');
+    });
+
+    test('The day should not overflow into the next month if enforceEndOfMonth is set to true', () => {
+      // Arrange
+      const baseDate = new CalendarDate(2020, 2, 29);
+
+      // Act
+      const newDate = baseDate.addYears(1, true);
+
+      // Assert
+      expect(newDate.toString()).toBe('2021-02-28');
+    });
+
+    test('Works with negative amounts', () => {
+      // Arrange
+      const baseDate = new CalendarDate(2020, 6, 15);
+
+      // Act
+      const newDate = baseDate.addYears(-5);
+
+      // Assert
+      expect(newDate.toString()).toBe('2015-06-15');
+    });
+  });
+
   describe('Test of addDays', () => {
     test('Returns a new valid instance with the number of days added', () => {
       fc.assert(
@@ -1370,6 +1667,37 @@ describe('CalendarDate', () => {
           },
         ),
       );
+    });
+  });
+
+  describe('Test of addWeeks', () => {
+    test('Adds seven days per week and keeps the weekday', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: -1000, max: 1000 }),
+          (year, month, day, weeksAdded) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
+
+            // Act
+            const newDate = baseDate.addWeeks(weeksAdded);
+
+            // Assert
+            expect(newDate).not.toBe(baseDate);
+            expect(newDate.valueOf()).toBe(baseDate.valueOf() + DAY_IN_SECONDS * 7 * weeksAdded);
+            expect(newDate.weekday).toBe(baseDate.weekday);
+          },
+        ),
+      );
+    });
+
+    test('Returns the correct date', () => {
+      expect(new CalendarDate('2020-01-01').addWeeks(2).toString()).toBe('2020-01-15');
+      expect(new CalendarDate('2020-01-15').addWeeks(-2).toString()).toBe('2020-01-01');
     });
   });
 
