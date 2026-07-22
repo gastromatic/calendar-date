@@ -499,6 +499,34 @@ export class CalendarDate {
   }
 
   /**
+   * returns true if the calendar date is january 1
+   */
+  isFirstDayOfYear(): boolean {
+    return this.month === 1 && this.day === 1;
+  }
+
+  /**
+   * returns true if the calendar date is december 31
+   */
+  isLastDayOfYear(): boolean {
+    return this.month === 12 && this.day === 31;
+  }
+
+  /**
+   * returns true if the calendar date is the first day of the quarter (january 1, april 1, july 1 or october 1)
+   */
+  isFirstDayOfQuarter(): boolean {
+    return this.month % 3 === 1 && this.day === 1;
+  }
+
+  /**
+   * returns true if the calendar date is the last day of the quarter (march 31, june 30, september 30 or december 31)
+   */
+  isLastDayOfQuarter(): boolean {
+    return this.month % 3 === 0 && this.isLastDayOfMonth();
+  }
+
+  /**
    * subtracts the input CalendarDate from this CalendarDate and returns the difference in days
    */
   getDifferenceInDays(calendarDate: CalendarDate, absolute?: boolean): number {

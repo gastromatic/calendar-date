@@ -171,6 +171,26 @@ new CalendarDate('2020-05-15').getFirstDayOfQuarter();    // 2020-04-01
 new CalendarDate('2020-05-15').getLastDayOfQuarter();     // 2020-06-30
 ```
 
+#### isFirstDayOfYear, isLastDayOfYear
+Returns true if the CalendarDate is the first day of the year / last day of the year.
+
+```typescript
+new CalendarDate('2020-01-01').isFirstDayOfYear();   // true
+new CalendarDate('2020-01-02').isFirstDayOfYear();   // false
+new CalendarDate('2020-12-31').isLastDayOfYear();    // true
+new CalendarDate('2020-12-30').isLastDayOfYear();    // false
+```
+
+#### isFirstDayOfQuarter, isLastDayOfQuarter
+Returns true if the CalendarDate is the first day of the quarter / last day of the quarter.
+
+```typescript
+new CalendarDate('2020-04-01').isFirstDayOfQuarter();   // true
+new CalendarDate('2020-04-02').isFirstDayOfQuarter();   // false
+new CalendarDate('2020-06-30').isLastDayOfQuarter();    // true
+new CalendarDate('2020-06-29').isLastDayOfQuarter();    // false
+```
+
 #### getDifferenceInDays
 Returns the difference in days between to CalendarDate objects.
 It will subtract the input date from the base date. If you supply the optional `absolute` parameter it will always return a positive value.
