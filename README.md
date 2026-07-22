@@ -30,16 +30,22 @@ Using the built-in date object for a calendar date poses a number of disadvantag
 
 ## Getting Started
 
-Install with yarn or npm:
+Install with bun, npm or yarn:
 
 ```sh
-yarn add calendar-date
+bun add calendar-date
 ```
 
 or
 
 ```sh
 npm install calendar-date
+```
+
+or
+
+```sh
+yarn add calendar-date
 ```
 
 ## Documentation

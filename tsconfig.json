@@ -1,8 +1,12 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "types": ["node", "vitest/globals"],
     "paths": {
-      "calendar-date": ["src"]
+      "calendar-date": ["./src"]
     }
-  }
+  },
+  "include": ["src/**/*", "test/**/*"]
 }
