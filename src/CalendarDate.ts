@@ -71,7 +71,7 @@ export class CalendarDate {
   /**
    * Throws an Error for invalid inputs.
    *
-   * @param year Integer between 0-9999, other inputs may lead to unstable behaviour
+   * @param year Integer between 1-9999, other inputs may lead to unstable behaviour
    * @param month Integer between 1-12
    * @param day Integer between 1-31
    */
@@ -100,9 +100,9 @@ export class CalendarDate {
       );
     }
 
-    if (this.year < 0 || this.year > 9999) {
+    if (this.year < 1 || this.year > 9999) {
       throw new Error(
-        `CalendarDate Validation Error: Input year ${this.year} is not valid. Year must be a number between 0 and 9999.`,
+        `CalendarDate Validation Error: Input year ${this.year} is not valid. Year must be a number between 1 and 9999.`,
       );
     }
     if (this.month < 1 || this.month > 12) {
