@@ -122,8 +122,19 @@ new CalendarDate('2020-01-01').isSameMonth(new CalendarDate('2021-01-01')); // f
 Returns a new CalendarDate with the specified amount of months or days added.
 
 ```typescript
-new CalendarDate('2020-01-01').addMonths(3);    // 2020-03-01
+new CalendarDate('2020-01-01').addMonths(3);    // 2020-04-01
 new CalendarDate('2020-01-01').addDays(15);     // 2020-01-16
+```
+
+#### addYears, addWeeks
+Returns a new CalendarDate with the specified amount of years or weeks added.
+Adding years behaves like adding the equivalent amount of months, so the optional `enforceEndOfMonth` parameter is supported as well.
+
+```typescript
+new CalendarDate('2020-06-15').addYears(2);         // 2022-06-15
+new CalendarDate('2020-02-29').addYears(1);         // 2021-03-01
+new CalendarDate('2020-02-29').addYears(1, true);   // 2021-02-28
+new CalendarDate('2020-01-01').addWeeks(2);         // 2020-01-15
 ```
 
 #### getFirstDayOfMonth, getLastDayOfMonth
@@ -142,6 +153,22 @@ new CalendarDate('2020-01-15').isFirstDayOfMonth();   // false
 new CalendarDate('2020-01-01').isFirstDayOfMonth();   // true
 new CalendarDate('2020-01-30').isLastDayOfMonth();    // false
 new CalendarDate('2020-01-31').isLastDayOfMonth();    // true
+```
+
+#### getFirstDayOfYear, getLastDayOfYear
+Returns a new CalendarDate with the first or last day of the year.
+
+```typescript
+new CalendarDate('2020-06-15').getFirstDayOfYear();    // 2020-01-01
+new CalendarDate('2020-06-15').getLastDayOfYear();     // 2020-12-31
+```
+
+#### getFirstDayOfQuarter, getLastDayOfQuarter
+Returns a new CalendarDate with the first or last day of the quarter.
+
+```typescript
+new CalendarDate('2020-05-15').getFirstDayOfQuarter();    // 2020-04-01
+new CalendarDate('2020-05-15').getLastDayOfQuarter();     // 2020-06-30
 ```
 
 #### getDifferenceInDays

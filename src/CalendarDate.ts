@@ -391,6 +391,16 @@ export class CalendarDate {
   }
 
   /**
+   * Returns a new CalendarDate with the specified amount of years added.
+   *
+   * @param amount
+   * @param enforceEndOfMonth If set to true the addition will never cause an overflow to the next month.
+   */
+  addYears(amount: number, enforceEndOfMonth = false): CalendarDate {
+    return this.addMonths(amount * 12, enforceEndOfMonth);
+  }
+
+  /**
    * Returns a new CalendarDate with the specified amount of days added.
    * Allows overflow.
    */
@@ -398,6 +408,13 @@ export class CalendarDate {
     return CalendarDate.parse(
       new Date((this.valueOf() + DAY_IN_SECONDS * amount) * 1000).toISOString().slice(0, 10),
     );
+  }
+
+  /**
+   * Returns a new CalendarDate with the specified amount of weeks added.
+   */
+  addWeeks(amount: number): CalendarDate {
+    return this.addDays(amount * 7);
   }
 
   getLastDayOfMonth(): CalendarDate {
@@ -446,6 +463,39 @@ export class CalendarDate {
    */
   isLastDayOfWeek(): boolean {
     return this.weekday === 7;
+  }
+
+  /**
+   * returns the first day (january 1) of the year of this calendar date as a new calendar date object.
+   */
+  getFirstDayOfYear(): CalendarDate {
+    return new CalendarDate(this.year, 1, 1);
+  }
+
+  /**
+   * returns the last day (december 31) of the year of this calendar date as a new calendar date object.
+   */
+  getLastDayOfYear(): CalendarDate {
+    return new CalendarDate(this.year, 12, 31);
+  }
+
+  /**
+   * returns the first day of the quarter of this calendar date as a new calendar date object.
+   */
+  getFirstDayOfQuarter(): CalendarDate {
+    return new CalendarDate(this.year, (this.quarter - 1) * 3 + 1, 1);
+  }
+
+  /**
+   * returns the last day of the quarter of this calendar date as a new calendar date object.
+   */
+  getLastDayOfQuarter(): CalendarDate {
+    const lastMonthOfQuarter = this.quarter * 3;
+    return new CalendarDate(
+      this.year,
+      lastMonthOfQuarter,
+      CalendarDate.getMaxDayOfMonth(this.year, lastMonthOfQuarter),
+    );
   }
 
   /**
