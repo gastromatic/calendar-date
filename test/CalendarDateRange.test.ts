@@ -726,6 +726,26 @@ describe('CalendarDateRange', () => {
       expect(result1).toBe(true);
       expect(result2).toBe(false);
     });
+
+    test('Should not modify the input array', () => {
+      // Arrange
+      const dateRange1 = new CalendarDateRange(
+        new CalendarDate('2021-01-01'),
+        new CalendarDate('2021-01-31'),
+      );
+      const dateRange2 = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+      const values = [dateRange1, dateRange2];
+
+      // Act
+      CalendarDateRange.hasGaps(values);
+
+      // Assert
+      expect(values[0]).toBe(dateRange1);
+      expect(values[1]).toBe(dateRange2);
+    });
   });
 
   describe('Test of hasOverlap', () => {
@@ -851,6 +871,26 @@ describe('CalendarDateRange', () => {
       // Assert
       expect(result1).toBe(false);
       expect(result2).toBe(true);
+    });
+
+    test('Should not modify the input array', () => {
+      // Arrange
+      const dateRange1 = new CalendarDateRange(
+        new CalendarDate('2021-01-01'),
+        new CalendarDate('2021-01-31'),
+      );
+      const dateRange2 = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-01-31'),
+      );
+      const values = [dateRange1, dateRange2];
+
+      // Act
+      CalendarDateRange.hasOverlap(values);
+
+      // Assert
+      expect(values[0]).toBe(dateRange1);
+      expect(values[1]).toBe(dateRange2);
     });
   });
 
