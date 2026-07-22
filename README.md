@@ -166,6 +166,20 @@ const maxDate = CalendarDate.max(date1, date2, date3); // 2021-03-15
 const minDate = CalendarDate.min(date1, date2, date3); // 2020-01-01
 ```
 
+#### MIN, MAX
+Static constants for the minimum (`0001-01-01`) and maximum (`9999-12-31`) CalendarDate.
+They are intended as sentinel values instead of null, for example to model a date range with an open start or open end.
+The constants are the minimum and maximum representable CalendarDate values, and both can be stored in common SQL databases (`0001-01-01` matches the minimum DATE supported by PostgreSQL, which has no year zero).
+
+```typescript
+// Model a validity period with an open end without nullable fields
+const validity = new CalendarDateRange(new CalendarDate('2024-01-01'), CalendarDate.MAX);
+validity.includes(CalendarDate.nowUTC());   // true for any date from 2024-01-01 on
+
+// Model a validity period with an open start
+new CalendarDateRange(CalendarDate.MIN, new CalendarDate('2023-12-31'));
+```
+
 #### sortAscending, sortDescending
 Returns a sorted copy of an array of CalendarDates.
 
