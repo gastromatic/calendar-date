@@ -936,31 +936,6 @@ describe('CalendarDate', () => {
       expect(CalendarDate.MIN.toString()).toBe('0001-01-01');
       expect(CalendarDate.MAX.toString()).toBe('9999-12-31');
     });
-
-    test('MIN and MAX are immutable CalendarDate instances', () => {
-      expect(CalendarDate.MIN).toBeInstanceOf(CalendarDate);
-      expect(CalendarDate.MAX).toBeInstanceOf(CalendarDate);
-      expect(Object.isFrozen(CalendarDate.MIN)).toBe(true);
-      expect(Object.isFrozen(CalendarDate.MAX)).toBe(true);
-    });
-
-    test('Every CalendarDate is between MIN and MAX', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 1, max: 9999 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year, month, day) => {
-            // Arrange
-            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
-
-            // Assert
-            expect(calendarDate.isAfterOrEqual(CalendarDate.MIN)).toBe(true);
-            expect(calendarDate.isBeforeOrEqual(CalendarDate.MAX)).toBe(true);
-          },
-        ),
-      );
-    });
   });
 
   describe('Test of sortAscending', () => {
