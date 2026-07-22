@@ -57,7 +57,6 @@ export class CalendarDate {
   /**
    * The minimum representable CalendarDate: 0001-01-01.
    * Intended as a sentinel value instead of null, e.g. to model a date range with an open start.
-   * It matches the minimum DATE supported by PostgreSQL, which has no year zero.
    */
   static readonly MIN = new CalendarDate(1, 1, 1);
 
