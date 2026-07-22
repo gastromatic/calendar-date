@@ -200,6 +200,15 @@ new CalendarDate('2023-01-01').week;    // 52 (of year 2022)
 new CalendarDate('2023-01-02').week;    // 1 (of year 2023)
 ```
 
+#### WeekYear (ISO-8601)
+You can access the week-numbering year according to ISO 8601 as a read only property on the calendar date object.
+Around the turn of the year it can differ from the calendar year, because the first and last days of a year can belong to a week of the previous or next year.
+```typescript
+new CalendarDate('2023-01-01').weekYear;    // 2022 (week 52 of 2022)
+new CalendarDate('2025-12-29').weekYear;    // 2026 (week 1 of 2026)
+new CalendarDate('2020-06-15').weekYear;    // 2020 (week 25 of 2020)
+```
+
 #### DayOfTheWeek
 You can access the weekday according to ISO 8601 as a read only property on the calendar date object. The values are in the range from 1 to 7 starting from Monday.
 ```typescript
