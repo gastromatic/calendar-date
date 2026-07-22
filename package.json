@@ -4,6 +4,10 @@
   "description": "Immutable object to represent a calendar date with zero dependencies",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "bun run clean && bun run compile",
     "clean": "rimraf ./dist",
