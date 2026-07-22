@@ -7,7 +7,6 @@ test/
 .oxlintrc.json
 .oxfmtrc.json
 .releaserc.yml
-Dockerfile
 bun.lock
 tsconfig.build.json
 tsconfig.json
