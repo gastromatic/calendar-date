@@ -1,3 +1,10 @@
+# [2.12.0](https://github.com/gastromatic/calendar-date/compare/v2.11.1...v2.12.0) (2026-07-22)
+
+
+### Features
+
+* add weekYear getter for the ISO 8601 week-numbering year ([#443](https://github.com/gastromatic/calendar-date/issues/443)) ([83c4995](https://github.com/gastromatic/calendar-date/commit/83c4995e6cab1205c71862eee21fd81bcd363012))
+
 ## [2.11.1](https://github.com/gastromatic/calendar-date/compare/v2.11.0...v2.11.1) (2026-07-22)
 
 
