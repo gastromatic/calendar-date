@@ -206,7 +206,7 @@ Around the turn of the year it can differ from the calendar year, because the fi
 ```typescript
 new CalendarDate('2023-01-01').weekYear;    // 2022 (week 52 of 2022)
 new CalendarDate('2025-12-29').weekYear;    // 2026 (week 1 of 2026)
-new CalendarDate('2020-06-15').weekYear;    // 2020 (week 25 of 2020)
+new CalendarDate('2020-06-15').weekYear;    // 2020 (mid-year dates always match the calendar year)
 ```
 
 #### DayOfTheWeek

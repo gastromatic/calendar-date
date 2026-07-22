@@ -1579,6 +1579,16 @@ describe('CalendarDate', () => {
       expect(new CalendarDate('2020-06-15').weekYear).toBe(2020);
     });
 
+    test('January dates in week 53 belong to the previous week-numbering year', () => {
+      // Expected values according to ISO 8601, verified with pythons datetime.isocalendar
+      const firstOfJanuary2027 = new CalendarDate('2027-01-01');
+      expect(firstOfJanuary2027.week).toBe(53);
+      expect(firstOfJanuary2027.weekYear).toBe(2026);
+      const firstOfJanuary2021 = new CalendarDate('2021-01-01');
+      expect(firstOfJanuary2021.week).toBe(53);
+      expect(firstOfJanuary2021.weekYear).toBe(2020);
+    });
+
     test('Week-numbering year is correct for years below 100', () => {
       // Expected values according to ISO 8601, verified with pythons datetime.isocalendar
       expect(new CalendarDate(3, 12, 31).weekYear).toBe(4);
