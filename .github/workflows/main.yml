@@ -83,6 +83,9 @@ jobs:
     if: "!contains(github.event.commits[0].message, '[skip ci]')"
     needs: [commit-lint, code-lint, test-with-node, test-with-bun]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm trusted publishing
     steps:
       - uses: actions/checkout@v6
         with:
@@ -95,6 +98,8 @@ jobs:
         uses: actions/setup-node@v6.3.0
         with:
           node-version: '22'
+      - name: Update npm # trusted publishing requires npm >= 11.5.1
+        run: npm install -g npm@latest
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Build
@@ -112,7 +117,6 @@ jobs:
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GASTROBOT_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Restore protection
         uses: actions/github-script@v9.0.0
         if: always()
