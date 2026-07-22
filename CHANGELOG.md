@@ -1,3 +1,10 @@
+## [2.11.1](https://github.com/gastromatic/calendar-date/compare/v2.11.0...v2.11.1) (2026-07-22)
+
+
+### Bug Fixes
+
+* year handling below 100, input array mutation and npm package contents ([#442](https://github.com/gastromatic/calendar-date/issues/442)) ([1a58e13](https://github.com/gastromatic/calendar-date/commit/1a58e13a717100d6d9c1ec0e5e618d9beed7f149))
+
 # [2.11.0](https://github.com/gastromatic/calendar-date/compare/v2.10.0...v2.11.0) (2025-08-14)
 
 
