@@ -466,13 +466,31 @@ export class CalendarDate {
   }
 
   /**
+   * The ISO 8601 week-numbering year the date belongs to. Around the turn of the year this can
+   * differ from the calendar year: e.g. 2023-01-01 is in week 52 of the week-numbering year 2022
+   * and 2025-12-29 is in week 1 of the week-numbering year 2026.
+   */
+  public get weekYear(): number {
+    return CalendarDate.getThursdayOfWeek(this.year, this.month, this.day).getFullYear();
+  }
+
+  /**
+   * Returns the Thursday of the week of the supplied date in local time.
+   * The year of this Thursday decides the ISO 8601 week-numbering year.
+   */
+  private static getThursdayOfWeek(year: number, month: number, day: number): Date {
+    const date = CalendarDate.createDateLocal(year, month, day);
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+    return date;
+  }
+
+  /**
    * Source: https://weeknumber.com/how-to/javascript
    */
   private static getWeekNumber(year: number, month: number, day: number): number {
-    const date = CalendarDate.createDateLocal(year, month, day);
-    date.setHours(0, 0, 0, 0);
     // Thursday in current week decides the year.
-    date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+    const date = CalendarDate.getThursdayOfWeek(year, month, day);
     // January 4 is always in week 1.
     const week1 = CalendarDate.createDateLocal(date.getFullYear(), 1, 4);
     // Adjust to Thursday in week 1 and count number of weeks from date to week1.

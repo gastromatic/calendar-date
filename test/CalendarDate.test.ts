@@ -1568,6 +1568,58 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of weekYear', () => {
+    test('Week-numbering year is correct around the turn of the year', () => {
+      // Expected values according to ISO 8601, verified with pythons datetime.isocalendar
+      expect(new CalendarDate('2023-01-01').weekYear).toBe(2022);
+      expect(new CalendarDate('2023-01-02').weekYear).toBe(2023);
+      expect(new CalendarDate('2021-01-01').weekYear).toBe(2020);
+      expect(new CalendarDate('2020-12-31').weekYear).toBe(2020);
+      expect(new CalendarDate('2025-12-29').weekYear).toBe(2026);
+      expect(new CalendarDate('2020-06-15').weekYear).toBe(2020);
+    });
+
+    test('January dates in week 53 belong to the previous week-numbering year', () => {
+      // Expected values according to ISO 8601, verified with pythons datetime.isocalendar
+      const firstOfJanuary2027 = new CalendarDate('2027-01-01');
+      expect(firstOfJanuary2027.week).toBe(53);
+      expect(firstOfJanuary2027.weekYear).toBe(2026);
+      const firstOfJanuary2021 = new CalendarDate('2021-01-01');
+      expect(firstOfJanuary2021.week).toBe(53);
+      expect(firstOfJanuary2021.weekYear).toBe(2020);
+    });
+
+    test('Week-numbering year is correct for years below 100', () => {
+      // Expected values according to ISO 8601, verified with pythons datetime.isocalendar
+      expect(new CalendarDate(3, 12, 31).weekYear).toBe(4);
+      expect(new CalendarDate(5, 1, 1).weekYear).toBe(4);
+      expect(new CalendarDate(99, 12, 31).weekYear).toBe(99);
+    });
+
+    test('Is always consistent with the week and year properties', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            const calendarDate = new CalendarDate(year, month, ensureValidDay(year, month, day));
+
+            // Assert
+            if (calendarDate.month === 1 && calendarDate.week > 50) {
+              expect(calendarDate.weekYear).toBe(calendarDate.year - 1);
+            } else if (calendarDate.month === 12 && calendarDate.week === 1) {
+              expect(calendarDate.weekYear).toBe(calendarDate.year + 1);
+            } else {
+              expect(calendarDate.weekYear).toBe(calendarDate.year);
+            }
+          },
+        ),
+      );
+    });
+  });
+
   describe('Test of quarter', () => {
     test('Result is always between 1 and 4', () => {
       fc.assert(
