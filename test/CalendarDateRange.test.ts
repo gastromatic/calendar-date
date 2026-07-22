@@ -576,6 +576,34 @@ describe('CalendarDateRange', () => {
     });
   });
 
+  describe('Test of open ended date ranges with CalendarDate.MIN_VALUE and CalendarDate.MAX_VALUE', () => {
+    test('A range with an open end includes every date after its start', () => {
+      // Arrange
+      const dateRange = new CalendarDateRange(
+        new CalendarDate('2024-01-01'),
+        CalendarDate.MAX_VALUE,
+      );
+
+      // Assert
+      expect(dateRange.includes(new CalendarDate('2024-01-01'))).toBe(true);
+      expect(dateRange.includes(new CalendarDate('9999-12-31'))).toBe(true);
+      expect(dateRange.includes(new CalendarDate('2023-12-31'))).toBe(false);
+    });
+
+    test('A range with an open start includes every date before its end', () => {
+      // Arrange
+      const dateRange = new CalendarDateRange(
+        CalendarDate.MIN_VALUE,
+        new CalendarDate('2023-12-31'),
+      );
+
+      // Assert
+      expect(dateRange.includes(new CalendarDate('2023-12-31'))).toBe(true);
+      expect(dateRange.includes(new CalendarDate('0001-01-01'))).toBe(true);
+      expect(dateRange.includes(new CalendarDate('2024-01-01'))).toBe(false);
+    });
+  });
+
   describe('Test of hasGap', () => {
     test('Should return false for empty array', () => {
       // Act

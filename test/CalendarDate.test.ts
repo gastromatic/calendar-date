@@ -931,6 +931,13 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of MIN_VALUE and MAX_VALUE', () => {
+    test('MIN_VALUE is 0001-01-01 and MAX_VALUE is 9999-12-31', () => {
+      expect(CalendarDate.MIN_VALUE.toString()).toBe('0001-01-01');
+      expect(CalendarDate.MAX_VALUE.toString()).toBe('9999-12-31');
+    });
+  });
+
   describe('Test of sortAscending', () => {
     test('Returns a copy of an input array that is sorted ascending', () => {
       const lowerRange = new CalendarDate(2000, 1, 1).valueOf();
