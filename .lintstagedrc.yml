@@ -1,2 +1,2 @@
-'*.ts': eslint --fix
-'*.{ts,json}': prettier --write
+'*.ts': oxlint --fix
+'*.{ts,json}': oxfmt

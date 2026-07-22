@@ -7,11 +7,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
-    "declaration": true,
-    "baseUrl": ".",
-    "paths": {
-      "calendar-date": ["dist"]
-    }
+    "rootDir": "src",
+    "declaration": true
   },
   "include": ["src/**/*"]
 }

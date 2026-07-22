@@ -2,13 +2,12 @@
 .husky/
 test/
 .commitlintrc.yml
-eslint.config.mjs
 .gitignore
 .lintstagedrc.yml
-.prettierrc.yml
+.oxlintrc.json
+.oxfmtrc.json
 .releaserc.yml
-jest.config.ts
-Dockerfile
+bun.lock
 tsconfig.build.json
 tsconfig.json
-yarn.lock
+vitest.config.ts

@@ -1,0 +1,4 @@
+# Normalize line endings to LF for all text files on checkout and commit.
+# oxfmt emits LF, so this keeps a Windows contributor (core.autocrlf=true) from
+# seeing the formatter report otherwise-clean files as needing changes.
+* text=auto eol=lf
