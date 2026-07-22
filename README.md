@@ -68,12 +68,12 @@ CalendarDate.nowLocal();
 CalendarDate.nowTimeZone('Europe/Berlin');
 ```
 
-If you want to construct a CalendarDate from an existing Date object instead of the current Time you can use the static methods `fromDateUTC`, `fromDateLocal` and `fromDateTimeZone`.
+If you want to construct a CalendarDate from an existing Date object instead of the current Time you can use the static methods `fromDateUTC`, `fromDateLocal` and `fromDateWithTimeZone`.
 ```typescript
 const date = new Date();
 CalendarDate.fromDateUTC(date);
 CalendarDate.fromDateLocal(date);
-CalendarDate.fromDateTimeZone(date, 'Europe/Berlin');
+CalendarDate.fromDateWithTimeZone(date, 'Europe/Berlin');
 ```
 
 The year, month, day and unix timestamp can be accessed as read-only properties on the object.
@@ -197,7 +197,7 @@ date.toFormat('en', { weekday: 'long', month: 'short', day: 'numeric' });     //
 You can access the week of year according to ISO 8601 as a read only property on the calendar date object.
 ```typescript
 new CalendarDate('2023-01-01').week;    // 52 (of year 2022)
-new CalendarDate('2023-01-01').week;    // 1 (of year 2023)
+new CalendarDate('2023-01-02').week;    // 1 (of year 2023)
 ```
 
 #### DayOfTheWeek
@@ -212,7 +212,7 @@ Returns a new CalendarDate with the first or last day of the week.
 
 ```typescript
 new CalendarDate('2020-01-15').getFirstDayOfWeek();    // 2020-01-13 (Monday)
-new CalendarDate('2020-01-15').getLastDayOfWeek();     // 2020-01-19 (Friday)
+new CalendarDate('2020-01-15').getLastDayOfWeek();     // 2020-01-19 (Sunday)
 ```
 
 #### isFirstDayOfWeek, isLastDayOfWeek
@@ -269,7 +269,7 @@ Returns the total amount of days in the CalendarDateRange, including the start a
 ```typescript
 const date1 = new CalendarDate('2020-01-01');
 const date2 = new CalendarDate('2020-01-02');
-new CalendarDateRange(date1, date2).getDifferenceInDays();  // 2
+new CalendarDateRange(date1, date2).getTotalDays();  // 2
 ```
 
 #### getDifferenceInDays
@@ -292,10 +292,10 @@ new CalendarDateRange(date1, date2).getDifferenceInMonths();  // 21
 
 #### hasOverlap
 For an array of CalendarDateRanges it returns true if there is an overlap between a range and one of its neighbours.
-Values will be sorted.
+Values will be compared in sorted order, the input array is not modified.
 
 ```typescript
-import { CalendarDateRange } from './CalendarDateRange';
+import { CalendarDateRange } from 'calendar-date';
 
 const dateRange1 = new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-12-31'));
 const dateRange2 = new CalendarDateRange(new CalendarDate('2020-06-01'), new CalendarDate('2021-06-01'));
@@ -304,20 +304,20 @@ CalendarDateRange.hasOverlap([dateRange1, dateRange2]);  // true
 CalendarDateRange.hasOverlap([dateRange1, dateRange3]);  // false
 ```
 
-#### hasGap
+#### hasGaps
 For an array of CalendarDateRanges it returns true if there is a gap between a range and one of its neighbours.
-Values will be sorted.
+Values will be compared in sorted order, the input array is not modified.
 
 ```typescript
-import { CalendarDateRange } from './CalendarDateRange';
+import { CalendarDateRange } from 'calendar-date';
 
 const dateRange1 = new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-12-31'));
 const dateRange2 = new CalendarDateRange(new CalendarDate('2020-06-01'), new CalendarDate('2021-06-01'));
 const dateRange3 = new CalendarDateRange(new CalendarDate('2021-01-01'), new CalendarDate('2021-12-31'));
 const dateRange4 = new CalendarDateRange(new CalendarDate('2021-01-02'), new CalendarDate('2021-12-31'));
-CalendarDateRange.hasGap([dateRange1, dateRange2]);  // false
-CalendarDateRange.hasGap([dateRange1, dateRange3]);  // false
-CalendarDateRange.hasGap([dateRange1, dateRange4]);  // true
+CalendarDateRange.hasGaps([dateRange1, dateRange2]);  // false
+CalendarDateRange.hasGaps([dateRange1, dateRange3]);  // false
+CalendarDateRange.hasGaps([dateRange1, dateRange4]);  // true
 ```
 
 ### Iteration Methods
@@ -327,7 +327,7 @@ CalendarDateRange.hasGap([dateRange1, dateRange4]);  // true
 Creates an iterator that yields each `CalendarDate` in the range from start to end.
 
 ```typescript
-import { CalendarDateRange } from './CalendarDateRange';
+import { CalendarDateRange } from 'calendar-date';
 
 const range = new CalendarDateRange(new CalendarDate('2023-01-01'), new CalendarDate('2023-01-03'));
 
@@ -357,7 +357,7 @@ for (const date of range.iterateDatesInRange({ excludeStart: true, excludeEnd: t
 Returns an array of all `CalendarDate` objects in the range.
 
 ```typescript
-import { CalendarDateRange } from './CalendarDateRange';
+import { CalendarDateRange } from 'calendar-date';
 
 const range = new CalendarDateRange(new CalendarDate('2023-01-01'), new CalendarDate('2023-01-03'));
 
