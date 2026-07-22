@@ -31,20 +31,20 @@ describe('CalendarDate', () => {
         );
       });
 
-      test('Throws error if year is below 0 or above 9999', () => {
+      test('Throws error if year is below 1 or above 9999', () => {
         fc.assert(
           fc.property(
-            fc.integer({ max: -1 }),
+            fc.integer({ max: 0 }),
             fc.integer({ min: 10000 }),
             fc.integer({ min: 1, max: 12 }),
             fc.integer({ min: 1, max: 31 }),
             (yearLowerInterval, yearUpperInterval, month, day) => {
               // Assert
               expect(() => new CalendarDate(yearLowerInterval, month, day)).toThrow(
-                `CalendarDate Validation Error: Input year ${yearLowerInterval} is not valid. Year must be a number between 0 and 9999.`,
+                `CalendarDate Validation Error: Input year ${yearLowerInterval} is not valid. Year must be a number between 1 and 9999.`,
               );
               expect(() => new CalendarDate(yearUpperInterval, month, day)).toThrow(
-                `CalendarDate Validation Error: Input year ${yearUpperInterval} is not valid. Year must be a number between 0 and 9999.`,
+                `CalendarDate Validation Error: Input year ${yearUpperInterval} is not valid. Year must be a number between 1 and 9999.`,
               );
             },
           ),
@@ -54,7 +54,7 @@ describe('CalendarDate', () => {
       test('Throws error if month is below 1 or above 12', () => {
         fc.assert(
           fc.property(
-            fc.integer({ min: 0, max: 9999 }),
+            fc.integer({ min: 1, max: 9999 }),
             fc.integer({ max: 0 }),
             fc.integer({ min: 13 }),
             fc.integer({ min: 1, max: 31 }),
@@ -74,7 +74,7 @@ describe('CalendarDate', () => {
       test('Throws error if day is below 1', () => {
         fc.assert(
           fc.property(
-            fc.integer({ min: 0, max: 9999 }),
+            fc.integer({ min: 1, max: 9999 }),
             fc.integer({ min: 1, max: 12 }),
             fc.integer({ max: 0 }),
             (year, month, day) => {
@@ -90,7 +90,7 @@ describe('CalendarDate', () => {
       test('Throws error if day is not a valid day of month', () => {
         fc.assert(
           fc.property(
-            fc.integer({ min: 0, max: 9999 }),
+            fc.integer({ min: 1, max: 9999 }),
             fc.integer({ min: 1, max: 12 }),
             fc.integer({ min: 29 }),
             (year, month, day) => {
