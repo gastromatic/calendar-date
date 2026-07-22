@@ -48,10 +48,10 @@ export class CalendarDateRange {
 
   /**
    * Returns true if the given date ranges have gaps.
-   * The date ranges will be sorted.
+   * The date ranges are compared in sorted order, the input array is not modified.
    */
   static hasGaps(values: CalendarDateRange[], options?: DateRangeExcludeOptions): boolean {
-    const sortedValues = values.sort((a, b) => a.start.valueOf() - b.start.valueOf());
+    const sortedValues = [...values].sort((a, b) => a.start.valueOf() - b.start.valueOf());
     for (let i = 1; i < sortedValues.length; i++) {
       let differenceInDays = sortedValues[i].start.getDifferenceInDays(sortedValues[i - 1].end);
       if (options?.excludeStart) {
@@ -69,10 +69,10 @@ export class CalendarDateRange {
 
   /**
    * Returns true if the given date ranges overlap.
-   * The date ranges will be sorted.
+   * The date ranges are compared in sorted order, the input array is not modified.
    */
   static hasOverlap(values: CalendarDateRange[], options?: DateRangeExcludeOptions): boolean {
-    const sortedValues = values.sort((a, b) => a.start.valueOf() - b.start.valueOf());
+    const sortedValues = [...values].sort((a, b) => a.start.valueOf() - b.start.valueOf());
     for (let i = 1; i < sortedValues.length; i++) {
       let differenceInDays = sortedValues[i].start.getDifferenceInDays(sortedValues[i - 1].end);
       if (options?.excludeStart) {
