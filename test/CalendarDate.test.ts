@@ -359,6 +359,25 @@ describe('CalendarDate', () => {
         }),
       ).toBe('Sunday, Jan 05');
     });
+
+    test('Should print correct date for the Intl Api version for years below 100', () => {
+      // Assert
+      expect(
+        new CalendarDate(50, 1, 1).toFormat('en', {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+        }),
+      ).toBe('1/1/50');
+      expect(
+        new CalendarDate(50, 1, 1).toFormat('en', {
+          year: 'numeric',
+          month: 'long',
+          weekday: 'long',
+          day: 'numeric',
+        }),
+      ).toBe('Saturday, January 1, 50');
+    });
   });
 
   describe('Test of toJSON', () => {
@@ -443,6 +462,19 @@ describe('CalendarDate', () => {
           },
         ),
       );
+    });
+
+    test('Handles years below 100 correctly', () => {
+      // Arrange
+      const calendarDate = new CalendarDate(50, 1, 1);
+
+      // Act
+      const date = calendarDate.toDateLocal();
+
+      // Assert
+      expect(date.getFullYear()).toBe(50);
+      expect(date.getMonth()).toBe(0);
+      expect(date.getDate()).toBe(1);
     });
   });
 
@@ -1524,6 +1556,15 @@ describe('CalendarDate', () => {
       for (let date = start; date.isBefore(end); date = date.addDays(1)) {
         expect(expectedWeekNumbers[date.toString()]).toBe(date.week);
       }
+    });
+
+    test('Week number is correct for years below 100', () => {
+      // Expected values according to ISO 8601, verified with pythons datetime.isocalendar
+      expect(new CalendarDate(1, 1, 1).week).toBe(1);
+      expect(new CalendarDate(3, 6, 15).week).toBe(24);
+      expect(new CalendarDate(3, 12, 31).week).toBe(1);
+      expect(new CalendarDate(50, 1, 1).week).toBe(52);
+      expect(new CalendarDate(99, 12, 31).week).toBe(53);
     });
   });
 
