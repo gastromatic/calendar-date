@@ -1,3 +1,10 @@
+# [2.13.0](https://github.com/gastromatic/calendar-date/compare/v2.12.0...v2.13.0) (2026-07-22)
+
+
+### Features
+
+* add MIN_VALUE and MAX_VALUE constants to CalendarDate ([#447](https://github.com/gastromatic/calendar-date/issues/447)) ([16c95a3](https://github.com/gastromatic/calendar-date/commit/16c95a34c0991eca445049226b89ff4f09fe1bfa))
+
 # [2.12.0](https://github.com/gastromatic/calendar-date/compare/v2.11.1...v2.12.0) (2026-07-22)
 
 
