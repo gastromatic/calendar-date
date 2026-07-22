@@ -931,10 +931,10 @@ describe('CalendarDate', () => {
     });
   });
 
-  describe('Test of MIN and MAX', () => {
-    test('MIN is 0001-01-01 and MAX is 9999-12-31', () => {
-      expect(CalendarDate.MIN.toString()).toBe('0001-01-01');
-      expect(CalendarDate.MAX.toString()).toBe('9999-12-31');
+  describe('Test of MIN_VALUE and MAX_VALUE', () => {
+    test('MIN_VALUE is 0001-01-01 and MAX_VALUE is 9999-12-31', () => {
+      expect(CalendarDate.MIN_VALUE.toString()).toBe('0001-01-01');
+      expect(CalendarDate.MAX_VALUE.toString()).toBe('9999-12-31');
     });
   });
 

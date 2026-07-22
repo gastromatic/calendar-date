@@ -576,10 +576,13 @@ describe('CalendarDateRange', () => {
     });
   });
 
-  describe('Test of open ended date ranges with CalendarDate.MIN and CalendarDate.MAX', () => {
+  describe('Test of open ended date ranges with CalendarDate.MIN_VALUE and CalendarDate.MAX_VALUE', () => {
     test('A range with an open end includes every date after its start', () => {
       // Arrange
-      const dateRange = new CalendarDateRange(new CalendarDate('2024-01-01'), CalendarDate.MAX);
+      const dateRange = new CalendarDateRange(
+        new CalendarDate('2024-01-01'),
+        CalendarDate.MAX_VALUE,
+      );
 
       // Assert
       expect(dateRange.includes(new CalendarDate('2024-01-01'))).toBe(true);
@@ -589,7 +592,10 @@ describe('CalendarDateRange', () => {
 
     test('A range with an open start includes every date before its end', () => {
       // Arrange
-      const dateRange = new CalendarDateRange(CalendarDate.MIN, new CalendarDate('2023-12-31'));
+      const dateRange = new CalendarDateRange(
+        CalendarDate.MIN_VALUE,
+        new CalendarDate('2023-12-31'),
+      );
 
       // Assert
       expect(dateRange.includes(new CalendarDate('2023-12-31'))).toBe(true);

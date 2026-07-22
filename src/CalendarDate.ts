@@ -58,13 +58,13 @@ export class CalendarDate {
    * The minimum representable CalendarDate: 0001-01-01.
    * Intended as a sentinel value instead of null, e.g. to model a date range with an open start.
    */
-  static readonly MIN = new CalendarDate(1, 1, 1);
+  static readonly MIN_VALUE = new CalendarDate(1, 1, 1);
 
   /**
    * The maximum representable CalendarDate: 9999-12-31.
    * Intended as a sentinel value instead of null, e.g. to model a date range with an open end.
    */
-  static readonly MAX = new CalendarDate(9999, 12, 31);
+  static readonly MAX_VALUE = new CalendarDate(9999, 12, 31);
 
   /**
    * Customizes the default string description for instances of `CalendarDate`.
