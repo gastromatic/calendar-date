@@ -1,24 +1,6 @@
 {
-  "extends": ["config:base"],
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>gastromatic/renovate-config"],
   "reviewers": ["co-sic", "dimitriSaplatkin"],
-  "reviewersSampleSize": 1,
-  "dependencyDashboard": true,
-  "labels": ["dependencies"],
-  "packageRules": [
-    {
-      "groupName": "devDependencies (non-major)",
-      "addLabels": ["devDependencies"],
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
-      "schedule": ["before 8am on Monday"]
-    },
-    {
-      "groupName": "devDependencies",
-      "addLabels": ["devDependencies"],
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["major"]
-    }
-  ],
-  "schedule": ["before 8am"]
+  "reviewersSampleSize": 1
 }
