@@ -487,6 +487,58 @@ describe('CalendarDate', () => {
         }
       }
     });
+
+    test('Keeps the formatter cache bounded for many distinct locales', () => {
+      const date = new CalendarDate(2020, 6, 1);
+      const cache = (
+        CalendarDate as unknown as {
+          dateTimeFormatterByLocaleAndOptions: Map<string, Intl.DateTimeFormat>;
+        }
+      ).dateTimeFormatterByLocaleAndOptions;
+
+      // Act
+      for (let i = 0; i < 250; i++) {
+        expect(date.toFormat(`en-x-${i.toString().padStart(3, '0')}`, { month: 'long' })).toBe(
+          'June',
+        );
+      }
+
+      // Assert
+      expect(date.toFormat('de', { month: 'long' })).toBe('Juni');
+      expect(cache.size).toBe(100);
+    });
+
+    test('Keeps the newest formatters when the cache is full', () => {
+      const date = new CalendarDate(2020, 6, 1);
+      const options = { month: 'long' } as const;
+      for (let i = 0; i < 150; i++) {
+        date.toFormat(`en-x-${i.toString().padStart(3, '0')}`, options);
+      }
+      const constructorSpy = vi.spyOn(Intl, 'DateTimeFormat');
+
+      try {
+        // Act
+        // Locales 50 to 149 are the newest 100, clearing the whole cache at 100 would drop 60.
+        date.toFormat('en-x-060', options);
+
+        // Assert
+        expect(constructorSpy).not.toHaveBeenCalled();
+      } finally {
+        constructorSpy.mockRestore();
+      }
+    });
+
+    test('Reuses formatters without mixing up locales or options', () => {
+      const date = new CalendarDate('2020-01-05');
+
+      // Assert
+      expect(date.toFormat('en', { month: 'long' })).toBe('January');
+      expect(date.toFormat('en', { month: 'short' })).toBe('Jan');
+      expect(date.toFormat('de', { month: 'long' })).toBe('Januar');
+      expect(date.toFormat('en', { month: 'long', day: 'numeric' })).toBe('January 5');
+      expect(date.toFormat('en', { day: 'numeric', month: 'long' })).toBe('January 5');
+      expect(new CalendarDate('2021-03-07').toFormat('en', { month: 'long' })).toBe('March');
+    });
   });
 
   describe('Test of toJSON', () => {
