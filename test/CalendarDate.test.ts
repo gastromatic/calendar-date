@@ -306,6 +306,54 @@ describe('CalendarDate', () => {
       );
     });
 
+    test('Accepts and rejects the same strings as the YYYY-MM-DD pattern', () => {
+      const parseWithPattern = (isoString: string) => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(isoString)) {
+          throw new Error(
+            `CalendarDate Validation Error: Input ${isoString} is not valid, it should follow the pattern YYYY-MM-DD.`,
+          );
+        }
+        return new CalendarDate(
+          Number(isoString.slice(0, 4)),
+          Number(isoString.slice(5, 7)),
+          Number(isoString.slice(8, 10)),
+        );
+      };
+      const outcome = (parse: () => CalendarDate) => {
+        try {
+          return parse().toString();
+        } catch (error) {
+          return (error as Error).message;
+        }
+      };
+      const isoLikeString = fc
+        .array(fc.constantFrom(...'0123456789-/ a٣０'), { minLength: 8, maxLength: 12 })
+        .map((chars) => chars.join(''));
+      const almostValidString = fc
+        .tuple(
+          fc.integer({ min: 0, max: 9999 }),
+          fc.integer({ min: 0, max: 13 }),
+          fc.integer({ min: 0, max: 32 }),
+          fc.integer({ min: 0, max: 9 }),
+          fc.constantFrom('', ' ', '0', 'x', '٣'),
+        )
+        .map(([year, month, day, position, replacement]) => {
+          const isoString = `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          return replacement === '' || position % 3 === 0
+            ? isoString
+            : isoString.slice(0, position) + replacement + isoString.slice(position + 1);
+        });
+
+      fc.assert(
+        fc.property(fc.oneof(isoLikeString, almostValidString), (isoString) => {
+          expect(outcome(() => CalendarDate.parse(isoString))).toBe(
+            outcome(() => parseWithPattern(isoString)),
+          );
+        }),
+        { numRuns: 10000 },
+      );
+    });
+
     test('should construct calendar date object from valid iso string', () => {
       fc.assert(
         fc.property(

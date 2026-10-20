@@ -1,6 +1,7 @@
 const DAY_IN_SECONDS = 86400;
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const ZERO_CHAR_CODE = 48;
+const DASH_CHAR_CODE = 45;
 
 /** Days in a 400-year cycle of the proleptic Gregorian calendar. */
 const DAYS_PER_ERA = 146097;
@@ -26,17 +27,33 @@ function assertIntegerAmount(amount: number): void {
   }
 }
 
+/** Returns the ASCII digit at the index as a number, or NaN for any other character. */
+function digitAt(isoString: string, index: number): number {
+  const digit = isoString.charCodeAt(index) - ZERO_CHAR_CODE;
+  return digit >= 0 && digit <= 9 ? digit : NaN;
+}
+
+/** Reads the fixed YYYY-MM-DD positions directly instead of matching a regex and slicing substrings. */
 function parseIsoString(isoString: string): { year: number; month: number; day: number } {
-  if (!ISO_DATE_PATTERN.test(isoString)) {
-    throw new Error(
-      `CalendarDate Validation Error: Input ${isoString.toString()} is not valid, it should follow the pattern YYYY-MM-DD.`,
-    );
+  if (
+    isoString.length === 10 &&
+    isoString.charCodeAt(4) === DASH_CHAR_CODE &&
+    isoString.charCodeAt(7) === DASH_CHAR_CODE
+  ) {
+    const year =
+      digitAt(isoString, 0) * 1000 +
+      digitAt(isoString, 1) * 100 +
+      digitAt(isoString, 2) * 10 +
+      digitAt(isoString, 3);
+    const month = digitAt(isoString, 5) * 10 + digitAt(isoString, 6);
+    const day = digitAt(isoString, 8) * 10 + digitAt(isoString, 9);
+    if (!Number.isNaN(year + month + day)) {
+      return { year, month, day };
+    }
   }
-  return {
-    year: Number(isoString.slice(0, 4)),
-    month: Number(isoString.slice(5, 7)),
-    day: Number(isoString.slice(8, 10)),
-  };
+  throw new Error(
+    `CalendarDate Validation Error: Input ${isoString.toString()} is not valid, it should follow the pattern YYYY-MM-DD.`,
+  );
 }
 
 /**
