@@ -20,7 +20,6 @@ export class CalendarDateRange {
     }
     this.start = isInOrder ? start : end;
     this.end = isInOrder ? end : start;
-    Object.freeze(this);
   }
 
   equals(calendarDateRange: CalendarDateRange): boolean {
