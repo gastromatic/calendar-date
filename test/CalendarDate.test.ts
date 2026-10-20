@@ -1986,6 +1986,45 @@ describe('CalendarDate', () => {
       expect(new CalendarDate(50, 1, 1).week).toBe(52);
       expect(new CalendarDate(99, 12, 31).week).toBe(53);
     });
+
+    test('Week and week-numbering year match a UTC Date calculation for the whole year range', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1, max: 9999 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          (year, month, day) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const thursday = new Date(Date.UTC(2000, month - 1, day));
+            thursday.setUTCFullYear(year);
+            thursday.setUTCDate(thursday.getUTCDate() + 3 - ((thursday.getUTCDay() + 6) % 7));
+            const firstOfJanuary = new Date(Date.UTC(2000, 0, 1));
+            firstOfJanuary.setUTCFullYear(thursday.getUTCFullYear());
+            const expectedWeek =
+              Math.floor(
+                (thursday.getTime() - firstOfJanuary.getTime()) / (DAY_IN_SECONDS * 7000),
+              ) + 1;
+
+            // Act
+            const calendarDate = new CalendarDate(year, month, day);
+
+            // Assert
+            expect(calendarDate.week).toBe(expectedWeek);
+            expect(calendarDate.weekYear).toBe(thursday.getUTCFullYear());
+          },
+        ),
+        { numRuns: 10000 },
+      );
+    });
+
+    test('Week number is correct at the edges of the representable range', () => {
+      // Expected values according to ISO 8601, verified with pythons datetime.isocalendar
+      expect(CalendarDate.MIN_VALUE.week).toBe(1);
+      expect(CalendarDate.MIN_VALUE.weekYear).toBe(1);
+      expect(CalendarDate.MAX_VALUE.week).toBe(52);
+      expect(CalendarDate.MAX_VALUE.weekYear).toBe(9999);
+    });
   });
 
   describe('Test of weekYear', () => {
