@@ -87,6 +87,20 @@ describe('CalendarDate', () => {
         );
       });
 
+      test.each([
+        [2023.5, 1, 1],
+        [2023, 2.5, 1],
+        [2023, 1, 1.5],
+        [NaN, 1, 1],
+        [2023, NaN, 1],
+        [2023, 1, NaN],
+        [Infinity, 1, 1],
+      ])('Throws error if an input is not an integer: %s-%s-%s', (year, month, day) => {
+        expect(() => new CalendarDate(year, month, day)).toThrow(
+          `CalendarDate Validation Error: Input date ${year}-${month}-${day} is not valid. Year, month and day must be integers.`,
+        );
+      });
+
       test('Throws error if day is not a valid day of month', () => {
         fc.assert(
           fc.property(
@@ -1701,14 +1715,44 @@ describe('CalendarDate', () => {
       );
     });
 
-    test('Throws if the amount is not finite', () => {
-      expect(() => new CalendarDate(2023, 1, 1).addDays(NaN)).toThrow(
-        'CalendarDate Validation Error: Input amount NaN is not valid.',
-      );
-      expect(() => new CalendarDate(2023, 1, 1).addDays(Infinity)).toThrow(
-        'CalendarDate Validation Error: Input amount Infinity is not valid.',
+    test('Matches Date for dates before 1970', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 2, max: 1969 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: -365, max: 365 }),
+          (year, month, day, daysAdded) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date = new Date(Date.UTC(2000, month - 1, day));
+            date.setUTCFullYear(year);
+            date.setUTCDate(date.getUTCDate() + daysAdded);
+
+            // Act
+            const newDate = new CalendarDate(year, month, day).addDays(daysAdded);
+
+            // Assert
+            expect(newDate.valueOf()).toBe(date.getTime() / 1000);
+          },
+        ),
       );
     });
+  });
+
+  describe('Test of non-integer amounts', () => {
+    const baseDate = new CalendarDate(1969, 12, 31);
+
+    test.each([0.5, -1e-9, 0.999999999999, NaN, Infinity, -Infinity])(
+      'Throws for amount %s',
+      (amount) => {
+        const message = `CalendarDate Validation Error: Input amount ${amount} is not valid. Amount must be an integer.`;
+        expect(() => baseDate.addDays(amount)).toThrow(message);
+        expect(() => baseDate.addWeeks(amount)).toThrow(message);
+        expect(() => baseDate.addMonths(amount)).toThrow(message);
+        expect(() => baseDate.addYears(amount)).toThrow(message);
+      },
+    );
   });
 
   describe('Test of addWeeks', () => {
