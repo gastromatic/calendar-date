@@ -228,7 +228,6 @@ export class CalendarDate {
     this.unixTimestampInSeconds = daysSinceEpoch * DAY_IN_SECONDS;
     // 1970-01-01 was a Thursday (4).
     this.weekday = ((((daysSinceEpoch + 3) % 7) + 7) % 7) + 1;
-    Object.freeze(this);
   }
 
   public static isLeapYear(year: number): boolean {
