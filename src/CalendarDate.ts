@@ -121,7 +121,7 @@ export class CalendarDate {
   /**
    * Day of the week starting from monday according to ISO 8601. Values from 1-7.
    */
-  readonly weekday: number;
+  readonly weekday: DayOfTheWeek;
 
   /**
    * cache for Intl.DateTimeFormat instances
@@ -227,7 +227,7 @@ export class CalendarDate {
     const daysSinceEpoch = daysFromCivil(this.year, this.month, this.day);
     this.unixTimestampInSeconds = daysSinceEpoch * DAY_IN_SECONDS;
     // 1970-01-01 was a Thursday (4).
-    this.weekday = ((((daysSinceEpoch + 3) % 7) + 7) % 7) + 1;
+    this.weekday = (((((daysSinceEpoch + 3) % 7) + 7) % 7) + 1) as DayOfTheWeek;
   }
 
   public static isLeapYear(year: number): boolean {
@@ -589,14 +589,14 @@ export class CalendarDate {
    * returns true if the weekday is monday(1)
    */
   isFirstDayOfWeek(): boolean {
-    return this.weekday === 1;
+    return this.weekday === DayOfTheWeek.MONDAY;
   }
 
   /**
    * returns true if the weekday is sunday(7)
    */
   isLastDayOfWeek(): boolean {
-    return this.weekday === 7;
+    return this.weekday === DayOfTheWeek.SUNDAY;
   }
 
   /**
