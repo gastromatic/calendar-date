@@ -417,6 +417,35 @@ describe('CalendarDate', () => {
       );
     });
 
+    test('Matches replacing each token one after another', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1, max: 9999 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc
+            .array(fc.constantFrom(...'yMd.-/ x$&'), { maxLength: 12 })
+            .map((chars) => chars.join('')),
+          (year, month, day, pattern) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const expected = pattern
+              .replace(/yyyy/g, year.toString().padStart(4, '0'))
+              .replace(/yy/g, year.toString().slice(-2).padStart(2, '0'))
+              .replace(/y/g, year.toString())
+              .replace(/MM/g, month.toString().padStart(2, '0'))
+              .replace(/M/g, month.toString())
+              .replace(/dd/g, day.toString().padStart(2, '0'))
+              .replace(/d/g, day.toString());
+
+            // Assert
+            expect(new CalendarDate(year, month, day).toFormat(pattern)).toBe(expected);
+          },
+        ),
+        { numRuns: 10000 },
+      );
+    });
+
     test('Should print correct date for the Intl Api version', () => {
       // Assert
       expect(
