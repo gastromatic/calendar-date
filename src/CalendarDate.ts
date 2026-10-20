@@ -263,14 +263,16 @@ export class CalendarDate {
   }
 
   /**
-   * returns a CalendarDate instance for the supplied Date, using UTC values
+   * returns a CalendarDate instance for the supplied Date, using UTC values.
+   * Throws an Error for an invalid Date.
    */
   static fromDateUTC(date: Date): CalendarDate {
     return new CalendarDate(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
   }
 
   /**
-   * returns a CalendarDate instance for the supplied Date, using local time zone values
+   * returns a CalendarDate instance for the supplied Date, using local time zone values.
+   * Throws an Error for an invalid Date.
    */
   static fromDateLocal(date: Date): CalendarDate {
     return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());

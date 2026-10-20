@@ -264,6 +264,21 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of fromDateUTC and fromDateLocal', () => {
+    test('Throws for an invalid Date', () => {
+      // Arrange
+      const invalidDate = new Date(NaN);
+
+      // Assert
+      expect(() => CalendarDate.fromDateUTC(invalidDate)).toThrow(
+        'CalendarDate Validation Error: Input date NaN-NaN-NaN is not valid. Year, month and day must be integers.',
+      );
+      expect(() => CalendarDate.fromDateLocal(invalidDate)).toThrow(
+        'CalendarDate Validation Error: Input date NaN-NaN-NaN is not valid. Year, month and day must be integers.',
+      );
+    });
+  });
+
   describe('Test of fromDateWithTimeZone', () => {
     test('should return correct date for a year < 1000', () => {
       // Arrange

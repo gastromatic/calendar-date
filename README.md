@@ -27,6 +27,7 @@ Using the built-in date object for a calendar date poses a number of disadvantag
 - Written completely in typescript
 - No external dependencies
 - Tiny package size
+- Fast: the core date arithmetic uses integers instead of `Date` objects
 
 ## Getting Started
 
@@ -60,6 +61,9 @@ new CalendarDate('2020-01-01');
 new CalendarDate(2020, 1, 1);
 ```
 
+The constructor throws an Error for invalid inputs: strings that don't follow the pattern `YYYY-MM-DD`,
+year, month or day values that are not integers, years outside of 1 to 9999 and days that don't exist in the month.
+
 You can also get the current UTC CalendarDate, the current local CalendarDate based on the timezone of your local environment or a CalendarDate for a specific time zone with the static methods `nowUTC`, `nowLocal` and `nowTimeZone`.
 
 ```typescript
@@ -82,6 +86,8 @@ Since version 2 of calendar-date the month value is now in the range of 1 to 12 
 To compare to CalendarDate objects you can use the `equals`, `isBefore`, `isAfter`, `isBeforeOrEqual` and `isAfterOrEqual` 
 function or`>=`, `<=`, `>` and `<` operators.
 The comparison works based on the unix timestamp.
+In performance-sensitive code prefer the methods: the operators make JavaScript convert both objects
+to numbers on every comparison, which is several times slower than `isBefore` and the other methods.
 
 ```typescript
 const date1 = new CalendarDate('2020-01-01');
@@ -241,7 +247,7 @@ Returns the formatted string based on a provided pattern.
 ```typescript
 const date = new CalendarDate('2020-06-01');
 date.toFormat('dd.MM.yy');     // 01.06.20
-date.toFormat('d-M-yy');       // 1.6.20
+date.toFormat('d-M-yy');       // 1-6-20
 date.toFormat('yyyy/dd/MM');   // 2020/01/06
 
 ```
@@ -447,6 +453,17 @@ console.log(datesExcludingEnd.length); // 2
 const innerDates = range.toDatesArrayInRange({ excludeStart: true, excludeEnd: true });
 console.log(innerDates.length); // 1
 ```
+
+### Immutability
+All methods return new instances instead of changing the existing one, and the properties are `readonly` in TypeScript.
+Since version 3 the instances are no longer frozen with `Object.freeze`, which made creating them about twice as expensive.
+
+## Migration from v2 to v3
+- The constructor throws an Error if year, month or day is not an integer. Before, such inputs created an instance with a `NaN` timestamp. This also applies to `fromDateUTC` and `fromDateLocal` with an invalid `Date`, e.g. `new Date(NaN)`.
+- `addDays`, `addWeeks`, `addMonths` and `addYears` throw an Error if the amount is not an integer.
+- The deprecated `toDate` method was removed, use `toDateUTC` instead.
+- `toFormat(locale, options)` formats the date in UTC, so the output no longer depends on the process time zone. A `timeZone` in the options, which the TypeScript type doesn't allow, is ignored. Before, it was applied to local midnight and could print the previous or next day.
+- CalendarDate and CalendarDateRange instances are no longer frozen with `Object.freeze`. Assigning to a property doesn't throw anymore, but TypeScript still rejects it because the properties are `readonly`.
 
 ## Migration from v1 to v2
 If you want to upgrade from v1 to v2 of calendar-date you need to check if you access the read only month property on the calendar date object or use the number constructor anywhere and change the code according to the change (Range of month changed from 0-11 to 1-12). All other functions and properties work the same as before.
