@@ -129,6 +129,29 @@ describe('CalendarDate', () => {
         );
       });
 
+      test('Matches the UTC timestamp and weekday of Date for the whole year range', () => {
+        fc.assert(
+          fc.property(
+            fc.integer({ min: 1, max: 9999 }),
+            fc.integer({ min: 1, max: 12 }),
+            fc.integer({ min: 1, max: 31 }),
+            (year, month, day) => {
+              // Arrange
+              day = ensureValidDay(year, month, day);
+              const date = new Date(Date.UTC(2000, month - 1, day));
+              date.setUTCFullYear(year);
+
+              // Act
+              const calendarDate = new CalendarDate(year, month, day);
+
+              // Assert
+              expect(calendarDate.unixTimestampInSeconds).toBe(date.getTime() / 1000);
+              expect(calendarDate.weekday).toBe(date.getUTCDay() === 0 ? 7 : date.getUTCDay());
+            },
+          ),
+        );
+      });
+
       test('Save correct weekday for date', () => {
         expect(new CalendarDate(`2023-01-01`).weekday).toBe(7);
         expect(new CalendarDate(`2023-01-02`).weekday).toBe(1);
@@ -1666,6 +1689,24 @@ describe('CalendarDate', () => {
             expect(newDate.valueOf()).toBe(baseDate.valueOf() + DAY_IN_SECONDS * daysAdded);
           },
         ),
+      );
+    });
+
+    test('Throws if the result leaves the representable range', () => {
+      expect(() => CalendarDate.MAX_VALUE.addDays(1)).toThrow(
+        'CalendarDate Validation Error: Input year 10000 is not valid. Year must be a number between 1 and 9999.',
+      );
+      expect(() => CalendarDate.MIN_VALUE.addDays(-1)).toThrow(
+        'CalendarDate Validation Error: Input year 0 is not valid. Year must be a number between 1 and 9999.',
+      );
+    });
+
+    test('Throws if the amount is not finite', () => {
+      expect(() => new CalendarDate(2023, 1, 1).addDays(NaN)).toThrow(
+        'CalendarDate Validation Error: Input amount NaN is not valid.',
+      );
+      expect(() => new CalendarDate(2023, 1, 1).addDays(Infinity)).toThrow(
+        'CalendarDate Validation Error: Input amount Infinity is not valid.',
       );
     });
   });
