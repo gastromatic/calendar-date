@@ -132,18 +132,13 @@ export class CalendarDateRange {
    * Creates an iterator that yields each CalendarDate in the range from start to end (inclusive).
    */
   *iterateDatesInRange(options?: DateRangeExcludeOptions): IterableIterator<CalendarDate> {
-    let current = this.start;
-
-    // Skip start date if excludeStart is true
-    if (options?.excludeStart) {
-      current = current.addDays(1);
-    }
-
-    const endDate = options?.excludeEnd ? this.end.addDays(-1) : this.end;
-
-    while (current.valueOf() <= endDate.valueOf()) {
+    const { first, count } = this.getDatesInRange(options);
+    let current = first;
+    for (let i = 0; i < count; i++) {
       yield current;
-      current = current.addDays(1);
+      if (i < count - 1) {
+        current = current.addDays(1);
+      }
     }
   }
 
@@ -151,6 +146,30 @@ export class CalendarDateRange {
    * Returns an array of all CalendarDate objects in the range.
    */
   toDatesArrayInRange(options?: DateRangeExcludeOptions): CalendarDate[] {
-    return Array.from(this.iterateDatesInRange(options));
+    const { first, count } = this.getDatesInRange(options);
+    const dates: CalendarDate[] = [];
+    let current = first;
+    for (let i = 0; i < count; i++) {
+      dates.push(current);
+      if (i < count - 1) {
+        current = current.addDays(1);
+      }
+    }
+    return dates;
+  }
+
+  /**
+   * Returns the first date and the number of dates in the range. Callers step forward exactly
+   * count - 1 times, so ranges at CalendarDate.MIN_VALUE or MAX_VALUE never leave the valid years.
+   */
+  private getDatesInRange(options?: DateRangeExcludeOptions): {
+    first: CalendarDate;
+    count: number;
+  } {
+    const count =
+      this.getTotalDays() - (options?.excludeStart ? 1 : 0) - (options?.excludeEnd ? 1 : 0);
+    // With count > 0 and excludeStart, start is before end, so start + 1 is a valid date.
+    const first = options?.excludeStart && count > 0 ? this.start.addDays(1) : this.start;
+    return { first, count };
   }
 }

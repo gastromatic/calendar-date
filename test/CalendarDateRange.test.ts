@@ -1025,7 +1025,53 @@ describe('CalendarDateRange', () => {
     });
   });
 
+  describe('Iteration at the edges of the representable range', () => {
+    const lastTwoDays = new CalendarDateRange(
+      new CalendarDate(9999, 12, 30),
+      CalendarDate.MAX_VALUE,
+    );
+    const firstTwoDays = new CalendarDateRange(CalendarDate.MIN_VALUE, new CalendarDate(1, 1, 2));
+    const maxValueOnly = new CalendarDateRange(CalendarDate.MAX_VALUE, CalendarDate.MAX_VALUE);
+    const minValueOnly = new CalendarDateRange(CalendarDate.MIN_VALUE, CalendarDate.MIN_VALUE);
+
+    it.each([
+      ['ending at MAX_VALUE', lastTwoDays, {}, ['9999-12-30', '9999-12-31']],
+      ['ending at MAX_VALUE excluding start', lastTwoDays, { excludeStart: true }, ['9999-12-31']],
+      ['starting at MIN_VALUE', firstTwoDays, {}, ['0001-01-01', '0001-01-02']],
+      ['starting at MIN_VALUE excluding end', firstTwoDays, { excludeEnd: true }, ['0001-01-01']],
+      ['MAX_VALUE only excluding start', maxValueOnly, { excludeStart: true }, []],
+      ['MIN_VALUE only excluding end', minValueOnly, { excludeEnd: true }, []],
+      ['MAX_VALUE only excluding both', maxValueOnly, { excludeStart: true, excludeEnd: true }, []],
+    ])('returns the dates of a range %s', (_, range, options, expected) => {
+      expect(range.toDatesArrayInRange(options).map(String)).toEqual(expected);
+      expect([...range.iterateDatesInRange(options)].map(String)).toEqual(expected);
+    });
+  });
+
   describe('toDatesArrayInRange', () => {
+    it('should return the same dates as iterateDatesInRange', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: -1000, max: 1000 }),
+          fc.integer({ min: 0, max: 100 }),
+          fc.boolean(),
+          fc.boolean(),
+          (startOffset, length, excludeStart, excludeEnd) => {
+            // Arrange
+            const start = new CalendarDate(2000, 1, 1).addDays(startOffset);
+            const range = new CalendarDateRange(start, start.addDays(length));
+            const options = { excludeStart, excludeEnd };
+
+            // Act
+            const dates = range.toDatesArrayInRange(options);
+
+            // Assert
+            expect(dates.map(String)).toEqual([...range.iterateDatesInRange(options)].map(String));
+          },
+        ),
+      );
+    });
+
     it('should return array with single date for single-day range', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-01'),
