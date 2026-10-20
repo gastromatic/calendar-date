@@ -2,6 +2,8 @@ const DAY_IN_SECONDS = 86400;
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const ZERO_CHAR_CODE = 48;
 const DASH_CHAR_CODE = 45;
+/** Bounds the toFormat cache, since valid locale tags are unlimited, e.g. when they come from a request. */
+const MAX_CACHED_FORMATTERS = 100;
 
 /** Days in a 400-year cycle of the proleptic Gregorian calendar. */
 const DAYS_PER_ERA = 146097;
@@ -124,6 +126,12 @@ export class CalendarDate {
    * @private
    */
   private static dateTimeFormatterByTimezone = new Map<string, Intl.DateTimeFormat>();
+
+  /**
+   * cache for Intl.DateTimeFormat instances used by toFormat
+   * @private
+   */
+  private static dateTimeFormatterByLocaleAndOptions = new Map<string, Intl.DateTimeFormat>();
 
   /**
    * The minimum representable CalendarDate: 0001-01-01.
@@ -381,8 +389,21 @@ export class CalendarDate {
     options?: Pick<Intl.DateTimeFormatOptions, 'year' | 'month' | 'day' | 'weekday'>,
   ): string {
     if (options) {
-      // Formatting UTC midnight in UTC keeps the result independent of the process time zone.
-      const formatter = new Intl.DateTimeFormat(input, { ...options, timeZone: 'UTC' });
+      // Creating a formatter is far more expensive than formatting with it. Formatting UTC midnight
+      // in UTC keeps the cached formatter independent of the process time zone.
+      const key = `${input}|${JSON.stringify(options)}`;
+      let formatter = CalendarDate.dateTimeFormatterByLocaleAndOptions.get(key);
+      if (!formatter) {
+        formatter = new Intl.DateTimeFormat(input, { ...options, timeZone: 'UTC' });
+        if (CalendarDate.dateTimeFormatterByLocaleAndOptions.size >= MAX_CACHED_FORMATTERS) {
+          // Maps iterate in insertion order, so the first key is the oldest entry.
+          const oldestKey = CalendarDate.dateTimeFormatterByLocaleAndOptions.keys().next().value;
+          if (oldestKey !== undefined) {
+            CalendarDate.dateTimeFormatterByLocaleAndOptions.delete(oldestKey);
+          }
+        }
+        CalendarDate.dateTimeFormatterByLocaleAndOptions.set(key, formatter);
+      }
       return formatter.format(this.toDateUTC());
     } else {
       return input
