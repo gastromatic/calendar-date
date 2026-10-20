@@ -4,6 +4,8 @@ const ZERO_CHAR_CODE = 48;
 const DASH_CHAR_CODE = 45;
 /** Bounds the toFormat cache, since valid locale tags are unlimited, e.g. when they come from a request. */
 const MAX_CACHED_FORMATTERS = 100;
+/** Longer tokens come first so that e.g. `yyyy` is not matched as four `y`. */
+const FORMAT_TOKEN_PATTERN = /yyyy|yy|y|MM|M|dd|d/g;
 
 /** Days in a 400-year cycle of the proleptic Gregorian calendar. */
 const DAYS_PER_ERA = 146097;
@@ -406,14 +408,24 @@ export class CalendarDate {
       }
       return formatter.format(this.toDateUTC());
     } else {
-      return input
-        .replace(/yyyy/g, this.year.toString().padStart(4, '0'))
-        .replace(/yy/g, this.year.toString().slice(-2).padStart(2, '0'))
-        .replace(/y/g, this.year.toString())
-        .replace(/MM/g, this.month.toString().padStart(2, '0'))
-        .replace(/M/g, this.month.toString())
-        .replace(/dd/g, this.day.toString().padStart(2, '0'))
-        .replace(/d/g, this.day.toString());
+      return input.replace(FORMAT_TOKEN_PATTERN, (token) => {
+        switch (token) {
+          case 'yyyy':
+            return this.year.toString().padStart(4, '0');
+          case 'yy':
+            return this.year.toString().slice(-2).padStart(2, '0');
+          case 'y':
+            return this.year.toString();
+          case 'MM':
+            return this.month.toString().padStart(2, '0');
+          case 'M':
+            return this.month.toString();
+          case 'dd':
+            return this.day.toString().padStart(2, '0');
+          default:
+            return this.day.toString();
+        }
+      });
     }
   }
 
