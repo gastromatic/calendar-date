@@ -1868,6 +1868,33 @@ describe('CalendarDate', () => {
       );
     });
 
+    test('Matches Date for small amounts within and across month boundaries', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1, max: 9999 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: -40, max: 40 }),
+          (year, month, day, daysAdded) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const date = new Date(Date.UTC(2000, month - 1, day));
+            date.setUTCFullYear(year);
+            date.setUTCDate(date.getUTCDate() + daysAdded);
+            fc.pre(date.getUTCFullYear() >= 1 && date.getUTCFullYear() <= 9999);
+
+            // Act
+            const newDate = new CalendarDate(year, month, day).addDays(daysAdded);
+
+            // Assert
+            expect(newDate.valueOf()).toBe(date.getTime() / 1000);
+            expect(newDate.weekday).toBe(date.getUTCDay() === 0 ? 7 : date.getUTCDay());
+          },
+        ),
+        { numRuns: 10000 },
+      );
+    });
+
     test('Matches Date for dates before 1970', () => {
       fc.assert(
         fc.property(

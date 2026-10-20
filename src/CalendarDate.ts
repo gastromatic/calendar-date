@@ -539,6 +539,11 @@ export class CalendarDate {
    */
   addDays(amount: number): CalendarDate {
     assertIntegerAmount(amount);
+    const dayInSameMonth = this.day + amount;
+    // Every month has at least 28 days, so the year and month can't change.
+    if (dayInSameMonth >= 1 && dayInSameMonth <= 28) {
+      return new CalendarDate(this.year, this.month, dayInSameMonth);
+    }
     const { year, month, day } = civilFromDays(this.valueOf() / DAY_IN_SECONDS + amount);
     return new CalendarDate(year, month, day);
   }
