@@ -463,6 +463,30 @@ describe('CalendarDate', () => {
         }),
       ).toBe('Saturday, January 1, 50');
     });
+
+    test('Keeps the calendar date if the process time zone changes after the first call', () => {
+      const originalTimeZone = process.env.TZ;
+      const date = new CalendarDate(2020, 6, 1);
+      const options = { year: 'numeric', month: 'numeric', day: 'numeric' } as const;
+      try {
+        // Act
+        process.env.TZ = 'America/New_York';
+        const formattedInNewYork = date.toFormat('de-DE', options);
+        process.env.TZ = 'Asia/Tokyo';
+        const formattedInTokyo = date.toFormat('de-DE', options);
+
+        // Assert
+        expect(formattedInNewYork).toBe('1.6.2020');
+        expect(formattedInTokyo).toBe('1.6.2020');
+      } finally {
+        // Assigning undefined would set the string "undefined", which Node treats as UTC.
+        if (originalTimeZone === undefined) {
+          delete process.env.TZ;
+        } else {
+          process.env.TZ = originalTimeZone;
+        }
+      }
+    });
   });
 
   describe('Test of toJSON', () => {
