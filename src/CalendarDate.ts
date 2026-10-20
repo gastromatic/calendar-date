@@ -1,5 +1,12 @@
 const DAY_IN_SECONDS = 86400;
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Days in a 400-year cycle of the proleptic Gregorian calendar. */
+const DAYS_PER_ERA = 146097;
+
+/** Days from 0000-03-01 to 1970-01-01, the epoch the day count is relative to. */
+const EPOCH_SHIFT_DAYS = 719468;
 
 export enum DayOfTheWeek {
   MONDAY = 1,
@@ -12,16 +19,55 @@ export enum DayOfTheWeek {
 }
 
 function parseIsoString(isoString: string): { year: number; month: number; day: number } {
-  if (!isoString.match(new RegExp(/^\d{4}-\d{2}-\d{2}$/))) {
+  if (!ISO_DATE_PATTERN.test(isoString)) {
     throw new Error(
       `CalendarDate Validation Error: Input ${isoString.toString()} is not valid, it should follow the pattern YYYY-MM-DD.`,
     );
   }
-  const split = isoString.split('-');
   return {
-    year: parseInt(split[0]),
-    month: parseInt(split[1]),
-    day: parseInt(split[2]),
+    year: Number(isoString.slice(0, 4)),
+    month: Number(isoString.slice(5, 7)),
+    day: Number(isoString.slice(8, 10)),
+  };
+}
+
+/**
+ * Days since 1970-01-01 in the proleptic Gregorian calendar, the same calendar `Date` uses.
+ * Counts years from March so the leap day ends the year. Algorithm: Howard Hinnant, `days_from_civil`.
+ */
+function daysFromCivil(year: number, month: number, day: number): number {
+  const marchBasedYear = month <= 2 ? year - 1 : year;
+  const era = Math.floor(marchBasedYear / 400);
+  const yearOfEra = marchBasedYear - era * 400;
+  const marchBasedMonth = month > 2 ? month - 3 : month + 9;
+  const dayOfYear = Math.floor((153 * marchBasedMonth + 2) / 5) + day - 1;
+  const dayOfEra =
+    yearOfEra * 365 + Math.floor(yearOfEra / 4) - Math.floor(yearOfEra / 100) + dayOfYear;
+
+  return era * DAYS_PER_ERA + dayOfEra - EPOCH_SHIFT_DAYS;
+}
+
+/** Inverse of {@link daysFromCivil}. Algorithm: Howard Hinnant, `civil_from_days`. */
+function civilFromDays(days: number): { year: number; month: number; day: number } {
+  const shiftedDays = days + EPOCH_SHIFT_DAYS;
+  const era = Math.floor(shiftedDays / DAYS_PER_ERA);
+  const dayOfEra = shiftedDays - era * DAYS_PER_ERA;
+  const yearOfEra = Math.floor(
+    (dayOfEra -
+      Math.floor(dayOfEra / 1460) +
+      Math.floor(dayOfEra / 36524) -
+      Math.floor(dayOfEra / (DAYS_PER_ERA - 1))) /
+      365,
+  );
+  const dayOfYear =
+    dayOfEra - (365 * yearOfEra + Math.floor(yearOfEra / 4) - Math.floor(yearOfEra / 100));
+  const marchBasedMonth = Math.floor((5 * dayOfYear + 2) / 153);
+  const month = marchBasedMonth < 10 ? marchBasedMonth + 3 : marchBasedMonth - 9;
+
+  return {
+    year: yearOfEra + era * 400 + (month <= 2 ? 1 : 0),
+    month,
+    day: dayOfYear - Math.floor((153 * marchBasedMonth + 2) / 5) + 1,
   };
 }
 
@@ -134,9 +180,14 @@ export class CalendarDate {
       );
     }
 
-    const date = new Date(`${this.toString()}T00:00:00.000Z`);
-    this.unixTimestampInSeconds = date.getTime() / 1000;
-    this.weekday = date.getUTCDay() === 0 ? 7 : date.getUTCDay();
+    // Non-integer parts keep yielding NaN, as the former Date string parsing did.
+    const daysSinceEpoch =
+      Number.isInteger(this.year) && Number.isInteger(this.month) && Number.isInteger(this.day)
+        ? daysFromCivil(this.year, this.month, this.day)
+        : NaN;
+    this.unixTimestampInSeconds = daysSinceEpoch * DAY_IN_SECONDS;
+    // 1970-01-01 was a Thursday (4).
+    this.weekday = ((((daysSinceEpoch + 3) % 7) + 7) % 7) + 1;
     Object.freeze(this);
   }
 
@@ -417,9 +468,13 @@ export class CalendarDate {
    * Allows overflow.
    */
   addDays(amount: number): CalendarDate {
-    return CalendarDate.parse(
-      new Date((this.valueOf() + DAY_IN_SECONDS * amount) * 1000).toISOString().slice(0, 10),
-    );
+    const daysSinceEpoch = Math.floor((this.valueOf() + DAY_IN_SECONDS * amount) / DAY_IN_SECONDS);
+    if (!Number.isFinite(daysSinceEpoch)) {
+      throw new Error(`CalendarDate Validation Error: Input amount ${amount} is not valid.`);
+    }
+
+    const { year, month, day } = civilFromDays(daysSinceEpoch);
+    return new CalendarDate(year, month, day);
   }
 
   /**
