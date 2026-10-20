@@ -381,8 +381,9 @@ export class CalendarDate {
     options?: Pick<Intl.DateTimeFormatOptions, 'year' | 'month' | 'day' | 'weekday'>,
   ): string {
     if (options) {
-      const formatter = new Intl.DateTimeFormat(input, options);
-      return formatter.format(this.toDateLocal());
+      // Formatting UTC midnight in UTC keeps the result independent of the process time zone.
+      const formatter = new Intl.DateTimeFormat(input, { ...options, timeZone: 'UTC' });
+      return formatter.format(this.toDateUTC());
     } else {
       return input
         .replace(/yyyy/g, this.year.toString().padStart(4, '0'))
