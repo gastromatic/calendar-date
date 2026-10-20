@@ -323,7 +323,8 @@ export class CalendarDate {
       );
     }
     return values.reduce(
-      (maxValue, currentValue) => (currentValue > maxValue ? currentValue : maxValue),
+      (maxValue, currentValue) =>
+        currentValue.valueOf() > maxValue.valueOf() ? currentValue : maxValue,
       values[0],
     );
   }
@@ -335,7 +336,8 @@ export class CalendarDate {
       );
     }
     return values.reduce(
-      (minValue, currentValue) => (currentValue < minValue ? currentValue : minValue),
+      (minValue, currentValue) =>
+        currentValue.valueOf() < minValue.valueOf() ? currentValue : minValue,
       values[0],
     );
   }

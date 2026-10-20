@@ -11,13 +11,15 @@ export class CalendarDateRange {
   readonly end: CalendarDate;
 
   constructor(start: CalendarDate, end: CalendarDate, autoArrange = false) {
-    if (!autoArrange && end < start) {
+    // Comparing valueOf() directly avoids the much slower implicit conversion of `<` on objects.
+    const isInOrder = start.valueOf() <= end.valueOf();
+    if (!autoArrange && !isInOrder) {
       throw new Error(
         "CalendarDateRange Validation Error: end date can't be before the start date.",
       );
     }
-    this.start = start <= end ? start : end;
-    this.end = end > start ? end : start;
+    this.start = isInOrder ? start : end;
+    this.end = isInOrder ? end : start;
     Object.freeze(this);
   }
 
@@ -119,9 +121,10 @@ export class CalendarDateRange {
     if (input instanceof CalendarDateRange) {
       return this.includes(input.start, options) && this.includes(input.end, options);
     }
+    const value = input.valueOf();
     return (
-      (options?.excludeStart ? input > this.start : input >= this.start) &&
-      (options?.excludeEnd ? input < this.end : input <= this.end)
+      (options?.excludeStart ? value > this.start.valueOf() : value >= this.start.valueOf()) &&
+      (options?.excludeEnd ? value < this.end.valueOf() : value <= this.end.valueOf())
     );
   }
 
@@ -138,7 +141,7 @@ export class CalendarDateRange {
 
     const endDate = options?.excludeEnd ? this.end.addDays(-1) : this.end;
 
-    while (current <= endDate) {
+    while (current.valueOf() <= endDate.valueOf()) {
       yield current;
       current = current.addDays(1);
     }
