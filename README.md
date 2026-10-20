@@ -277,10 +277,12 @@ new CalendarDate('2020-06-15').weekYear;    // 2020 (mid-year dates always match
 ```
 
 #### DayOfTheWeek
-You can access the weekday according to ISO 8601 as a read only property on the calendar date object. The values are in the range from 1 to 7 starting from Monday.
+You can access the weekday according to ISO 8601 as a read only property on the calendar date object. The values are in the range from 1 to 7 starting from Monday,
+typed as the `DayOfTheWeek` enum.
 ```typescript
-new CalendarDate('2020-01-13').weekday;    // 1 (Monday)
-new CalendarDate('2020-01-19').weekday;    // 7 (Sunday)
+new CalendarDate('2020-01-13').weekday;    // 1 (DayOfTheWeek.MONDAY)
+new CalendarDate('2020-01-19').weekday;    // 7 (DayOfTheWeek.SUNDAY)
+new CalendarDate('2020-01-19').weekday === DayOfTheWeek.SUNDAY; // true
 ```
 
 #### getFirstDayOfWeek, getLastDayOfWeek
@@ -463,6 +465,7 @@ Since version 3 the instances are no longer frozen with `Object.freeze`, which m
 - `addDays`, `addWeeks`, `addMonths` and `addYears` throw an Error if the amount is not an integer.
 - The deprecated `toDate` method was removed, use `toDateUTC` instead.
 - `toFormat(locale, options)` formats the date in UTC, so the output no longer depends on the process time zone. A `timeZone` in the options, which the TypeScript type doesn't allow, is ignored. Before, it was applied to local midnight and could print the previous or next day.
+- `weekday` is typed as `DayOfTheWeek` instead of `number`. Its values don't change, but TypeScript now rejects comparisons with numbers outside of 1 to 7.
 - CalendarDate and CalendarDateRange instances are no longer frozen with `Object.freeze`. Assigning to a property doesn't throw anymore, but TypeScript still rejects it because the properties are `readonly`.
 
 ## Migration from v1 to v2

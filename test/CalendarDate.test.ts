@@ -1,6 +1,7 @@
 import * as fc from 'fast-check';
 import fs from 'fs';
-import { CalendarDate } from 'calendar-date';
+import { CalendarDate, DayOfTheWeek } from 'calendar-date';
+import { expectTypeOf } from 'vitest';
 import { DAY_IN_SECONDS, ensureValidDay, unixTimestampToCalendarDate } from './helpers';
 
 describe('CalendarDate', () => {
@@ -175,6 +176,14 @@ describe('CalendarDate', () => {
         expect(new CalendarDate(`2023-01-06`).weekday).toBe(5);
         expect(new CalendarDate(`2023-01-07`).weekday).toBe(6);
         expect(new CalendarDate(`2023-01-08`).weekday).toBe(7);
+      });
+
+      test('Types the weekday as DayOfTheWeek', () => {
+        const weekday = new CalendarDate(2023, 1, 1).weekday;
+
+        // Assert
+        expectTypeOf(weekday).toEqualTypeOf<DayOfTheWeek>();
+        expect(weekday).toBe(DayOfTheWeek.SUNDAY);
       });
     });
 
