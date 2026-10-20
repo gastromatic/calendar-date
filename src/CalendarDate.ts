@@ -18,6 +18,14 @@ export enum DayOfTheWeek {
   SUNDAY = 7,
 }
 
+function assertIntegerAmount(amount: number): void {
+  if (!Number.isInteger(amount)) {
+    throw new Error(
+      `CalendarDate Validation Error: Input amount ${amount} is not valid. Amount must be an integer.`,
+    );
+  }
+}
+
 function parseIsoString(isoString: string): { year: number; month: number; day: number } {
   if (!ISO_DATE_PATTERN.test(isoString)) {
     throw new Error(
@@ -129,7 +137,7 @@ export class CalendarDate {
   /**
    * Throws an Error for invalid inputs.
    *
-   * @param year Integer between 1-9999, other inputs may lead to unstable behaviour
+   * @param year Integer between 1-9999
    * @param month Integer between 1-12
    * @param day Integer between 1-31
    */
@@ -158,6 +166,15 @@ export class CalendarDate {
       );
     }
 
+    if (
+      !Number.isInteger(this.year) ||
+      !Number.isInteger(this.month) ||
+      !Number.isInteger(this.day)
+    ) {
+      throw new Error(
+        `CalendarDate Validation Error: Input date ${this.year}-${this.month}-${this.day} is not valid. Year, month and day must be integers.`,
+      );
+    }
     if (this.year < 1 || this.year > 9999) {
       throw new Error(
         `CalendarDate Validation Error: Input year ${this.year} is not valid. Year must be a number between 1 and 9999.`,
@@ -180,11 +197,7 @@ export class CalendarDate {
       );
     }
 
-    // Non-integer parts keep yielding NaN, as the former Date string parsing did.
-    const daysSinceEpoch =
-      Number.isInteger(this.year) && Number.isInteger(this.month) && Number.isInteger(this.day)
-        ? daysFromCivil(this.year, this.month, this.day)
-        : NaN;
+    const daysSinceEpoch = daysFromCivil(this.year, this.month, this.day);
     this.unixTimestampInSeconds = daysSinceEpoch * DAY_IN_SECONDS;
     // 1970-01-01 was a Thursday (4).
     this.weekday = ((((daysSinceEpoch + 3) % 7) + 7) % 7) + 1;
@@ -430,11 +443,13 @@ export class CalendarDate {
 
   /**
    * Returns a new CalendarDate with the specified amount of months added.
+   * Throws an Error if the amount is not an integer.
    *
    * @param amount
    * @param enforceEndOfMonth If set to true the addition will never cause an overflow to the next month.
    */
   addMonths(amount: number, enforceEndOfMonth = false): CalendarDate {
+    assertIntegerAmount(amount);
     const totalMonths = this.month + amount - 1;
     let year = this.year + Math.floor(totalMonths / 12);
     let month = totalMonths % 12;
@@ -455,32 +470,32 @@ export class CalendarDate {
 
   /**
    * Returns a new CalendarDate with the specified amount of years added.
+   * Throws an Error if the amount is not an integer.
    *
    * @param amount
    * @param enforceEndOfMonth If set to true the addition will never cause an overflow to the next month.
    */
   addYears(amount: number, enforceEndOfMonth = false): CalendarDate {
+    assertIntegerAmount(amount);
     return this.addMonths(amount * 12, enforceEndOfMonth);
   }
 
   /**
    * Returns a new CalendarDate with the specified amount of days added.
-   * Allows overflow.
+   * Allows overflow. Throws an Error if the amount is not an integer.
    */
   addDays(amount: number): CalendarDate {
-    const daysSinceEpoch = Math.floor((this.valueOf() + DAY_IN_SECONDS * amount) / DAY_IN_SECONDS);
-    if (!Number.isFinite(daysSinceEpoch)) {
-      throw new Error(`CalendarDate Validation Error: Input amount ${amount} is not valid.`);
-    }
-
-    const { year, month, day } = civilFromDays(daysSinceEpoch);
+    assertIntegerAmount(amount);
+    const { year, month, day } = civilFromDays(this.valueOf() / DAY_IN_SECONDS + amount);
     return new CalendarDate(year, month, day);
   }
 
   /**
    * Returns a new CalendarDate with the specified amount of weeks added.
+   * Throws an Error if the amount is not an integer.
    */
   addWeeks(amount: number): CalendarDate {
+    assertIntegerAmount(amount);
     return this.addDays(amount * 7);
   }
 

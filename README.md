@@ -119,7 +119,7 @@ new CalendarDate('2020-01-01').isSameMonth(new CalendarDate('2021-01-01')); // f
 ```
 
 #### addMonths, addDays
-Returns a new CalendarDate with the specified amount of months or days added.
+Returns a new CalendarDate with the specified amount of months or days added. The amount must be an integer, otherwise an Error is thrown.
 
 ```typescript
 new CalendarDate('2020-01-01').addMonths(3);    // 2020-04-01
@@ -127,7 +127,7 @@ new CalendarDate('2020-01-01').addDays(15);     // 2020-01-16
 ```
 
 #### addYears, addWeeks
-Returns a new CalendarDate with the specified amount of years or weeks added.
+Returns a new CalendarDate with the specified amount of years or weeks added. The amount must be an integer, otherwise an Error is thrown.
 Adding years behaves like adding the equivalent amount of months, so the optional `enforceEndOfMonth` parameter is supported as well.
 
 ```typescript
