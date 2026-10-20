@@ -622,7 +622,9 @@ export class CalendarDate {
    * [source: https://www.postgresql.org/docs/8.1/functions-datetime.html]
    */
   public get week(): number {
-    return CalendarDate.getWeekNumber(this.year, this.month, this.day);
+    const thursday = this.getThursdayOfWeek();
+    const firstDayOfWeekYear = daysFromCivil(civilFromDays(thursday).year, 1, 1);
+    return Math.floor((thursday - firstDayOfWeekYear) / 7) + 1;
   }
 
   /**
@@ -631,35 +633,15 @@ export class CalendarDate {
    * and 2025-12-29 is in week 1 of the week-numbering year 2026.
    */
   public get weekYear(): number {
-    return CalendarDate.getThursdayOfWeek(this.year, this.month, this.day).getFullYear();
+    return civilFromDays(this.getThursdayOfWeek()).year;
   }
 
   /**
-   * Returns the Thursday of the week of the supplied date in local time.
+   * Returns the Thursday of the week of this date as days since the unix epoch.
    * The year of this Thursday decides the ISO 8601 week-numbering year.
    */
-  private static getThursdayOfWeek(year: number, month: number, day: number): Date {
-    const date = CalendarDate.createDateLocal(year, month, day);
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
-    return date;
-  }
-
-  /**
-   * Source: https://weeknumber.com/how-to/javascript
-   */
-  private static getWeekNumber(year: number, month: number, day: number): number {
-    // Thursday in current week decides the year.
-    const date = CalendarDate.getThursdayOfWeek(year, month, day);
-    // January 4 is always in week 1.
-    const week1 = CalendarDate.createDateLocal(date.getFullYear(), 1, 4);
-    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
-    return (
-      1 +
-      Math.round(
-        ((date.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7,
-      )
-    );
+  private getThursdayOfWeek(): number {
+    return this.valueOf() / DAY_IN_SECONDS + 4 - this.weekday;
   }
 
   /**
