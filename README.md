@@ -249,7 +249,15 @@ const date = new CalendarDate('2020-06-01');
 date.toFormat('dd.MM.yy');     // 01.06.20
 date.toFormat('d-M-yy');       // 1-6-20
 date.toFormat('yyyy/dd/MM');   // 2020/01/06
+```
 
+Text in single quotes is kept as is, so letters like `d` or `y` can be used in literal text. Two single quotes stand for one, inside or outside of quoted text. Quoted text without a closing quote throws an Error.
+
+```typescript
+date.toFormat("dd 'de' MM");            // 01 de 06
+date.toFormat("'day' d 'of' yyyy");     // day 1 of 2020
+date.toFormat("dd.MM.''yy");            // 01.06.'20
+date.toFormat("'o''clock' d");          // o'clock 1
 ```
 
 You can also supply a locale and options object from the [Intl DateTimeFormat Api](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat).
@@ -475,6 +483,7 @@ Since version 3 the instances are no longer frozen with `Object.freeze`, which m
 - `addDays`, `addWeeks`, `addMonths` and `addYears` throw an Error if the amount is not an integer.
 - The deprecated `toDate` method was removed, use `toDateUTC` instead.
 - `toFormat(locale, options)` formats the date in UTC, so the output no longer depends on the process time zone. A `timeZone` in the options, which the TypeScript type doesn't allow, is ignored. Before, it was applied to local midnight and could print the previous or next day.
+- `toFormat(pattern)` treats single quotes as quoted literal text, see [toFormat](#toformat). Escape a literal single quote as `''`. Before, quotes were printed as they were and letters inside of text were replaced by date values.
 - `weekday` is typed as `DayOfTheWeek` instead of `number`. Its values don't change, but TypeScript now rejects comparisons with numbers outside of 1 to 7.
 - CalendarDate and CalendarDateRange instances are no longer frozen with `Object.freeze`. Assigning to a property doesn't throw anymore, but TypeScript still rejects it because the properties are `readonly`.
 
