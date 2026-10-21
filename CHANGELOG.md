@@ -1,3 +1,64 @@
+# [3.0.0](https://github.com/gastromatic/calendar-date/compare/v2.14.0...v3.0.0) (2026-10-21)
+
+
+### Bug Fixes
+
+* bound the time zone formatter cache ([7549d2e](https://github.com/gastromatic/calendar-date/commit/7549d2ed3d700994b983c8113223d48b60a30234))
+* format toFormat Intl dates in UTC ([bbd906f](https://github.com/gastromatic/calendar-date/commit/bbd906f3e41086e8d0bd66ca6ea51a4be8778b44))
+* ignore date ranges that cover no days in hasOverlap ([3b38ec2](https://github.com/gastromatic/calendar-date/commit/3b38ec2a81561fe709c43535b4de98fcdf5a6fb1))
+* iterate date ranges at MIN_VALUE and MAX_VALUE ([62d4e98](https://github.com/gastromatic/calendar-date/commit/62d4e98316a0555dbca87a8fabd0de6e172cd665))
+* only accept integer dates and amounts ([5cb63a2](https://github.com/gastromatic/calendar-date/commit/5cb63a291b94fd70fc45492a8adc55c1786cc2e0))
+* sort date ranges with the same start by end in hasGaps and hasOverlap ([068699f](https://github.com/gastromatic/calendar-date/commit/068699fd00f4fd2f6442a4cd9bec3c3fe5ce6fc6))
+
+
+### Code Refactoring
+
+* remove the deprecated toDate method ([a62530c](https://github.com/gastromatic/calendar-date/commit/a62530ce5e02282b2c48607b847daf661c59fda3))
+
+
+### Features
+
+* clamp addMonths and addYears to the end of the month by default ([74e24de](https://github.com/gastromatic/calendar-date/commit/74e24debdf2efbb9662c10e838b08ff2b44fa43c))
+* make CalendarDateRange iterable ([e291d4b](https://github.com/gastromatic/calendar-date/commit/e291d4bab3d06b57bdcaf73c6617d69972c0ce49))
+* support quoted literal text in toFormat patterns ([55c78c1](https://github.com/gastromatic/calendar-date/commit/55c78c139312445b655d63dc3195f25f58e58dcf))
+* take options objects instead of boolean parameters ([5589dd3](https://github.com/gastromatic/calendar-date/commit/5589dd352d39388414b074fc8ad070b2ada83bb5))
+* type weekday as DayOfTheWeek ([578b33f](https://github.com/gastromatic/calendar-date/commit/578b33fd05c25f5afd0ee11953c22f4268a096a9))
+
+
+### Performance Improvements
+
+* add a same-month shortcut to addDays ([1381510](https://github.com/gastromatic/calendar-date/commit/1381510e7817cc5706011f08dd8357495bfdf95e))
+* cache the Intl formatters of toFormat ([d45856b](https://github.com/gastromatic/calendar-date/commit/d45856b1f3c9b68f031ca6fc02d89bccd501851b))
+* compare CalendarDate values directly in ranges, min and max ([563f202](https://github.com/gastromatic/calendar-date/commit/563f202c21ab156f37dbad1198780152d5b10ba6))
+* compute dates arithmetically instead of parsing strings ([1f22b6d](https://github.com/gastromatic/calendar-date/commit/1f22b6d634c99e5e43b7ac1115c089b0ad2f92e9))
+* compute ISO week and week-numbering year arithmetically ([a7fd13f](https://github.com/gastromatic/calendar-date/commit/a7fd13ff259bde0006ee990538c389db1932a9aa))
+* parse ISO strings by character code ([04994b4](https://github.com/gastromatic/calendar-date/commit/04994b46b0a22ddf6375eece154aa46dd7d1a353))
+* replace toFormat tokens in a single pass ([3c6187d](https://github.com/gastromatic/calendar-date/commit/3c6187d45209c16b153808810729b71e9ea78d46))
+* stop freezing instances ([140af95](https://github.com/gastromatic/calendar-date/commit/140af959e49d5841df4bdcff5602d652a0357bfd))
+
+
+### BREAKING CHANGES
+
+* addMonths and addYears take { overflow: true } instead of
+enforceEndOfMonth = false, getDifferenceInDays takes { absolute: true }
+instead of true, and the CalendarDateRange constructor takes
+{ autoArrange: true } instead of true. TypeScript rejects the old boolean
+arguments; plain JavaScript ignores them.
+* addMonths and addYears default enforceEndOfMonth to
+true, so 2020-01-31 plus one month is 2020-02-29 instead of 2020-03-02.
+Pass false as the second parameter to keep the old behaviour.
+* toFormat(pattern) treats single quotes as quoted literal
+text and throws if quoted text has no closing quote. Escape a literal
+single quote as ''.
+* weekday is typed as DayOfTheWeek instead of number, so
+TypeScript rejects comparisons with numbers outside of 1 to 7.
+* CalendarDate and CalendarDateRange instances are no
+longer frozen, so assigning to a property no longer throws at runtime.
+* the deprecated toDate method was removed, use toDateUTC
+instead.
+* non-integer constructor inputs and non-integer amounts
+passed to addDays, addWeeks, addMonths and addYears now throw an Error.
+
 # [2.14.0](https://github.com/gastromatic/calendar-date/compare/v2.13.0...v2.14.0) (2026-07-22)
 
 
