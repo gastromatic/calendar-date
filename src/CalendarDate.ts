@@ -4,8 +4,12 @@ const ZERO_CHAR_CODE = 48;
 const DASH_CHAR_CODE = 45;
 /** Bounds the toFormat cache, since valid locale tags are unlimited, e.g. when they come from a request. */
 const MAX_CACHED_FORMATTERS = 100;
-/** Longer tokens come first so that e.g. `yyyy` is not matched as four `y`. */
-const FORMAT_TOKEN_PATTERN = /yyyy|yy|y|MM|M|dd|d/g;
+/**
+ * Matches an escaped quote (`''`), quoted literal text, a quote without its closing quote, and the
+ * date tokens. Longer tokens come first so that e.g. `yyyy` is not matched as four `y`.
+ */
+const FORMAT_TOKEN_PATTERN = /''|'(?:[^']|'')+'|'|yyyy|yy|y|MM|M|dd|d/g;
+const ESCAPED_QUOTE_PATTERN = /''/g;
 
 /** Days in a 400-year cycle of the proleptic Gregorian calendar. */
 const DAYS_PER_ERA = 146097;
@@ -378,6 +382,8 @@ export class CalendarDate {
    * - **dd**: day padded to 2 digits
    * - **d**: day without padding
    *
+   * Text in single quotes is kept as is, e.g. `"dd 'de' MM"`. Two single quotes stand for one,
+   * inside or outside of quoted text. Throws an Error if quoted text has no closing quote.
    */
   toFormat(pattern: string): string;
 
@@ -413,6 +419,12 @@ export class CalendarDate {
     } else {
       return input.replace(FORMAT_TOKEN_PATTERN, (token) => {
         switch (token) {
+          case "''":
+            return "'";
+          case "'":
+            throw new Error(
+              `CalendarDate Validation Error: Pattern ${input} is not valid. Quoted text must end with a single quote.`,
+            );
           case 'yyyy':
             return this.year.toString().padStart(4, '0');
           case 'yy':
@@ -425,8 +437,11 @@ export class CalendarDate {
             return this.month.toString();
           case 'dd':
             return this.day.toString().padStart(2, '0');
-          default:
+          case 'd':
             return this.day.toString();
+          default:
+            // Quoted literal text, without its surrounding quotes.
+            return token.slice(1, -1).replace(ESCAPED_QUOTE_PATTERN, "'");
         }
       });
     }

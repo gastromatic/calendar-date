@@ -441,7 +441,43 @@ describe('CalendarDate', () => {
       );
     });
 
-    test('Matches replacing each token one after another', () => {
+    test.each([
+      ["dd 'de' MM", '05 de 01'],
+      ["'day' d 'of' yyyy", 'day 5 of 2020'],
+      ["dd.MM.''yy", "05.01.'20"],
+      ["'o''clock' d", "o'clock 5"],
+      ["''''", "''"],
+      ["'''d'", "'d"],
+      ["'yyyy-MM-dd'yyyy", 'yyyy-MM-dd2020'],
+    ])('Keeps quoted text in pattern %s', (pattern, expected) => {
+      expect(new CalendarDate('2020-01-05').toFormat(pattern)).toBe(expected);
+    });
+
+    test('Keeps any quoted text', () => {
+      fc.assert(
+        fc.property(fc.string({ minLength: 1 }), (text) => {
+          // Quoted text of only quotes is ambiguous: "''''" reads as two escaped quotes.
+          fc.pre(text.replace(/'/g, '') !== '');
+          // Arrange
+          const pattern = `'${text.replace(/'/g, "''")}'`;
+
+          // Assert
+          expect(new CalendarDate('2020-01-05').toFormat(pattern)).toBe(text);
+        }),
+        { numRuns: 10000 },
+      );
+    });
+
+    test.each(["'dd", "dd'", "'de' 'MM", "d'''"])(
+      'Throws for quoted text without a closing quote in pattern %s',
+      (pattern) => {
+        expect(() => new CalendarDate('2020-01-05').toFormat(pattern)).toThrow(
+          `CalendarDate Validation Error: Pattern ${pattern} is not valid. Quoted text must end with a single quote.`,
+        );
+      },
+    );
+
+    test('Matches replacing each token one after another in patterns without quotes', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 1, max: 9999 }),
