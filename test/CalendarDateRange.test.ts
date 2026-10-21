@@ -795,16 +795,12 @@ describe('CalendarDateRange', () => {
           fc.boolean(),
           (offsetsAndLengths, excludeStart, excludeEnd) => {
             // Arrange
-            const excludedDays = (excludeStart ? 1 : 0) + (excludeEnd ? 1 : 0);
             const base = new CalendarDate(2020, 1, 1);
-            // Every range covers at least one day after excluding its start or end.
             const ranges = offsetsAndLengths.map(
               ([offset, length]) =>
-                new CalendarDateRange(
-                  base.addDays(offset),
-                  base.addDays(offset + length + excludedDays),
-                ),
+                new CalendarDateRange(base.addDays(offset), base.addDays(offset + length)),
             );
+            // A range that covers no days has its first covered day after its last one.
             const coveredDays = ranges.map((range) => ({
               first: range.start.addDays(excludeStart ? 1 : 0).valueOf(),
               last: range.end.addDays(excludeEnd ? -1 : 0).valueOf(),
@@ -824,6 +820,22 @@ describe('CalendarDateRange', () => {
         ),
         { numRuns: 1000 },
       );
+    });
+
+    test.each([
+      ['excludeStart', [dateRange('2020-01-10', '2020-01-10')], { excludeStart: true }],
+      ['excludeEnd', [dateRange('2020-01-10', '2020-01-10')], { excludeEnd: true }],
+      [
+        'excludeStart and excludeEnd',
+        [dateRange('2020-01-10', '2020-01-11'), dateRange('2020-01-20', '2020-01-20')],
+        bothOptions,
+      ],
+    ])('Should ignore date ranges that cover no days with %s', (_, emptyDateRanges, options) => {
+      // Act
+      const result = CalendarDateRange.hasOverlap([january, ...emptyDateRanges], options);
+
+      // Assert
+      expect(result).toBe(false);
     });
 
     test('Should not modify the input array', () => {
