@@ -54,7 +54,7 @@ describe('CalendarDateRange', () => {
             Math.abs(startDate.valueOf() - endDate.valueOf()) / DAY_IN_SECONDS;
 
           // Act
-          const dateRange = new CalendarDateRange(startDate, endDate, true);
+          const dateRange = new CalendarDateRange(startDate, endDate, { autoArrange: true });
 
           // Assert
           expect(dateRange.getDifferenceInDays()).toBe(differenceInDays);
@@ -189,7 +189,7 @@ describe('CalendarDateRange', () => {
             const dateRange2 = new CalendarDateRange(
               dateRange1.start.addDays(offset),
               dateRange1.end,
-              true,
+              { autoArrange: true },
             );
 
             // Assert
@@ -209,7 +209,7 @@ describe('CalendarDateRange', () => {
             const dateRange2 = new CalendarDateRange(
               dateRange1.start,
               dateRange1.end.addDays(offset),
-              true,
+              { autoArrange: true },
             );
 
             // Assert
@@ -230,7 +230,7 @@ describe('CalendarDateRange', () => {
             const dateRange2 = new CalendarDateRange(
               dateRange1.start.addDays(offset1),
               dateRange1.end.addDays(offset2),
-              true,
+              { autoArrange: true },
             );
 
             // Assert
@@ -286,7 +286,7 @@ describe('CalendarDateRange', () => {
             // Arrange
             const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
             const date2 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day2));
-            const dateRange1 = new CalendarDateRange(date1, date2, true);
+            const dateRange1 = new CalendarDateRange(date1, date2, { autoArrange: true });
 
             // Assert
             expect(dateRange1.getDifferenceInMonths()).toBe(0);

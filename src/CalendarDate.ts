@@ -46,6 +46,16 @@ function cacheFormatter(
   cache.set(key, formatter);
 }
 
+type AddMonthsOptions = {
+  /** If true, the days that don't exist in the new month overflow into the next month. */
+  overflow?: boolean;
+};
+
+type DifferenceInDaysOptions = {
+  /** If true, the result is never negative. */
+  absolute?: boolean;
+};
+
 function assertIntegerAmount(amount: number): void {
   if (!Number.isInteger(amount)) {
     throw new Error(
@@ -519,11 +529,10 @@ export class CalendarDate {
    * Returns a new CalendarDate with the specified amount of months added.
    * Throws an Error if the amount is not an integer.
    *
-   * @param amount
-   * @param enforceEndOfMonth If true (the default), a day that doesn't exist in the new month is set
-   * to the last day of that month. If false, the remaining days overflow into the next month.
+   * If the day doesn't exist in the new month, the last day of that month is returned. With
+   * `{ overflow: true }` the remaining days overflow into the next month instead.
    */
-  addMonths(amount: number, enforceEndOfMonth = true): CalendarDate {
+  addMonths(amount: number, options?: AddMonthsOptions): CalendarDate {
     assertIntegerAmount(amount);
     const totalMonths = this.month + amount - 1;
     let year = this.year + Math.floor(totalMonths / 12);
@@ -533,7 +542,7 @@ export class CalendarDate {
       month = (month + 12) % 12;
     }
     const maxDayOfMonth = CalendarDate.getMaxDayOfMonth(year, month + 1);
-    if (enforceEndOfMonth) {
+    if (!options?.overflow) {
       day = Math.min(maxDayOfMonth, day);
     } else if (day > maxDayOfMonth) {
       day = day - maxDayOfMonth;
@@ -547,13 +556,12 @@ export class CalendarDate {
    * Returns a new CalendarDate with the specified amount of years added.
    * Throws an Error if the amount is not an integer.
    *
-   * @param amount
-   * @param enforceEndOfMonth If true (the default), February 29 becomes February 28 in a year that is
-   * not a leap year. If false, it overflows to March 1.
+   * February 29 becomes February 28 in a year that is not a leap year. With `{ overflow: true }` it
+   * overflows to March 1 instead.
    */
-  addYears(amount: number, enforceEndOfMonth = true): CalendarDate {
+  addYears(amount: number, options?: AddMonthsOptions): CalendarDate {
     assertIntegerAmount(amount);
-    return this.addMonths(amount * 12, enforceEndOfMonth);
+    return this.addMonths(amount * 12, options);
   }
 
   /**
@@ -690,11 +698,12 @@ export class CalendarDate {
   }
 
   /**
-   * subtracts the input CalendarDate from this CalendarDate and returns the difference in days
+   * subtracts the input CalendarDate from this CalendarDate and returns the difference in days.
+   * With `{ absolute: true }` the result is never negative.
    */
-  getDifferenceInDays(calendarDate: CalendarDate, absolute?: boolean): number {
+  getDifferenceInDays(calendarDate: CalendarDate, options?: DifferenceInDaysOptions): number {
     const days = (this.valueOf() - calendarDate.valueOf()) / DAY_IN_SECONDS;
-    return absolute ? Math.abs(days) : days;
+    return options?.absolute ? Math.abs(days) : days;
   }
 
   /**
