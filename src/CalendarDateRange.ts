@@ -142,6 +142,14 @@ export class CalendarDateRange {
   }
 
   /**
+   * Makes the range iterable, e.g. with for...of or the spread operator.
+   * Yields each CalendarDate from start to end (inclusive), like iterateDatesInRange().
+   */
+  [Symbol.iterator](): IterableIterator<CalendarDate> {
+    return this.iterateDatesInRange();
+  }
+
+  /**
    * Returns an array of all CalendarDate objects in the range.
    */
   toDatesArrayInRange(options?: DateRangeExcludeOptions): CalendarDate[] {
