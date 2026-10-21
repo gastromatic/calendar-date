@@ -1,78 +1,70 @@
 import * as fc from 'fast-check';
 import { CalendarDate, CalendarDateRange } from 'calendar-date';
-import { DAY_IN_SECONDS, ensureValidDay, unixTimestampToCalendarDate } from './helpers';
+import {
+  calendarDateArbitrary,
+  calendarDateRangeArbitrary,
+  DAY_IN_SECONDS,
+  ensureValidDay,
+  sortedCalendarDatesArbitrary,
+} from './helpers';
+
+function dateRange(start: string, end: string): CalendarDateRange {
+  return new CalendarDateRange(new CalendarDate(start), new CalendarDate(end));
+}
 
 describe('CalendarDateRange', () => {
   describe('Test of constructor', () => {
     test('Throw Error if end date is before start date', () => {
       fc.assert(
-        fc.property(
-          fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
-          (data) => {
-            // Arrange
-            const datesInOrder = data
-              .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-              .sort();
-            const startDate = datesInOrder[1].addDays(1);
-            const endDate = datesInOrder[0];
+        fc.property(sortedCalendarDatesArbitrary(2, { maxYear: 9998 }), (datesInOrder) => {
+          // Arrange
+          const startDate = datesInOrder[1].addDays(1);
+          const endDate = datesInOrder[0];
 
-            // Assert
-            expect(() => new CalendarDateRange(startDate, endDate)).toThrow(
-              "CalendarDateRange Validation Error: end date can't be before the start date.",
-            );
-          },
-        ),
+          // Assert
+          expect(() => new CalendarDateRange(startDate, endDate)).toThrow(
+            "CalendarDateRange Validation Error: end date can't be before the start date.",
+          );
+        }),
       );
     });
 
-    test('Construct new CalendarDateRange instance if end date ist equal to or after start date', () => {
+    test('Construct new CalendarDateRange instance if end date is equal to or after start date', () => {
       fc.assert(
-        fc.property(
-          fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
-          (data) => {
-            // Arrange
-            const datesInOrder = data
-              .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-              .sort();
-            const startDate = datesInOrder[0];
-            const endDate = datesInOrder[1];
+        fc.property(sortedCalendarDatesArbitrary(2), (datesInOrder) => {
+          // Arrange
+          const startDate = datesInOrder[0];
+          const endDate = datesInOrder[1];
 
-            // Act
-            const dateRange = new CalendarDateRange(startDate, endDate);
+          // Act
+          const dateRange = new CalendarDateRange(startDate, endDate);
 
-            // Assert
-            expect(dateRange.start).toEqual(startDate);
-            expect(dateRange.end).toEqual(endDate);
-          },
-        ),
+          // Assert
+          expect(dateRange.start).toEqual(startDate);
+          expect(dateRange.end).toEqual(endDate);
+        }),
       );
     });
 
-    test('Construct new CalendarDateRange instance with autoArrange option regardless of the order of end and start date if ', () => {
+    test('Construct new CalendarDateRange instance with autoArrange option regardless of the order of end and start date', () => {
       fc.assert(
-        fc.property(
-          fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
-          (data) => {
-            // Arrange
-            const datesUnordered = data.map((number) =>
-              unixTimestampToCalendarDate(number * DAY_IN_SECONDS),
-            );
-            const startDate = datesUnordered[0];
-            const endDate = datesUnordered[1];
-            const differenceInDays = Math.abs(data[1] - data[0]);
+        fc.property(calendarDateArbitrary(), calendarDateArbitrary(), (startDate, endDate) => {
+          // Arrange
+          const differenceInDays =
+            Math.abs(startDate.valueOf() - endDate.valueOf()) / DAY_IN_SECONDS;
 
-            // Act
-            const dateRange = new CalendarDateRange(startDate, endDate, true);
+          // Act
+          const dateRange = new CalendarDateRange(startDate, endDate, true);
 
-            // Assert
-            expect(dateRange.getDifferenceInDays()).toBe(differenceInDays);
-          },
-        ),
+          // Assert
+          expect(dateRange.getDifferenceInDays()).toBe(differenceInDays);
+          expect(dateRange.start.valueOf()).toBe(Math.min(startDate.valueOf(), endDate.valueOf()));
+        }),
       );
     });
   });
 
-  describe('Test of parseString', () => {
+  describe('Test of parse', () => {
     test('Throws a validation error if input is not a valid iso string', () => {
       fc.assert(
         fc.property(fc.string(), (string) => {
@@ -87,85 +79,86 @@ describe('CalendarDateRange', () => {
       );
     });
 
+    test.each([
+      [
+        '2020-01-01/2020-01-02/2020-01-03',
+        'CalendarDateRange Validation Error: Input 2020-01-01/2020-01-02/2020-01-03 is not valid, it should follow the pattern YYYY-MM-DD/YYYY-MM-DD.',
+      ],
+      [
+        '2020-02-01/2020-01-01',
+        "CalendarDateRange Validation Error: end date can't be before the start date.",
+      ],
+      [
+        '2020-13-01/2020-12-31',
+        'CalendarDate Validation Error: Input month 13 is not valid. Month must be a number between 1 and 12.',
+      ],
+    ])('Throws a validation error for the input %s', (isoString, message) => {
+      expect(() => CalendarDateRange.parse(isoString)).toThrow(message);
+    });
+
     test('Returns a new CalendarDateRange instance for a valid iso string input', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year1, year2, month1, month2, day1, day2) => {
-            // Arrange
-            const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
-            const date2 = new CalendarDate(year2, month2, ensureValidDay(year2, month2, day2));
-            const dateRangeBase = new CalendarDateRange(date1, date2, true);
-            const isoString = `${dateRangeBase.start.toString()}/${dateRangeBase.end.toString()}`;
+        fc.property(calendarDateRangeArbitrary(), (dateRangeBase) => {
+          // Arrange
+          const isoString = `${dateRangeBase.start.toString()}/${dateRangeBase.end.toString()}`;
 
-            // Act
-            const dateRange = CalendarDateRange.parse(isoString);
+          // Act
+          const dateRange = CalendarDateRange.parse(isoString);
 
-            // Assert
-            expect(dateRange.equals(dateRangeBase)).toBe(true);
-          },
-        ),
+          // Assert
+          expect(dateRange.equals(dateRangeBase)).toBe(true);
+        }),
       );
     });
   });
 
   describe('Test of toString', () => {
     test('The returned string is in ISO format', () => {
+      const format = ({ year, month, day }: CalendarDate) =>
+        `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${day
+          .toString()
+          .padStart(2, '0')}`;
       fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year1, year2, month1, month2, day1, day2) => {
-            // Arrange
-            const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
-            const date2 = new CalendarDate(year2, month2, ensureValidDay(year2, month2, day2));
-            const dateRange = new CalendarDateRange(date1, date2, true);
+        fc.property(calendarDateRangeArbitrary(), (dateRange) => {
+          // Act
+          const isoString = dateRange.toString();
 
-            // Act
-            const isoString = dateRange.toString();
+          // Assert
+          expect(isoString).toBe(`${format(dateRange.start)}/${format(dateRange.end)}`);
+        }),
+      );
+    });
 
-            // Assert
-            expect(isoString.length).toBe(21);
-            expect(isoString.charAt(4)).toBe('-');
-            expect(isoString.charAt(7)).toBe('-');
-            expect(isoString.charAt(10)).toBe('/');
-            expect(isoString.charAt(15)).toBe('-');
-            expect(isoString.charAt(18)).toBe('-');
-          },
-        ),
+    test('Round trips through parse', () => {
+      fc.assert(
+        fc.property(calendarDateRangeArbitrary(), (dateRange) => {
+          // Act
+          const parsed = CalendarDateRange.parse(dateRange.toString());
+
+          // Assert
+          expect(parsed.equals(dateRange)).toBe(true);
+        }),
       );
     });
   });
 
   describe('Test of toJSON', () => {
-    test('The returned string is the same as from toString', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year1, year2, month1, month2, day1, day2) => {
-            // Arrange
-            const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
-            const date2 = new CalendarDate(year2, month2, ensureValidDay(year2, month2, day2));
-            const dateRange = new CalendarDateRange(date1, date2, true);
+    test('Is serialized as the ISO string', () => {
+      // Assert
+      expect(JSON.stringify({ r: dateRange('2020-01-01', '2020-01-31') })).toBe(
+        '{"r":"2020-01-01/2020-01-31"}',
+      );
+    });
 
-            // Assert
-            expect(dateRange.toJSON()).toBe(dateRange.toString());
-          },
-        ),
+    test('Round trips through JSON.stringify and parse', () => {
+      fc.assert(
+        fc.property(calendarDateRangeArbitrary(), (dateRange) => {
+          // Act
+          const parsed = CalendarDateRange.parse(JSON.parse(JSON.stringify(dateRange)));
+
+          // Assert
+          expect(parsed.equals(dateRange)).toBe(true);
+        }),
       );
     });
   });
@@ -173,42 +166,26 @@ describe('CalendarDateRange', () => {
   describe('Test of equals', () => {
     test('Returns true if the input date range has the same start and end date', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year1, year2, month1, month2, day1, day2) => {
-            // Arrange
-            const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
-            const date2 = new CalendarDate(year2, month2, ensureValidDay(year2, month2, day2));
-            const dateRange1 = new CalendarDateRange(date1, date2, true);
-            const dateRange2 = new CalendarDateRange(date1, date2, true);
+        fc.property(calendarDateRangeArbitrary(), (dateRange1) => {
+          // Arrange
+          const dateRange2 = new CalendarDateRange(
+            new CalendarDate(dateRange1.start.toString()),
+            new CalendarDate(dateRange1.end.toString()),
+          );
 
-            // Assert
-            expect(dateRange1.equals(dateRange2)).toBe(true);
-          },
-        ),
+          // Assert
+          expect(dateRange1.equals(dateRange2)).toBe(true);
+        }),
       );
     });
 
     test('Returns false if the input date range has a different start date.', () => {
       fc.assert(
         fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 31 }),
+          calendarDateRangeArbitrary({ minYear: 4, maxYear: 9996 }),
           fc.integer({ min: -1000, max: -1 }),
-          (year1, year2, month1, month2, day1, day2, offset) => {
+          (dateRange1, offset) => {
             // Arrange
-            const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
-            const date2 = new CalendarDate(year2, month2, ensureValidDay(year2, month2, day2));
-            const dateRange1 = new CalendarDateRange(date1, date2, true);
             const dateRange2 = new CalendarDateRange(
               dateRange1.start.addDays(offset),
               dateRange1.end,
@@ -225,18 +202,10 @@ describe('CalendarDateRange', () => {
     test('Returns false if the input date range has a different end date.', () => {
       fc.assert(
         fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 31 }),
+          calendarDateRangeArbitrary({ minYear: 4, maxYear: 9996 }),
           fc.integer({ min: 1, max: 1000 }),
-          (year1, year2, month1, month2, day1, day2, offset) => {
+          (dateRange1, offset) => {
             // Arrange
-            const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
-            const date2 = new CalendarDate(year2, month2, ensureValidDay(year2, month2, day2));
-            const dateRange1 = new CalendarDateRange(date1, date2, true);
             const dateRange2 = new CalendarDateRange(
               dateRange1.start,
               dateRange1.end.addDays(offset),
@@ -253,19 +222,11 @@ describe('CalendarDateRange', () => {
     test('Returns false if the input date range has a different start and end date.', () => {
       fc.assert(
         fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 31 }),
+          calendarDateRangeArbitrary({ minYear: 4, maxYear: 9996 }),
           fc.integer({ min: -1000, max: -1 }),
           fc.integer({ min: 1, max: 1000 }),
-          (year1, year2, month1, month2, day1, day2, offset1, offset2) => {
+          (dateRange1, offset1, offset2) => {
             // Arrange
-            const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
-            const date2 = new CalendarDate(year2, month2, ensureValidDay(year2, month2, day2));
-            const dateRange1 = new CalendarDateRange(date1, date2, true);
             const dateRange2 = new CalendarDateRange(
               dateRange1.start.addDays(offset1),
               dateRange1.end.addDays(offset2),
@@ -305,23 +266,10 @@ describe('CalendarDateRange', () => {
   describe('Test of getDifferenceInDays', () => {
     test('Result should always be equal to or greater than zero', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year1, year2, month1, month2, day1, day2) => {
-            // Arrange
-            const date1 = new CalendarDate(year1, month1, ensureValidDay(year1, month1, day1));
-            const date2 = new CalendarDate(year2, month2, ensureValidDay(year2, month2, day2));
-            const dateRange1 = new CalendarDateRange(date1, date2, true);
-
-            // Assert
-            expect(dateRange1.getDifferenceInDays()).toBeGreaterThanOrEqual(0);
-          },
-        ),
+        fc.property(calendarDateRangeArbitrary(), (dateRange1) => {
+          // Assert
+          expect(dateRange1.getDifferenceInDays()).toBeGreaterThanOrEqual(0);
+        }),
       );
     });
   });
@@ -347,6 +295,25 @@ describe('CalendarDateRange', () => {
       );
     });
 
+    test('Result is the amount of months added to the start date', () => {
+      fc.assert(
+        fc.property(
+          calendarDateArbitrary({ maxYear: 9899 }),
+          fc.integer({ min: 0, max: 1200 }),
+          (startDate, monthsAdded) => {
+            // Arrange
+            const dateRange = new CalendarDateRange(startDate, startDate.addMonths(monthsAdded));
+
+            // Act
+            const differenceInMonths = dateRange.getDifferenceInMonths();
+
+            // Assert
+            expect(differenceInMonths).toBe(monthsAdded);
+          },
+        ),
+      );
+    });
+
     test('Different test cases', () => {
       // Arrange
       const date1 = new CalendarDate('2020-05-15');
@@ -366,6 +333,15 @@ describe('CalendarDateRange', () => {
       expect(dateRange2.getDifferenceInMonths()).toBe(1);
       expect(dateRange3.getDifferenceInMonths()).toBe(15);
     });
+
+    test.each([
+      ['2019-12-31', '2020-01-01', 1],
+      ['2019-12-01', '2020-11-30', 11],
+      ['2019-01-31', '2020-01-01', 12],
+      ['2019-11-15', '2021-02-14', 15],
+    ])('Counts the months across a year boundary from %s to %s', (start, end, expected) => {
+      expect(dateRange(start, end).getDifferenceInMonths()).toBe(expected);
+    });
   });
 
   describe('Test of includes', () => {
@@ -373,12 +349,9 @@ describe('CalendarDateRange', () => {
       test('Return false if the input date is before the start date or after the end date of the dateRange', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
-            (data) => {
+            sortedCalendarDatesArbitrary(4, { minYear: 2, maxYear: 9998 }),
+            (datesInOrder) => {
               // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
               const dateRange = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
               const dateBefore = datesInOrder[0].addDays(-1);
               const dateAfter = datesInOrder[3].addDays(1);
@@ -393,57 +366,39 @@ describe('CalendarDateRange', () => {
 
       test('Return false if the input date is the same as the start date of the dateRange and excludeStart option is true', () => {
         fc.assert(
-          fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
-            (data) => {
-              // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
-              const dateRange = new CalendarDateRange(datesInOrder[0], datesInOrder[1]);
+          fc.property(sortedCalendarDatesArbitrary(2), (datesInOrder) => {
+            // Arrange
+            const dateRange = new CalendarDateRange(datesInOrder[0], datesInOrder[1]);
 
-              // Assert
-              expect(dateRange.includes(datesInOrder[0], { excludeStart: true })).toBe(false);
-              expect(dateRange.includes(datesInOrder[0])).toBe(true);
-            },
-          ),
+            // Assert
+            expect(dateRange.includes(datesInOrder[0], { excludeStart: true })).toBe(false);
+            expect(dateRange.includes(datesInOrder[0])).toBe(true);
+          }),
         );
       });
 
       test('Return false if the input date is the same as the end date of the dateRange and excludeEnd option is true', () => {
         fc.assert(
-          fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 2, maxLength: 2 }),
-            (data) => {
-              // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
-              const dateRange = new CalendarDateRange(datesInOrder[0], datesInOrder[1]);
+          fc.property(sortedCalendarDatesArbitrary(2), (datesInOrder) => {
+            // Arrange
+            const dateRange = new CalendarDateRange(datesInOrder[0], datesInOrder[1]);
 
-              // Assert
-              expect(dateRange.includes(datesInOrder[1], { excludeEnd: true })).toBe(false);
-              expect(dateRange.includes(datesInOrder[1])).toBe(true);
-            },
-          ),
+            // Assert
+            expect(dateRange.includes(datesInOrder[1], { excludeEnd: true })).toBe(false);
+            expect(dateRange.includes(datesInOrder[1])).toBe(true);
+          }),
         );
       });
 
       test('Return true if the input date is inside the dateRange', () => {
         fc.assert(
-          fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 3, maxLength: 3 }),
-            (data) => {
-              // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
-              const dateRange = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
+          fc.property(sortedCalendarDatesArbitrary(3), (datesInOrder) => {
+            // Arrange
+            const dateRange = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
 
-              // Assert
-              expect(dateRange.includes(datesInOrder[1])).toBe(true);
-            },
-          ),
+            // Assert
+            expect(dateRange.includes(datesInOrder[1])).toBe(true);
+          }),
         );
       });
     });
@@ -452,12 +407,9 @@ describe('CalendarDateRange', () => {
       test('Return false if the start date of the input date range is not inside the base date range ', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
-            (data) => {
+            sortedCalendarDatesArbitrary(4, { minYear: 2, maxYear: 9998 }),
+            (datesInOrder) => {
               // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
               const dateRangeBase = new CalendarDateRange(datesInOrder[1], datesInOrder[3]);
               const dateRangeInput = new CalendarDateRange(
                 datesInOrder[0].addDays(-1),
@@ -474,12 +426,9 @@ describe('CalendarDateRange', () => {
       test('Return false if the end date of the input date range is not inside the base date range ', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
-            (data) => {
+            sortedCalendarDatesArbitrary(4, { minYear: 2, maxYear: 9998 }),
+            (datesInOrder) => {
               // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
               const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
               const dateRangeInput = new CalendarDateRange(
                 datesInOrder[1],
@@ -496,12 +445,9 @@ describe('CalendarDateRange', () => {
       test('Return false if both the end and start date of the input date range are not inside the base date range ', () => {
         fc.assert(
           fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
-            (data) => {
+            sortedCalendarDatesArbitrary(4, { minYear: 2, maxYear: 9998 }),
+            (datesInOrder) => {
               // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
               const dateRangeBase = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
               const dateRangeInput = new CalendarDateRange(
                 datesInOrder[0].addDays(-1),
@@ -517,60 +463,42 @@ describe('CalendarDateRange', () => {
 
       test('Return false if the start date of the input date range is the same as the base start date and excludeStart option is true ', () => {
         fc.assert(
-          fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 3, maxLength: 3 }),
-            (data) => {
-              // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
-              const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
-              const dateRangeInput = new CalendarDateRange(datesInOrder[0], datesInOrder[1]);
+          fc.property(sortedCalendarDatesArbitrary(3), (datesInOrder) => {
+            // Arrange
+            const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
+            const dateRangeInput = new CalendarDateRange(datesInOrder[0], datesInOrder[1]);
 
-              // Assert
-              expect(dateRangeBase.includes(dateRangeInput, { excludeStart: true })).toBe(false);
-              expect(dateRangeBase.includes(dateRangeInput)).toBe(true);
-            },
-          ),
+            // Assert
+            expect(dateRangeBase.includes(dateRangeInput, { excludeStart: true })).toBe(false);
+            expect(dateRangeBase.includes(dateRangeInput)).toBe(true);
+          }),
         );
       });
 
       test('Return false if the end date of the input date range is the same as the base end date and excludeEnd option is true ', () => {
         fc.assert(
-          fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 3, maxLength: 3 }),
-            (data) => {
-              // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
-              const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
-              const dateRangeInput = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
+          fc.property(sortedCalendarDatesArbitrary(3), (datesInOrder) => {
+            // Arrange
+            const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[2]);
+            const dateRangeInput = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
 
-              // Assert
-              expect(dateRangeBase.includes(dateRangeInput, { excludeEnd: true })).toBe(false);
-              expect(dateRangeBase.includes(dateRangeInput)).toBe(true);
-            },
-          ),
+            // Assert
+            expect(dateRangeBase.includes(dateRangeInput, { excludeEnd: true })).toBe(false);
+            expect(dateRangeBase.includes(dateRangeInput)).toBe(true);
+          }),
         );
       });
 
       test('Return true if both start and end dates of the input date range are inside the base date range ', () => {
         fc.assert(
-          fc.property(
-            fc.array(fc.integer({ min: -100000, max: 100000 }), { minLength: 4, maxLength: 4 }),
-            (data) => {
-              // Arrange
-              const datesInOrder = data
-                .map((number) => unixTimestampToCalendarDate(number * DAY_IN_SECONDS))
-                .sort();
-              const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[3]);
-              const dateRangeInput = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
+          fc.property(sortedCalendarDatesArbitrary(4), (datesInOrder) => {
+            // Arrange
+            const dateRangeBase = new CalendarDateRange(datesInOrder[0], datesInOrder[3]);
+            const dateRangeInput = new CalendarDateRange(datesInOrder[1], datesInOrder[2]);
 
-              // Assert
-              expect(dateRangeBase.includes(dateRangeInput)).toBe(true);
-            },
-          ),
+            // Assert
+            expect(dateRangeBase.includes(dateRangeInput)).toBe(true);
+          }),
         );
       });
     });
@@ -604,63 +532,86 @@ describe('CalendarDateRange', () => {
     });
   });
 
-  describe('Test of hasGap', () => {
-    test('Should return false for empty array', () => {
+  describe('Test of hasGaps', () => {
+    const january = dateRange('2020-01-01', '2020-01-31');
+    const bothOptions = { excludeStart: true, excludeEnd: true };
+
+    test.each([
+      ['an empty array', [], undefined, false],
+      ['a single date range', [january], undefined, false],
+      [
+        'overlapping date ranges',
+        [january, dateRange('2020-01-15', '2020-02-15')],
+        undefined,
+        false,
+      ],
+      [
+        'a date range included in another date range',
+        [january, dateRange('2020-01-10', '2020-01-20')],
+        undefined,
+        false,
+      ],
+      [
+        'adjacent date ranges',
+        [january, dateRange('2020-02-01', '2020-02-15'), dateRange('2020-02-06', '2020-03-01')],
+        undefined,
+        false,
+      ],
+      [
+        'date ranges with gaps',
+        [january, dateRange('2020-02-01', '2020-02-15'), dateRange('2020-02-20', '2020-03-01')],
+        undefined,
+        true,
+      ],
+      [
+        'adjacent date ranges with excludeStart',
+        [january, dateRange('2020-02-01', '2020-02-15')],
+        { excludeStart: true },
+        true,
+      ],
+      [
+        'date ranges sharing a day with excludeStart',
+        [january, dateRange('2020-01-31', '2020-02-15')],
+        { excludeStart: true },
+        false,
+      ],
+      [
+        'adjacent date ranges with excludeEnd',
+        [january, dateRange('2020-02-01', '2020-02-15')],
+        { excludeEnd: true },
+        true,
+      ],
+      [
+        'date ranges sharing a day with excludeEnd',
+        [january, dateRange('2020-01-31', '2020-02-15')],
+        { excludeEnd: true },
+        false,
+      ],
+      // With both options, january covers 01-02 to 01-30.
+      [
+        'adjacent date ranges with excludeStart and excludeEnd',
+        [january, dateRange('2020-02-01', '2020-02-15')],
+        bothOptions,
+        true,
+      ],
+      [
+        'date ranges sharing a day with excludeStart and excludeEnd',
+        [january, dateRange('2020-01-31', '2020-02-15')],
+        bothOptions,
+        true,
+      ],
+      [
+        'date ranges overlapping by one day with excludeStart and excludeEnd',
+        [january, dateRange('2020-01-30', '2020-02-15')],
+        bothOptions,
+        false,
+      ],
+    ])('Should handle %s', (_, ranges, options, expected) => {
       // Act
-      const result = CalendarDateRange.hasGaps([]);
+      const result = CalendarDateRange.hasGaps(ranges, options);
 
       // Assert
-      expect(result).toBe(false);
-    });
-
-    test('Should return false for a single date range', () => {
-      // Arrange
-      const dateRange = new CalendarDateRange(
-        new CalendarDate('2020-01-01'),
-        new CalendarDate('2020-01-31'),
-      );
-
-      // Act
-      const result = CalendarDateRange.hasGaps([dateRange]);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    test('Should return false for overlapping date ranges', () => {
-      // Arrange
-      const dateRange1 = new CalendarDateRange(
-        new CalendarDate('2020-01-01'),
-        new CalendarDate('2020-01-31'),
-      );
-      const dateRange2 = new CalendarDateRange(
-        new CalendarDate('2020-01-15'),
-        new CalendarDate('2020-02-15'),
-      );
-
-      // Act
-      const result = CalendarDateRange.hasGaps([dateRange1, dateRange2]);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    test('Should return false for date range included in another date range', () => {
-      // Arrange
-      const dateRange1 = new CalendarDateRange(
-        new CalendarDate('2020-01-01'),
-        new CalendarDate('2020-01-31'),
-      );
-      const dateRange2 = new CalendarDateRange(
-        new CalendarDate('2020-01-10'),
-        new CalendarDate('2020-01-20'),
-      );
-
-      // Act
-      const result = CalendarDateRange.hasGaps([dateRange1, dateRange2]);
-
-      // Assert
-      expect(result).toBe(false);
+      expect(result).toBe(expected);
     });
 
     test('Should compare a date range only with its neighbour, even if an earlier date range covers the gap', () => {
@@ -686,98 +637,6 @@ describe('CalendarDateRange', () => {
       expect(result).toBe(true);
     });
 
-    test('Should return false for adjacent date ranges', () => {
-      // Arrange
-      const dateRange1 = new CalendarDateRange(
-        new CalendarDate('2020-01-01'),
-        new CalendarDate('2020-01-31'),
-      );
-      const dateRange2 = new CalendarDateRange(
-        new CalendarDate('2020-02-01'),
-        new CalendarDate('2020-02-15'),
-      );
-      const dateRange3 = new CalendarDateRange(
-        new CalendarDate('2020-02-06'),
-        new CalendarDate('2020-03-01'),
-      );
-
-      // Act
-      const result = CalendarDateRange.hasGaps([dateRange1, dateRange2, dateRange3]);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    test('Should return true for date ranges with gaps', () => {
-      // Arrange
-      const dateRange1 = new CalendarDateRange(
-        new CalendarDate('2020-01-01'),
-        new CalendarDate('2020-01-31'),
-      );
-      const dateRange2 = new CalendarDateRange(
-        new CalendarDate('2020-02-01'),
-        new CalendarDate('2020-02-15'),
-      );
-      const dateRange3 = new CalendarDateRange(
-        new CalendarDate('2020-02-20'),
-        new CalendarDate('2020-03-01'),
-      );
-
-      // Act
-      const result = CalendarDateRange.hasGaps([dateRange1, dateRange2, dateRange3]);
-
-      // Assert
-      expect(result).toBe(true);
-    });
-
-    test('Should work for excludeStart option', () => {
-      // Arrange
-      const ranges1 = [
-        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
-        new CalendarDateRange(new CalendarDate('2020-02-01'), new CalendarDate('2020-02-15')),
-      ];
-      const ranges2 = [
-        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
-        new CalendarDateRange(new CalendarDate('2020-01-31'), new CalendarDate('2020-02-15')),
-      ];
-
-      // Act
-      const result1 = CalendarDateRange.hasGaps(ranges1, {
-        excludeStart: true,
-      });
-      const result2 = CalendarDateRange.hasGaps(ranges2, {
-        excludeStart: true,
-      });
-
-      // Assert
-      expect(result1).toBe(true);
-      expect(result2).toBe(false);
-    });
-
-    test('Should work for excludeEnd option', () => {
-      // Arrange
-      const ranges1 = [
-        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
-        new CalendarDateRange(new CalendarDate('2020-02-01'), new CalendarDate('2020-02-15')),
-      ];
-      const ranges2 = [
-        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
-        new CalendarDateRange(new CalendarDate('2020-01-31'), new CalendarDate('2020-02-15')),
-      ];
-
-      // Act
-      const result1 = CalendarDateRange.hasGaps(ranges1, {
-        excludeEnd: true,
-      });
-      const result2 = CalendarDateRange.hasGaps(ranges2, {
-        excludeEnd: true,
-      });
-
-      // Assert
-      expect(result1).toBe(true);
-      expect(result2).toBe(false);
-    });
-
     test('Should not modify the input array', () => {
       // Arrange
       const dateRange1 = new CalendarDateRange(
@@ -800,7 +659,7 @@ describe('CalendarDateRange', () => {
   });
 
   describe('hasGaps and hasOverlap with date ranges that start on the same day', () => {
-    it('should not depend on the order of the input array', () => {
+    test('should not depend on the order of the input array', () => {
       fc.assert(
         fc.property(
           fc.array(fc.tuple(fc.integer({ min: 0, max: 5 }), fc.integer({ min: 0, max: 5 })), {
@@ -831,7 +690,7 @@ describe('CalendarDateRange', () => {
       );
     });
 
-    it.each([
+    test.each([
       [false, true],
       [true, false],
     ])(
@@ -857,128 +716,73 @@ describe('CalendarDateRange', () => {
   });
 
   describe('Test of hasOverlap', () => {
-    test('Should return false for empty array', () => {
+    const january = dateRange('2020-01-01', '2020-01-31');
+    const bothOptions = { excludeStart: true, excludeEnd: true };
+
+    test.each([
+      ['an empty array', [], undefined, false],
+      ['a single date range', [january], undefined, false],
+      [
+        'non-overlapping date ranges',
+        [january, dateRange('2020-02-01', '2020-02-15')],
+        undefined,
+        false,
+      ],
+      [
+        'overlapping date ranges',
+        [january, dateRange('2020-01-15', '2020-02-15')],
+        undefined,
+        true,
+      ],
+      [
+        'one date range inside another date range',
+        [january, dateRange('2020-01-10', '2020-01-20')],
+        undefined,
+        true,
+      ],
+      [
+        'date ranges sharing a day with excludeStart',
+        [january, dateRange('2020-01-31', '2020-02-15')],
+        { excludeStart: true },
+        false,
+      ],
+      [
+        'date ranges overlapping by one day with excludeStart',
+        [january, dateRange('2020-01-30', '2020-02-15')],
+        { excludeStart: true },
+        true,
+      ],
+      [
+        'date ranges sharing a day with excludeEnd',
+        [january, dateRange('2020-01-31', '2020-02-15')],
+        { excludeEnd: true },
+        false,
+      ],
+      [
+        'date ranges overlapping by one day with excludeEnd',
+        [january, dateRange('2020-01-30', '2020-02-15')],
+        { excludeEnd: true },
+        true,
+      ],
+      // With both options, january covers 01-02 to 01-30.
+      [
+        'date ranges overlapping by one day with excludeStart and excludeEnd',
+        [january, dateRange('2020-01-30', '2020-02-15')],
+        bothOptions,
+        false,
+      ],
+      [
+        'date ranges overlapping by two days with excludeStart and excludeEnd',
+        [january, dateRange('2020-01-29', '2020-02-15')],
+        bothOptions,
+        true,
+      ],
+    ])('Should handle %s', (_, ranges, options, expected) => {
       // Act
-      const result = CalendarDateRange.hasOverlap([]);
+      const result = CalendarDateRange.hasOverlap(ranges, options);
 
       // Assert
-      expect(result).toBe(false);
-    });
-
-    test('Should return false for a single date range', () => {
-      // Arrange
-      const dateRange = new CalendarDateRange(
-        new CalendarDate('2020-01-01'),
-        new CalendarDate('2020-01-31'),
-      );
-
-      // Act
-      const result = CalendarDateRange.hasOverlap([dateRange]);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    test('Should return false for non-overlapping date ranges', () => {
-      // Arrange
-      const dateRange1 = new CalendarDateRange(
-        new CalendarDate('2020-01-01'),
-        new CalendarDate('2020-01-31'),
-      );
-      const dateRange2 = new CalendarDateRange(
-        new CalendarDate('2020-02-01'),
-        new CalendarDate('2020-02-15'),
-      );
-
-      // Act
-      const result = CalendarDateRange.hasOverlap([dateRange1, dateRange2]);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    test('Should return true for overlapping date ranges', () => {
-      // Arrange
-      const dateRange1 = new CalendarDateRange(
-        new CalendarDate('2020-01-01'),
-        new CalendarDate('2020-01-31'),
-      );
-      const dateRange2 = new CalendarDateRange(
-        new CalendarDate('2020-01-15'),
-        new CalendarDate('2020-02-15'),
-      );
-
-      // Act
-      const result = CalendarDateRange.hasOverlap([dateRange1, dateRange2]);
-
-      // Assert
-      expect(result).toBe(true);
-    });
-
-    test('Should return true for one date range inside another date range', () => {
-      // Arrange
-      const dateRange1 = new CalendarDateRange(
-        new CalendarDate('2020-01-01'),
-        new CalendarDate('2020-01-31'),
-      );
-      const dateRange2 = new CalendarDateRange(
-        new CalendarDate('2020-01-10'),
-        new CalendarDate('2020-01-20'),
-      );
-
-      // Act
-      const result = CalendarDateRange.hasOverlap([dateRange1, dateRange2]);
-
-      // Assert
-      expect(result).toBe(true);
-    });
-
-    test('Should work for excludeStart option', () => {
-      // Arrange
-      const ranges1 = [
-        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
-        new CalendarDateRange(new CalendarDate('2020-01-31'), new CalendarDate('2020-02-15')),
-      ];
-      const ranges2 = [
-        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
-        new CalendarDateRange(new CalendarDate('2020-01-30'), new CalendarDate('2020-02-15')),
-      ];
-
-      // Act
-      const result1 = CalendarDateRange.hasOverlap(ranges1, {
-        excludeStart: true,
-      });
-      const result2 = CalendarDateRange.hasOverlap(ranges2, {
-        excludeStart: true,
-      });
-
-      // Assert
-      expect(result1).toBe(false);
-      expect(result2).toBe(true);
-    });
-
-    test('Should work for excludeEnd option', () => {
-      // Arrange
-      const ranges1 = [
-        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
-        new CalendarDateRange(new CalendarDate('2020-01-31'), new CalendarDate('2020-02-15')),
-      ];
-      const ranges2 = [
-        new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-01-31')),
-        new CalendarDateRange(new CalendarDate('2020-01-30'), new CalendarDate('2020-02-15')),
-      ];
-
-      // Act
-      const result1 = CalendarDateRange.hasOverlap(ranges1, {
-        excludeEnd: true,
-      });
-      const result2 = CalendarDateRange.hasOverlap(ranges2, {
-        excludeEnd: true,
-      });
-
-      // Assert
-      expect(result1).toBe(false);
-      expect(result2).toBe(true);
+      expect(result).toBe(expected);
     });
 
     test('Should find every overlap, also between date ranges that are not neighbours', () => {
@@ -1043,8 +847,8 @@ describe('CalendarDateRange', () => {
     });
   });
 
-  describe('iterateDatesInRange', () => {
-    it('should iterate through all dates in a single-day range', () => {
+  describe('Test of iterateDatesInRange', () => {
+    test('should iterate through all dates in a single-day range', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-01'),
         new CalendarDate('2023-01-01'),
@@ -1055,7 +859,7 @@ describe('CalendarDateRange', () => {
       expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
     });
 
-    it('should iterate through all dates in a multi-day range', () => {
+    test('should iterate through all dates in a multi-day range', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-01'),
         new CalendarDate('2023-01-03'),
@@ -1068,7 +872,7 @@ describe('CalendarDateRange', () => {
       expect(dates[2].equals(new CalendarDate('2023-01-03'))).toBe(true);
     });
 
-    it('should iterate through dates across month boundaries', () => {
+    test('should iterate through dates across month boundaries', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-30'),
         new CalendarDate('2023-02-02'),
@@ -1082,7 +886,17 @@ describe('CalendarDateRange', () => {
       expect(dates[3].equals(new CalendarDate('2023-02-02'))).toBe(true);
     });
 
-    it('should exclude start date when excludeStart option is true', () => {
+    test('should iterate through dates across year boundaries', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2022-12-30'),
+        new CalendarDate('2023-01-02'),
+      );
+      const dates = Array.from(range.iterateDatesInRange());
+
+      expect(dates.map(String)).toEqual(['2022-12-30', '2022-12-31', '2023-01-01', '2023-01-02']);
+    });
+
+    test('should exclude start date when excludeStart option is true', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-01'),
         new CalendarDate('2023-01-03'),
@@ -1094,7 +908,7 @@ describe('CalendarDateRange', () => {
       expect(dates[1].equals(new CalendarDate('2023-01-03'))).toBe(true);
     });
 
-    it('should exclude end date when excludeEnd option is true', () => {
+    test('should exclude end date when excludeEnd option is true', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-01'),
         new CalendarDate('2023-01-03'),
@@ -1106,7 +920,7 @@ describe('CalendarDateRange', () => {
       expect(dates[1].equals(new CalendarDate('2023-01-02'))).toBe(true);
     });
 
-    it('should exclude both start and end dates when both options are true', () => {
+    test('should exclude both start and end dates when both options are true', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-01'),
         new CalendarDate('2023-01-05'),
@@ -1119,7 +933,7 @@ describe('CalendarDateRange', () => {
       expect(dates[2].equals(new CalendarDate('2023-01-04'))).toBe(true);
     });
 
-    it('should return empty array when excluding both dates from single-day range', () => {
+    test('should return empty array when excluding both dates from single-day range', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-01'),
         new CalendarDate('2023-01-01'),
@@ -1129,7 +943,7 @@ describe('CalendarDateRange', () => {
       expect(dates).toHaveLength(0);
     });
 
-    it('should work with for...of loop', () => {
+    test('should work with for...of loop', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-01'),
         new CalendarDate('2023-01-02'),
@@ -1146,8 +960,8 @@ describe('CalendarDateRange', () => {
     });
   });
 
-  describe('Symbol.iterator', () => {
-    it('should yield the same dates as iterateDatesInRange', () => {
+  describe('Test of Symbol.iterator', () => {
+    test('should yield the same dates as iterateDatesInRange', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: -1000, max: 1000 }),
@@ -1167,7 +981,7 @@ describe('CalendarDateRange', () => {
       );
     });
 
-    it('should work with for...of', () => {
+    test('should work with for...of', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-30'),
         new CalendarDate('2023-02-02'),
@@ -1181,7 +995,7 @@ describe('CalendarDateRange', () => {
       expect(dates).toEqual(['2023-01-30', '2023-01-31', '2023-02-01', '2023-02-02']);
     });
 
-    it('should start a new iteration each time', () => {
+    test('should start a new iteration each time', () => {
       const range = new CalendarDateRange(
         new CalendarDate('2023-01-01'),
         new CalendarDate('2023-01-02'),
@@ -1189,12 +1003,6 @@ describe('CalendarDateRange', () => {
 
       expect([...range].map(String)).toEqual(['2023-01-01', '2023-01-02']);
       expect([...range].map(String)).toEqual(['2023-01-01', '2023-01-02']);
-    });
-
-    it('should yield the dates of a range ending at MAX_VALUE', () => {
-      const range = new CalendarDateRange(new CalendarDate(9999, 12, 30), CalendarDate.MAX_VALUE);
-
-      expect(Array.from(range, String)).toEqual(['9999-12-30', '9999-12-31']);
     });
   });
 
@@ -1207,7 +1015,7 @@ describe('CalendarDateRange', () => {
     const maxValueOnly = new CalendarDateRange(CalendarDate.MAX_VALUE, CalendarDate.MAX_VALUE);
     const minValueOnly = new CalendarDateRange(CalendarDate.MIN_VALUE, CalendarDate.MIN_VALUE);
 
-    it.each([
+    test.each([
       ['ending at MAX_VALUE', lastTwoDays, {}, ['9999-12-30', '9999-12-31']],
       ['ending at MAX_VALUE excluding start', lastTwoDays, { excludeStart: true }, ['9999-12-31']],
       ['starting at MIN_VALUE', firstTwoDays, {}, ['0001-01-01', '0001-01-02']],
@@ -1221,8 +1029,8 @@ describe('CalendarDateRange', () => {
     });
   });
 
-  describe('toDatesArrayInRange', () => {
-    it('should return the same dates as iterateDatesInRange', () => {
+  describe('Test of toDatesArrayInRange', () => {
+    test('should return the same dates as iterateDatesInRange', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: -1000, max: 1000 }),
@@ -1243,114 +1051,6 @@ describe('CalendarDateRange', () => {
           },
         ),
       );
-    });
-
-    it('should return array with single date for single-day range', () => {
-      const range = new CalendarDateRange(
-        new CalendarDate('2023-01-01'),
-        new CalendarDate('2023-01-01'),
-      );
-      const dates = range.toDatesArrayInRange();
-
-      expect(dates).toHaveLength(1);
-      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
-    });
-
-    it('should return array with all dates in multi-day range', () => {
-      const range = new CalendarDateRange(
-        new CalendarDate('2023-01-01'),
-        new CalendarDate('2023-01-05'),
-      );
-      const dates = range.toDatesArrayInRange();
-
-      expect(dates).toHaveLength(5);
-      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
-      expect(dates[1].equals(new CalendarDate('2023-01-02'))).toBe(true);
-      expect(dates[2].equals(new CalendarDate('2023-01-03'))).toBe(true);
-      expect(dates[3].equals(new CalendarDate('2023-01-04'))).toBe(true);
-      expect(dates[4].equals(new CalendarDate('2023-01-05'))).toBe(true);
-    });
-
-    it('should handle ranges across year boundaries', () => {
-      const range = new CalendarDateRange(
-        new CalendarDate('2022-12-30'),
-        new CalendarDate('2023-01-02'),
-      );
-      const dates = range.toDatesArrayInRange();
-
-      expect(dates).toHaveLength(4);
-      expect(dates[0].equals(new CalendarDate('2022-12-30'))).toBe(true);
-      expect(dates[1].equals(new CalendarDate('2022-12-31'))).toBe(true);
-      expect(dates[2].equals(new CalendarDate('2023-01-01'))).toBe(true);
-      expect(dates[3].equals(new CalendarDate('2023-01-02'))).toBe(true);
-    });
-
-    it('should exclude start date when excludeStart option is true', () => {
-      const range = new CalendarDateRange(
-        new CalendarDate('2023-01-01'),
-        new CalendarDate('2023-01-04'),
-      );
-      const dates = range.toDatesArrayInRange({ excludeStart: true });
-
-      expect(dates).toHaveLength(3);
-      expect(dates[0].equals(new CalendarDate('2023-01-02'))).toBe(true);
-      expect(dates[1].equals(new CalendarDate('2023-01-03'))).toBe(true);
-      expect(dates[2].equals(new CalendarDate('2023-01-04'))).toBe(true);
-    });
-
-    it('should exclude end date when excludeEnd option is true', () => {
-      const range = new CalendarDateRange(
-        new CalendarDate('2023-01-01'),
-        new CalendarDate('2023-01-04'),
-      );
-      const dates = range.toDatesArrayInRange({ excludeEnd: true });
-
-      expect(dates).toHaveLength(3);
-      expect(dates[0].equals(new CalendarDate('2023-01-01'))).toBe(true);
-      expect(dates[1].equals(new CalendarDate('2023-01-02'))).toBe(true);
-      expect(dates[2].equals(new CalendarDate('2023-01-03'))).toBe(true);
-    });
-
-    it('should exclude both start and end dates when both options are true', () => {
-      const range = new CalendarDateRange(
-        new CalendarDate('2023-01-01'),
-        new CalendarDate('2023-01-05'),
-      );
-      const dates = range.toDatesArrayInRange({ excludeStart: true, excludeEnd: true });
-
-      expect(dates).toHaveLength(3);
-      expect(dates[0].equals(new CalendarDate('2023-01-02'))).toBe(true);
-      expect(dates[1].equals(new CalendarDate('2023-01-03'))).toBe(true);
-      expect(dates[2].equals(new CalendarDate('2023-01-04'))).toBe(true);
-    });
-
-    it('should return same result as Array.from(iterateDatesInRange())', () => {
-      const range = new CalendarDateRange(
-        new CalendarDate('2023-01-01'),
-        new CalendarDate('2023-01-03'),
-      );
-      const arrayFromIterate = Array.from(range.iterateDatesInRange());
-      const arrayFromMethod = range.toDatesArrayInRange();
-
-      expect(arrayFromMethod).toHaveLength(arrayFromIterate.length);
-      arrayFromMethod.forEach((date, index) => {
-        expect(date.equals(arrayFromIterate[index])).toBe(true);
-      });
-    });
-
-    it('should return same result as Array.from(iterateDatesInRange()) with options', () => {
-      const range = new CalendarDateRange(
-        new CalendarDate('2023-01-01'),
-        new CalendarDate('2023-01-05'),
-      );
-      const options = { excludeStart: true, excludeEnd: true };
-      const arrayFromIterate = Array.from(range.iterateDatesInRange(options));
-      const arrayFromMethod = range.toDatesArrayInRange(options);
-
-      expect(arrayFromMethod).toHaveLength(arrayFromIterate.length);
-      arrayFromMethod.forEach((date, index) => {
-        expect(date.equals(arrayFromIterate[index])).toBe(true);
-      });
     });
   });
 });

@@ -2,7 +2,10 @@ import * as fc from 'fast-check';
 import fs from 'fs';
 import { CalendarDate, DayOfTheWeek } from 'calendar-date';
 import { expectTypeOf } from 'vitest';
-import { DAY_IN_SECONDS, ensureValidDay, unixTimestampToCalendarDate } from './helpers';
+import { calendarDateArbitrary, DAY_IN_SECONDS, ensureValidDay } from './helpers';
+
+const YEAR_ERROR_MESSAGE = (year: number) =>
+  `CalendarDate Validation Error: Input year ${year} is not valid. Year must be a number between 1 and 9999.`;
 
 describe('CalendarDate', () => {
   describe('Test of constructor', () => {
@@ -122,10 +125,28 @@ describe('CalendarDate', () => {
         );
       });
 
+      test.each([
+        [1900, 2, 29],
+        [2100, 2, 29],
+        [2023, 2, 29],
+      ])('Throws error for February 29 in the common year %s', (year, month, day) => {
+        expect(() => new CalendarDate(year, month, day)).toThrow(
+          `CalendarDate Validation Error: Input date ${year}-${month}-${day} is not a valid calendar date.`,
+        );
+      });
+
+      test.each([
+        [2000, '2000-02-29'],
+        [2024, '2024-02-29'],
+        [4, '0004-02-29'],
+      ])('Constructs February 29 in the leap year %s', (year, expected) => {
+        expect(new CalendarDate(year, 2, 29).toString()).toBe(expected);
+      });
+
       test('Construct CalendarDate from year, month and day', () => {
         fc.assert(
           fc.property(
-            fc.integer({ min: 200, max: 9900 }),
+            fc.integer({ min: 1, max: 9999 }),
             fc.integer({ min: 1, max: 12 }),
             fc.integer({ min: 1, max: 31 }),
             (year, month, day) => {
@@ -187,7 +208,7 @@ describe('CalendarDate', () => {
       });
     });
 
-    describe('input type: string', () => {
+    describe('Input type: string', () => {
       test('Throws error if format is wrong', () => {
         const input = '01-01-2023';
         expect(() => new CalendarDate(input)).toThrow(
@@ -204,7 +225,7 @@ describe('CalendarDate', () => {
       test('Construct CalendarDate from IsoString', () => {
         fc.assert(
           fc.property(
-            fc.integer({ min: 200, max: 9900 }),
+            fc.integer({ min: 1, max: 9999 }),
             fc.integer({ min: 1, max: 12 }),
             fc.integer({ min: 1, max: 31 }),
             (year, month, day) => {
@@ -228,52 +249,105 @@ describe('CalendarDate', () => {
     });
   });
 
-  describe('Test of nowUTC', () => {
-    test('should return calendar date object for the current UTC Date', () => {
-      // Arrange
-      const date = new Date();
-
-      // Act
-      const calendarDate = CalendarDate.nowUTC();
-
-      // Assert
-      expect(calendarDate.year).toBe(date.getUTCFullYear());
-      expect(calendarDate.month).toBe(date.getUTCMonth() + 1);
-      expect(calendarDate.day).toBe(date.getUTCDate());
+  describe('Test of nowUTC, nowLocal and nowTimeZone', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
     });
-  });
 
-  describe('Test of nowLocal', () => {
-    test('should return calendar date object for the current Local Date', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    test.each(['2020-06-01T00:30:00.000Z', '2020-06-01T23:30:00.000Z'])(
+      'nowUTC returns the UTC date at %s',
+      (isoDateTime) => {
+        // Arrange
+        vi.setSystemTime(new Date(isoDateTime));
+
+        // Act
+        const calendarDate = CalendarDate.nowUTC();
+
+        // Assert
+        expect(calendarDate.toString()).toBe('2020-06-01');
+      },
+    );
+
+    test.each([0, 12, 23])('nowLocal returns the local date at %s:30 local time', (hours) => {
       // Arrange
-      const date = new Date();
+      vi.setSystemTime(new Date(2020, 5, 1, hours, 30));
 
       // Act
       const calendarDate = CalendarDate.nowLocal();
 
       // Assert
-      expect(calendarDate.year).toBe(date.getFullYear());
-      expect(calendarDate.month).toBe(date.getMonth() + 1);
-      expect(calendarDate.day).toBe(date.getDate());
+      expect(calendarDate.toString()).toBe('2020-06-01');
     });
-  });
 
-  describe('Test of nowTimeZone', () => {
-    test('should return calendar date object for the specified time zone', () => {
+    test.each([
+      ['Asia/Tokyo', '2020-06-02'],
+      ['America/New_York', '2020-06-01'],
+      ['UTC', '2020-06-01'],
+    ])('nowTimeZone returns the date in %s', (timeZone, expected) => {
       // Arrange
-      const date = new Date();
+      vi.setSystemTime(new Date('2020-06-01T23:30:00.000Z'));
 
       // Act
-      const calendarDate = CalendarDate.nowTimeZone('America/New_York');
+      const calendarDate = CalendarDate.nowTimeZone(timeZone);
 
       // Assert
-      expect(calendarDate.toFormat('d.M.yyyy')).toBe(
-        date.toLocaleDateString('de-DE', { timeZone: 'America/New_York' }),
-      );
+      expect(calendarDate.toString()).toBe(expected);
     });
   });
 
   describe('Test of fromDateUTC and fromDateLocal', () => {
+    test.each([0, 12, 23])('fromDateLocal returns the local date at %s:30 local time', (hours) => {
+      // Arrange
+      const date = new Date(2020, 5, 1, hours, 30);
+
+      // Act
+      const calendarDate = CalendarDate.fromDateLocal(date);
+
+      // Assert
+      expect(calendarDate.toString()).toBe('2020-06-01');
+    });
+
+    test.each([0, 12, 23])('fromDateUTC returns the UTC date at %s:30 UTC', (hours) => {
+      // Arrange
+      const date = new Date(Date.UTC(2020, 5, 1, hours, 30));
+
+      // Act
+      const calendarDate = CalendarDate.fromDateUTC(date);
+
+      // Assert
+      expect(calendarDate.toString()).toBe('2020-06-01');
+    });
+
+    test('fromDateLocal returns the local date for years below 100', () => {
+      // Arrange
+      // The Date constructor maps the years 0-99 to 1900-1999, setFullYear does not.
+      const date = new Date(2020, 5, 1, 23, 30);
+      date.setFullYear(50);
+
+      // Act
+      const calendarDate = CalendarDate.fromDateLocal(date);
+
+      // Assert
+      expect(calendarDate.toString()).toBe('0050-06-01');
+    });
+
+    test('fromDateUTC returns the UTC date for years below 100', () => {
+      // Arrange
+      // Date.UTC maps the years 0-99 to 1900-1999, setUTCFullYear does not.
+      const date = new Date(Date.UTC(2020, 5, 1, 23, 30));
+      date.setUTCFullYear(50);
+
+      // Act
+      const calendarDate = CalendarDate.fromDateUTC(date);
+
+      // Assert
+      expect(calendarDate.toString()).toBe('0050-06-01');
+    });
+
     test('Throws for an invalid Date', () => {
       // Arrange
       const invalidDate = new Date(NaN);
@@ -312,21 +386,36 @@ describe('CalendarDate', () => {
       expect(cache.size).toBe(100);
     });
 
+    test.each([
+      ['America/New_York', '2020-05-31'],
+      ['Asia/Tokyo', '2020-06-01'],
+      ['UTC', '2020-06-01'],
+    ])('Returns the date of the instant in the time zone %s', (timeZone, expected) => {
+      // Arrange
+      const date = new Date('2020-06-01T02:00:00.000Z');
+
+      // Act
+      const calendarDate = CalendarDate.fromDateWithTimeZone(date, timeZone);
+
+      // Assert
+      expect(calendarDate.toString()).toBe(expected);
+    });
+
     test('should return correct date for a year < 1000', () => {
       // Arrange
-      const date = new Date(50, 0, 1);
+      // Date.UTC maps the years 0-99 to 1900-1999, setUTCFullYear does not.
+      const date = new Date(Date.UTC(2000, 0, 1, 12));
+      date.setUTCFullYear(50);
 
       // Act
       const calendarDate = CalendarDate.fromDateWithTimeZone(date, 'America/New_York');
 
       // Assert
-      expect(calendarDate.toFormat('d.M.yyyy')).toBe(
-        date.toLocaleDateString('de-DE', { timeZone: 'America/New_York' }),
-      );
+      expect(calendarDate.toString()).toBe('0050-01-01');
     });
   });
 
-  describe('Test of parseString', () => {
+  describe('Test of parse', () => {
     test('Should throw error if input is not a valid iso string', () => {
       fc.assert(
         fc.property(fc.string(), (string) => {
@@ -400,53 +489,42 @@ describe('CalendarDate', () => {
         { numRuns: 10000 },
       );
     });
-
-    test('should construct calendar date object from valid iso string', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year, month, day) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const isoString = `${year.toString().padStart(4, '0')}-${month
-              .toString()
-              .padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-
-            // Act
-            const calendarDate = CalendarDate.parse(isoString);
-
-            // Assert
-            expect(calendarDate.year).toBe(year);
-            expect(calendarDate.month).toBe(month);
-            expect(calendarDate.day).toBe(day);
-          },
-        ),
-      );
-    });
   });
 
   describe('Test of toString', () => {
     test('The returned string is in ISO format', () => {
       fc.assert(
         fc.property(
-          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 9999 }),
           fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
             // Arrange
             day = ensureValidDay(year, month, day);
+            const expected = `${year.toString().padStart(4, '0')}-${month
+              .toString()
+              .padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
             // Act
             const isoString = new CalendarDate(year, month, day).toString();
 
             // Assert
-            expect(isoString.length).toBe(10);
-            expect(isoString.charAt(4)).toBe('-');
-            expect(isoString.charAt(7)).toBe('-');
+            expect(isoString).toBe(expected);
           },
         ),
+      );
+    });
+
+    test('Round trips through the constructor and parse', () => {
+      fc.assert(
+        fc.property(calendarDateArbitrary(), (date) => {
+          // Act
+          const isoString = date.toString();
+
+          // Assert
+          expect(new CalendarDate(isoString).equals(date)).toBe(true);
+          expect(CalendarDate.parse(isoString).equals(date)).toBe(true);
+        }),
       );
     });
   });
@@ -654,21 +732,21 @@ describe('CalendarDate', () => {
   });
 
   describe('Test of toJSON', () => {
-    test('The returned string is the same as from toString', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year, month, day) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date = new CalendarDate(year, month, day);
+    test('Is serialized as the ISO string', () => {
+      // Assert
+      expect(JSON.stringify({ d: new CalendarDate(2020, 1, 5) })).toBe('{"d":"2020-01-05"}');
+      expect(JSON.stringify([new CalendarDate(50, 12, 31)])).toBe('["0050-12-31"]');
+    });
 
-            // Assert
-            expect(date.toJSON()).toBe(date.toString());
-          },
-        ),
+    test('Round trips through JSON.stringify and parse', () => {
+      fc.assert(
+        fc.property(calendarDateArbitrary(), (date) => {
+          // Act
+          const parsed = CalendarDate.parse(JSON.parse(JSON.stringify(date)));
+
+          // Assert
+          expect(parsed.equals(date)).toBe(true);
+        }),
       );
     });
   });
@@ -676,57 +754,65 @@ describe('CalendarDate', () => {
   describe('Test of toDateUTC', () => {
     test('The returned date object represents the start of the day of the calendarDate in UTC timezone', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year, month, day) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const calendarDate = new CalendarDate(year, month, day);
-            const date = calendarDate.toDateUTC();
+        fc.property(calendarDateArbitrary(), (calendarDate) => {
+          // Act
+          const date = calendarDate.toDateUTC();
 
-            // Assert
-            expect(date.toISOString()).toEqual(`${calendarDate.toString()}T00:00:00.000Z`);
-          },
-        ),
+          // Assert
+          expect(date.toISOString()).toEqual(`${calendarDate.toString()}T00:00:00.000Z`);
+        }),
+      );
+    });
+
+    test('Round trips with fromDateUTC', () => {
+      fc.assert(
+        fc.property(calendarDateArbitrary(), (calendarDate) => {
+          // Act
+          const roundTripped = CalendarDate.fromDateUTC(calendarDate.toDateUTC());
+
+          // Assert
+          expect(roundTripped.equals(calendarDate)).toBe(true);
+        }),
       );
     });
   });
 
   describe('Test of toDateLocal', () => {
-    test('The returned date object represents the start of the day in the local timezone', () => {
+    // Includes the days on which daylight saving time starts and ends in New York and Berlin, and a
+    // year below 100, which the Date constructor maps to 1900-1999.
+    test.each(['2020-03-08', '2020-11-01', '2020-03-29', '2020-10-25', '2020-07-15', '0050-01-01'])(
+      'Returns the start of the day %s in the local time zone',
+      (isoString) => {
+        // Arrange
+        const calendarDate = new CalendarDate(isoString);
+
+        // Act
+        const date = calendarDate.toDateLocal();
+
+        // Assert
+        expect(date.getFullYear()).toBe(calendarDate.year);
+        expect(date.getMonth()).toBe(calendarDate.month - 1);
+        expect(date.getDate()).toBe(calendarDate.day);
+        expect(date.getHours()).toBe(0);
+        expect(date.getMinutes()).toBe(0);
+        expect(date.getSeconds()).toBe(0);
+        expect(date.getMilliseconds()).toBe(0);
+      },
+    );
+
+    test('Round trips with fromDateLocal for the whole year range', () => {
+      // Not asserting midnight here: in some time zones, e.g. Asia/Tokyo in 1948-1951, daylight
+      // saving time started at midnight, so the first local time of those days is 01:00.
       fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year, month, day) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const calendarDate = new CalendarDate(year, month, day);
-            const date = calendarDate.toDateLocal();
+        fc.property(calendarDateArbitrary(), (calendarDate) => {
+          // Act
+          const roundTripped = CalendarDate.fromDateLocal(calendarDate.toDateLocal());
 
-            // Assert
-            expect(
-              `${date.getFullYear().toString().padStart(4, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`,
-            ).toEqual(calendarDate.toString());
-          },
-        ),
+          // Assert
+          expect(roundTripped.equals(calendarDate)).toBe(true);
+        }),
+        { numRuns: 1000 },
       );
-    });
-
-    test('Handles years below 100 correctly', () => {
-      // Arrange
-      const calendarDate = new CalendarDate(50, 1, 1);
-
-      // Act
-      const date = calendarDate.toDateLocal();
-
-      // Assert
-      expect(date.getFullYear()).toBe(50);
-      expect(date.getMonth()).toBe(0);
-      expect(date.getDate()).toBe(1);
     });
   });
 
@@ -734,7 +820,7 @@ describe('CalendarDate', () => {
     test('Returns true if the input object has the same unix timestamp', () => {
       fc.assert(
         fc.property(
-          fc.integer({ min: 200, max: 9900 }),
+          fc.integer({ min: 1, max: 9999 }),
           fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
           (year, month, day) => {
@@ -753,23 +839,15 @@ describe('CalendarDate', () => {
     test('Returns false if the input object has not the same unix timestamp', () => {
       fc.assert(
         fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year1, year2, month1, month2, day1, day2) => {
+          calendarDateArbitrary({ minYear: 4, maxYear: 9996 }),
+          fc.integer({ min: -1000, max: 1000 }).filter((offset) => offset !== 0),
+          (date1, offset) => {
             // Arrange
-            day1 = ensureValidDay(year1, month1, day1);
-            day2 = ensureValidDay(year2, month2, day2);
-            const date1 = new CalendarDate(year1, month1, day1);
-            const date2 = new CalendarDate(year2, month2, day2);
+            const date2 = date1.addDays(offset);
 
             // Assert
-            if (date1.unixTimestampInSeconds !== date2.unixTimestampInSeconds) {
-              expect(date1.equals(date2)).toBe(false);
-            }
+            expect(date1.equals(date2)).toBe(false);
+            expect(date2.equals(date1)).toBe(false);
           },
         ),
       );
@@ -865,210 +943,36 @@ describe('CalendarDate', () => {
     });
   });
 
-  describe('Test of isBefore', () => {
-    test('Returns true if the input object has a greater unix timestamp', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 1000 }),
-          (year, month, day, days) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = date1.addDays(days);
+  describe('Test of isBefore, isAfter, isBeforeOrEqual and isAfterOrEqual', () => {
+    test.each<
+      ['isBefore' | 'isAfter' | 'isBeforeOrEqual' | 'isAfterOrEqual', boolean, boolean, boolean]
+    >([
+      ['isBefore', true, false, false],
+      ['isAfter', false, false, true],
+      ['isBeforeOrEqual', true, true, false],
+      ['isAfterOrEqual', false, true, true],
+    ])(
+      '%s returns %s for a later date, %s for an equal date and %s for an earlier date',
+      (method, laterResult, equalResult, earlierResult) => {
+        fc.assert(
+          fc.property(
+            calendarDateArbitrary({ minYear: 4, maxYear: 9996 }),
+            fc.integer({ min: 1, max: 1000 }),
+            (date, days) => {
+              // Arrange
+              const laterDate = date.addDays(days);
+              const equalDate = new CalendarDate(date.year, date.month, date.day);
+              const earlierDate = date.addDays(-days);
 
-            // Assert
-            expect(date1.isBefore(date2)).toBe(true);
-          },
-        ),
-      );
-    });
-
-    test('Returns false if the input object has a smaller unix timestamp', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 1000 }),
-          (year, month, day, days) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = date1.addDays(-days);
-
-            // Assert
-            expect(date1.isBefore(date2)).toBe(false);
-          },
-        ),
-      );
-    });
-  });
-
-  describe('Test of isAfter', () => {
-    test('Returns true if the input object has a smaller unix timestamp', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 1000 }),
-          (year, month, day, days) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = date1.addDays(-days);
-
-            // Assert
-            expect(date1.isAfter(date2)).toBe(true);
-          },
-        ),
-      );
-    });
-
-    test('Returns false if the input object has a greater unix timestamp', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 1000 }),
-          (year, month, day, days) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = date1.addDays(days);
-
-            // Assert
-            expect(date1.isAfter(date2)).toBe(false);
-          },
-        ),
-      );
-    });
-  });
-
-  describe('Test isBeforeOrEqual', () => {
-    test('isBeforeOrEqual returns true if the comparing date is greater', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 1000 }),
-          (year, month, day, days) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = date1.addDays(days);
-
-            // Assert
-            expect(date1.isBeforeOrEqual(date2)).toBe(true);
-          },
-        ),
-      );
-    });
-
-    test('isBeforeOrEqual returns true if the comparing date is equal', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year, month, day) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = new CalendarDate(year, month, day);
-
-            // Assert
-            expect(date1.isBeforeOrEqual(date2)).toBe(true);
-          },
-        ),
-      );
-    });
-
-    test('isBeforeOrEqual returns false if the comparing date is smaller', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 1000 }),
-          (year, month, day, days) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = date1.addDays(-days);
-
-            // Assert
-            expect(date1.isBeforeOrEqual(date2)).toBe(false);
-          },
-        ),
-      );
-    });
-  });
-
-  describe('Test isAfterOrEqual', () => {
-    test('isAfterOrEqual returns true if the comparing date is smaller', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 1000 }),
-          (year, month, day, days) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = date1.addDays(-days);
-
-            // Assert
-            expect(date1.isAfterOrEqual(date2)).toBe(true);
-          },
-        ),
-      );
-    });
-
-    test('isAfterOrEqual returns true if the comparing date is equal', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          (year, month, day) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = new CalendarDate(year, month, day);
-
-            // Assert
-            expect(date1.isAfterOrEqual(date2)).toBe(true);
-          },
-        ),
-      );
-    });
-
-    test('isAfterOrEqual returns false if the comparing date is greater', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9900 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 1, max: 1000 }),
-          (year, month, day, days) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const date1 = new CalendarDate(year, month, day);
-            const date2 = date1.addDays(days);
-
-            // Assert
-            expect(date1.isAfterOrEqual(date2)).toBe(false);
-          },
-        ),
-      );
-    });
+              // Assert
+              expect(date[method](laterDate)).toBe(laterResult);
+              expect(date[method](equalDate)).toBe(equalResult);
+              expect(date[method](earlierDate)).toBe(earlierResult);
+            },
+          ),
+        );
+      },
+    );
   });
 
   describe('Test of max', () => {
@@ -1115,7 +1019,7 @@ describe('CalendarDate', () => {
             const maxCalendarDate = new CalendarDate(
               9801,
               months[0],
-              ensureValidDay(199, months[0], days[0]),
+              ensureValidDay(9801, months[0], days[0]),
             );
 
             // Assert
@@ -1188,64 +1092,44 @@ describe('CalendarDate', () => {
       expect(CalendarDate.MIN_VALUE.toString()).toBe('0001-01-01');
       expect(CalendarDate.MAX_VALUE.toString()).toBe('9999-12-31');
     });
-  });
 
-  describe('Test of sortAscending', () => {
-    test('Returns a copy of an input array that is sorted ascending', () => {
-      const lowerRange = new CalendarDate(2000, 1, 1).valueOf();
-      const upperRange = new CalendarDate(2100, 12, 31).valueOf();
-      fc.assert(
-        fc.property(
-          fc.array(fc.integer({ min: 0, max: 1 }), { maxLength: 10, minLength: 0 }),
-          (arr) => {
-            // Arrange
-            const calendarDates = arr.map((val) =>
-              unixTimestampToCalendarDate(val * (upperRange - lowerRange) + lowerRange),
-            );
+    test('Adding months or years beyond the representable range throws', () => {
+      expect(() => CalendarDate.MAX_VALUE.addMonths(1)).toThrow(YEAR_ERROR_MESSAGE(10000));
+      expect(() => CalendarDate.MAX_VALUE.addYears(1)).toThrow(YEAR_ERROR_MESSAGE(10000));
+      expect(() => CalendarDate.MIN_VALUE.addMonths(-1)).toThrow(YEAR_ERROR_MESSAGE(0));
+      expect(() => CalendarDate.MIN_VALUE.addYears(-1)).toThrow(YEAR_ERROR_MESSAGE(0));
+    });
 
-            // Act
-            const sortedCalendarDate = CalendarDate.sortAscending(calendarDates);
-
-            // Assert
-            expect(sortedCalendarDate.length).toBe(calendarDates.length);
-            expect(sortedCalendarDate).not.toBe(calendarDates);
-            for (let idx = 1; idx < sortedCalendarDate.length; idx++) {
-              expect(sortedCalendarDate[idx].valueOf()).toBeGreaterThanOrEqual(
-                sortedCalendarDate[idx - 1].valueOf(),
-              );
-            }
-          },
-        ),
-      );
+    test('Adding months up to the edges of the representable range works', () => {
+      expect(CalendarDate.MAX_VALUE.addMonths(0).toString()).toBe('9999-12-31');
+      expect(new CalendarDate(9999, 10, 31).addMonths(2).toString()).toBe('9999-12-31');
+      expect(new CalendarDate(9999, 10, 31).addMonths(2, false).toString()).toBe('9999-12-31');
+      expect(new CalendarDate(1, 3, 31).addMonths(-2).toString()).toBe('0001-01-31');
     });
   });
 
-  describe('Test of sortDescending', () => {
-    test('Returns a copy of an input array that is sorted descending', () => {
-      const lowerRange = new CalendarDate(2000, 1, 1).valueOf();
-      const upperRange = new CalendarDate(2100, 12, 31).valueOf();
+  describe.each([
+    ['sortAscending', (a: CalendarDate, b: CalendarDate) => a.valueOf() <= b.valueOf()],
+    ['sortDescending', (a: CalendarDate, b: CalendarDate) => a.valueOf() >= b.valueOf()],
+  ] as const)('Test of %s', (method, isInOrder) => {
+    test('Returns a sorted copy of the input array and does not modify the input array', () => {
       fc.assert(
-        fc.property(
-          fc.array(fc.integer({ min: 0, max: 1 }), { maxLength: 10, minLength: 0 }),
-          (arr) => {
-            // Arrange
-            const calendarDates = arr.map((val) =>
-              unixTimestampToCalendarDate(val * (upperRange - lowerRange) + lowerRange),
-            );
+        fc.property(fc.array(calendarDateArbitrary(), { maxLength: 30 }), (calendarDates) => {
+          // Arrange
+          const inputCopy = [...calendarDates];
 
-            // Act
-            const sortedCalendarDate = CalendarDate.sortDescending(calendarDates);
+          // Act
+          const sortedCalendarDates = CalendarDate[method](calendarDates);
 
-            // Assert
-            expect(sortedCalendarDate.length).toBe(calendarDates.length);
-            expect(sortedCalendarDate).not.toBe(calendarDates);
-            for (let idx = 1; idx < sortedCalendarDate.length; idx++) {
-              expect(sortedCalendarDate[idx].valueOf()).toBeLessThanOrEqual(
-                sortedCalendarDate[idx - 1].valueOf(),
-              );
-            }
-          },
-        ),
+          // Assert
+          expect(sortedCalendarDates).not.toBe(calendarDates);
+          for (let idx = 1; idx < sortedCalendarDates.length; idx++) {
+            expect(isInOrder(sortedCalendarDates[idx - 1], sortedCalendarDates[idx])).toBe(true);
+          }
+          expect(sortedCalendarDates.map(String).sort()).toEqual(calendarDates.map(String).sort());
+          expect(calendarDates).toHaveLength(inputCopy.length);
+          calendarDates.forEach((date, idx) => expect(date).toBe(inputCopy[idx]));
+        }),
       );
     });
   });
@@ -1296,7 +1180,7 @@ describe('CalendarDate', () => {
   });
 
   describe('Test of getLastDayOfMonth', () => {
-    test('Returns new instance with same year and month but day set to 1', () => {
+    test('Returns new instance with same year and month but day set to the last day of the month', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -1823,6 +1707,31 @@ describe('CalendarDate', () => {
       expect(newDate.year).toBe(2021);
     });
 
+    test('Matches Date.setUTCMonth if enforceEndOfMonth is set to false', () => {
+      fc.assert(
+        fc.property(
+          // With at most 100 years added or subtracted, the results stay within 1-9999.
+          calendarDateArbitrary({ minYear: 101, maxYear: 9898 }),
+          fc.integer({ min: -1200, max: 1200 }),
+          (baseDate, monthsAdded) => {
+            // Arrange
+            const date = new Date(0);
+            date.setUTCFullYear(baseDate.year, baseDate.month - 1, baseDate.day);
+            date.setUTCMonth(date.getUTCMonth() + monthsAdded);
+
+            // Act
+            const newDate = baseDate.addMonths(monthsAdded, false);
+
+            // Assert
+            expect(newDate.year).toBe(date.getUTCFullYear());
+            expect(newDate.month).toBe(date.getUTCMonth() + 1);
+            expect(newDate.day).toBe(date.getUTCDate());
+          },
+        ),
+        { numRuns: 10000 },
+      );
+    });
+
     test('The day should not overflow into the next month by default', () => {
       // Arrange
       const baseDate = new CalendarDate(2021, 1, 31);
@@ -1922,28 +1831,6 @@ describe('CalendarDate', () => {
       // Assert
       expect(newDate.toString()).toBe('2021-02-28');
       expect(newDate.equals(baseDate.addYears(1, true))).toBe(true);
-    });
-
-    test('Behaves the same as adding the equivalent amount of months by default', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 200, max: 9800 }),
-          fc.integer({ min: 1, max: 12 }),
-          fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: -100, max: 100 }),
-          (year, month, day, yearsAdded) => {
-            // Arrange
-            day = ensureValidDay(year, month, day);
-            const baseDate = new CalendarDate(year, month, day);
-
-            // Act
-            const newDate = baseDate.addYears(yearsAdded);
-
-            // Assert
-            expect(newDate.equals(baseDate.addMonths(yearsAdded * 12))).toBe(true);
-          },
-        ),
-      );
     });
 
     test('Works with negative amounts', () => {
@@ -2118,7 +2005,7 @@ describe('CalendarDate', () => {
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 0, max: 1000 }),
+          fc.integer({ min: 1, max: 1000 }),
           (year, month, day, offset) => {
             // Arrange
             day = ensureValidDay(year, month, day);
@@ -2129,7 +2016,7 @@ describe('CalendarDate', () => {
             const difference = baseDate.getDifferenceInDays(inputDate);
 
             // Assert
-            expect(difference).toBeGreaterThanOrEqual(0);
+            expect(difference).toBeGreaterThan(0);
           },
         ),
       );
@@ -2141,7 +2028,7 @@ describe('CalendarDate', () => {
           fc.integer({ min: 200, max: 9900 }),
           fc.integer({ min: 1, max: 12 }),
           fc.integer({ min: 1, max: 31 }),
-          fc.integer({ min: 0, max: 1000 }),
+          fc.integer({ min: 1, max: 1000 }),
           (year, month, day, offset) => {
             // Arrange
             day = ensureValidDay(year, month, day);
@@ -2152,13 +2039,34 @@ describe('CalendarDate', () => {
             const difference = baseDate.getDifferenceInDays(inputDate);
 
             // Assert
-            expect(difference).toBeLessThanOrEqual(0);
+            expect(difference).toBeLessThan(0);
           },
         ),
       );
     });
 
-    test('Result is always positive if absolute parameter is true', () => {
+    test('Result is the amount of days added, or its absolute value if absolute is true', () => {
+      fc.assert(
+        fc.property(
+          calendarDateArbitrary({ minYear: 1000, maxYear: 9000 }),
+          fc.integer({ min: -300000, max: 300000 }),
+          (date, days) => {
+            // Arrange
+            const otherDate = date.addDays(days);
+
+            // Act
+            const difference = otherDate.getDifferenceInDays(date);
+            const absoluteDifference = date.getDifferenceInDays(otherDate, true);
+
+            // Assert
+            expect(difference).toBe(days);
+            expect(absoluteDifference).toBe(Math.abs(days));
+          },
+        ),
+      );
+    });
+
+    test('Result is never negative if absolute parameter is true', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -2185,7 +2093,30 @@ describe('CalendarDate', () => {
     });
   });
 
+  describe('Test of isLeapYear', () => {
+    test.each([
+      [1900, false],
+      [2000, true],
+      [2100, false],
+      [4, true],
+      [100, false],
+      [400, true],
+      [2023, false],
+      [2024, true],
+    ])('Returns the correct result for the year %s', (year, expected) => {
+      expect(CalendarDate.isLeapYear(year)).toBe(expected);
+    });
+  });
+
   describe('Test of getMaxDayOfMonth', () => {
+    test.each([
+      [1900, 28],
+      [2000, 29],
+      [2100, 28],
+    ])('Returns the correct number of days for february of the year %s', (year, expected) => {
+      expect(CalendarDate.getMaxDayOfMonth(year, 2)).toBe(expected);
+    });
+
     test('Returns 30 for input months of 4-6-9-11', () => {
       fc.assert(
         fc.property(
@@ -2268,7 +2199,7 @@ describe('CalendarDate', () => {
     });
   });
 
-  describe('Test of getWeekNumber', () => {
+  describe('Test of week', () => {
     test('week number of CalendarDate should be the same as expected for time range 1970-01-01 - 2100-12-31', () => {
       const start = new CalendarDate('1970-01-01');
       const end = new CalendarDate('2101-01-01');
