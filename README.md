@@ -430,6 +430,16 @@ for (const date of range.iterateDatesInRange({ excludeStart: true, excludeEnd: t
 }
 ```
 
+The range itself is iterable as well and yields the same dates as `iterateDatesInRange()` without options:
+
+```typescript
+for (const date of range) {
+  console.log(date.toString()); // 2023-01-01, 2023-01-02, 2023-01-03
+}
+
+const dates = [...range]; // same as range.toDatesArrayInRange()
+```
+
 #### toDatesArrayInRange
 
 Returns an array of all `CalendarDate` objects in the range.

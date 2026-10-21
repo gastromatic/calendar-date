@@ -1025,6 +1025,58 @@ describe('CalendarDateRange', () => {
     });
   });
 
+  describe('Symbol.iterator', () => {
+    it('should yield the same dates as iterateDatesInRange', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: -1000, max: 1000 }),
+          fc.integer({ min: 0, max: 100 }),
+          (startOffset, length) => {
+            // Arrange
+            const start = new CalendarDate(2000, 1, 1).addDays(startOffset);
+            const range = new CalendarDateRange(start, start.addDays(length));
+
+            // Act
+            const dates = [...range];
+
+            // Assert
+            expect(dates.map(String)).toEqual([...range.iterateDatesInRange()].map(String));
+          },
+        ),
+      );
+    });
+
+    it('should work with for...of', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-30'),
+        new CalendarDate('2023-02-02'),
+      );
+      const dates: string[] = [];
+
+      for (const date of range) {
+        dates.push(date.toString());
+      }
+
+      expect(dates).toEqual(['2023-01-30', '2023-01-31', '2023-02-01', '2023-02-02']);
+    });
+
+    it('should start a new iteration each time', () => {
+      const range = new CalendarDateRange(
+        new CalendarDate('2023-01-01'),
+        new CalendarDate('2023-01-02'),
+      );
+
+      expect([...range].map(String)).toEqual(['2023-01-01', '2023-01-02']);
+      expect([...range].map(String)).toEqual(['2023-01-01', '2023-01-02']);
+    });
+
+    it('should yield the dates of a range ending at MAX_VALUE', () => {
+      const range = new CalendarDateRange(new CalendarDate(9999, 12, 30), CalendarDate.MAX_VALUE);
+
+      expect(Array.from(range, String)).toEqual(['9999-12-30', '9999-12-31']);
+    });
+  });
+
   describe('Iteration at the edges of the representable range', () => {
     const lastTwoDays = new CalendarDateRange(
       new CalendarDate(9999, 12, 30),
