@@ -289,6 +289,29 @@ describe('CalendarDate', () => {
   });
 
   describe('Test of fromDateWithTimeZone', () => {
+    test('Keeps the formatter cache bounded for many spellings of time zones', () => {
+      const date = new Date('2020-06-01T12:00:00.000Z');
+      const cache = (
+        CalendarDate as unknown as {
+          dateTimeFormatterByTimezone: Map<string, Intl.DateTimeFormat>;
+        }
+      ).dateTimeFormatterByTimezone;
+      const letters = [...'europe/berlin'];
+
+      // Act
+      for (let mask = 0; mask < 250; mask++) {
+        // Each bit of the mask capitalizes one letter, Intl accepts every spelling.
+        const timeZone = letters
+          .map((letter, i) => ((mask >> i) & 1 ? letter.toUpperCase() : letter))
+          .join('');
+        expect(CalendarDate.fromDateWithTimeZone(date, timeZone).toString()).toBe('2020-06-01');
+      }
+
+      // Assert
+      expect(CalendarDate.fromDateWithTimeZone(date, 'Asia/Tokyo').toString()).toBe('2020-06-01');
+      expect(cache.size).toBe(100);
+    });
+
     test('should return correct date for a year < 1000', () => {
       // Arrange
       const date = new Date(50, 0, 1);

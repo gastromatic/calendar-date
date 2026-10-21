@@ -2,7 +2,10 @@ const DAY_IN_SECONDS = 86400;
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const ZERO_CHAR_CODE = 48;
 const DASH_CHAR_CODE = 45;
-/** Bounds the toFormat cache, since valid locale tags are unlimited, e.g. when they come from a request. */
+/**
+ * Bounds each Intl formatter cache. Valid locale tags and time zone names are unlimited, e.g. when
+ * they come from a request, since time zone names are accepted in any capitalization.
+ */
 const MAX_CACHED_FORMATTERS = 100;
 /**
  * Matches an escaped quote (`''`), quoted literal text, a quote without its closing quote, and the
@@ -25,6 +28,22 @@ export enum DayOfTheWeek {
   FRIDAY = 5,
   SATURDAY = 6,
   SUNDAY = 7,
+}
+
+/** Adds the formatter to the cache and deletes the oldest entry first if the cache is full. */
+function cacheFormatter(
+  cache: Map<string, Intl.DateTimeFormat>,
+  key: string,
+  formatter: Intl.DateTimeFormat,
+): void {
+  if (cache.size >= MAX_CACHED_FORMATTERS) {
+    // Maps iterate in insertion order, so the first key is the oldest entry.
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey !== undefined) {
+      cache.delete(oldestKey);
+    }
+  }
+  cache.set(key, formatter);
 }
 
 function assertIntegerAmount(amount: number): void {
@@ -261,7 +280,7 @@ export class CalendarDate {
         day: '2-digit',
         timeZone,
       });
-      CalendarDate.dateTimeFormatterByTimezone.set(timeZone, formatter);
+      cacheFormatter(CalendarDate.dateTimeFormatterByTimezone, timeZone, formatter);
     }
     return formatter;
   }
@@ -406,14 +425,7 @@ export class CalendarDate {
       let formatter = CalendarDate.dateTimeFormatterByLocaleAndOptions.get(key);
       if (!formatter) {
         formatter = new Intl.DateTimeFormat(input, { ...options, timeZone: 'UTC' });
-        if (CalendarDate.dateTimeFormatterByLocaleAndOptions.size >= MAX_CACHED_FORMATTERS) {
-          // Maps iterate in insertion order, so the first key is the oldest entry.
-          const oldestKey = CalendarDate.dateTimeFormatterByLocaleAndOptions.keys().next().value;
-          if (oldestKey !== undefined) {
-            CalendarDate.dateTimeFormatterByLocaleAndOptions.delete(oldestKey);
-          }
-        }
-        CalendarDate.dateTimeFormatterByLocaleAndOptions.set(key, formatter);
+        cacheFormatter(CalendarDate.dateTimeFormatterByLocaleAndOptions, key, formatter);
       }
       return formatter.format(this.toDateUTC());
     } else {
