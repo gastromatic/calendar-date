@@ -776,6 +776,63 @@ describe('CalendarDateRange', () => {
     });
   });
 
+  describe('hasGaps and hasOverlap with date ranges that start on the same day', () => {
+    it('should not depend on the order of the input array', () => {
+      fc.assert(
+        fc.property(
+          fc.array(fc.tuple(fc.integer({ min: 0, max: 5 }), fc.integer({ min: 0, max: 5 })), {
+            maxLength: 5,
+          }),
+          fc.boolean(),
+          fc.boolean(),
+          (offsetsAndLengths, excludeStart, excludeEnd) => {
+            // Arrange
+            const base = new CalendarDate(2020, 1, 1);
+            const ranges = offsetsAndLengths.map(
+              ([offset, length]) =>
+                new CalendarDateRange(base.addDays(offset), base.addDays(offset + length)),
+            );
+            const reversed = [...ranges].reverse();
+            const options = { excludeStart, excludeEnd };
+
+            // Assert
+            expect(CalendarDateRange.hasGaps(reversed, options)).toBe(
+              CalendarDateRange.hasGaps(ranges, options),
+            );
+            expect(CalendarDateRange.hasOverlap(reversed, options)).toBe(
+              CalendarDateRange.hasOverlap(ranges, options),
+            );
+          },
+        ),
+        { numRuns: 1000 },
+      );
+    });
+
+    it.each([
+      [false, true],
+      [true, false],
+    ])(
+      'should compare the shorter date range first (excludeStart %s, excludeEnd %s)',
+      (excludeStart, excludeEnd) => {
+        // Arrange
+        // With one of the options, a single-day range covers no days and can't overlap.
+        const singleDay = new CalendarDateRange(
+          new CalendarDate('2020-01-01'),
+          new CalendarDate('2020-01-01'),
+        );
+        const month = new CalendarDateRange(
+          new CalendarDate('2020-01-01'),
+          new CalendarDate('2020-01-31'),
+        );
+        const options = { excludeStart, excludeEnd };
+
+        // Assert
+        expect(CalendarDateRange.hasOverlap([singleDay, month], options)).toBe(false);
+        expect(CalendarDateRange.hasOverlap([month, singleDay], options)).toBe(false);
+      },
+    );
+  });
+
   describe('Test of hasOverlap', () => {
     test('Should return false for empty array', () => {
       // Act
