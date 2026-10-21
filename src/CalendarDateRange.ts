@@ -83,12 +83,15 @@ export class CalendarDateRange {
   /**
    * Returns true if any two of the given date ranges overlap.
    * The date ranges are sorted by start date and each one is compared with the one before it,
-   * which finds every overlap. A date range that covers no days because of excludeStart or
-   * excludeEnd can still count as overlapping a date range around it. The input array is not
-   * modified.
+   * which finds every overlap. Date ranges that cover no days because of excludeStart or
+   * excludeEnd, e.g. a single-day range with excludeEnd, can't overlap and are ignored.
+   * The input array is not modified.
    */
   static hasOverlap(values: CalendarDateRange[], options?: DateRangeExcludeOptions): boolean {
-    const sortedValues = sortByStartAndEnd(values);
+    const excludedDays = (options?.excludeStart ? 1 : 0) + (options?.excludeEnd ? 1 : 0);
+    const sortedValues = sortByStartAndEnd(
+      values.filter((value) => value.getTotalDays() > excludedDays),
+    );
     for (let i = 1; i < sortedValues.length; i++) {
       let differenceInDays = sortedValues[i].start.getDifferenceInDays(sortedValues[i - 1].end);
       if (options?.excludeStart) {

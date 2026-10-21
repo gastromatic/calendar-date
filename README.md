@@ -382,7 +382,7 @@ new CalendarDateRange(date1, date2).getDifferenceInMonths();  // 21
 
 #### hasOverlap
 For an array of CalendarDateRanges it returns true if any two ranges overlap.
-The ranges are sorted by start date and each range is compared with the one before it, which finds every overlap. A range that covers no days because of `excludeStart` or `excludeEnd`, e.g. a single-day range with `excludeEnd`, can still count as overlapping a range around it. The input array is not modified.
+The ranges are sorted by start date and each range is compared with the one before it, which finds every overlap. Ranges that cover no days because of `excludeStart` or `excludeEnd`, e.g. a single-day range with `excludeEnd`, can't overlap and are ignored. The input array is not modified.
 
 ```typescript
 import { CalendarDateRange } from 'calendar-date';
