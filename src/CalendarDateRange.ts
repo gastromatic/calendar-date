@@ -58,8 +58,10 @@ export class CalendarDateRange {
   }
 
   /**
-   * Returns true if the given date ranges have gaps.
-   * The date ranges are compared in sorted order, the input array is not modified.
+   * Returns true if there is a gap between two neighbouring date ranges.
+   * The date ranges are sorted by start date, and each one is compared only with the one before it.
+   * A date range inside a longer one is still a neighbour, so a gap after it counts even if the
+   * longer date range covers those days. The input array is not modified.
    */
   static hasGaps(values: CalendarDateRange[], options?: DateRangeExcludeOptions): boolean {
     const sortedValues = sortByStartAndEnd(values);
@@ -79,8 +81,11 @@ export class CalendarDateRange {
   }
 
   /**
-   * Returns true if the given date ranges overlap.
-   * The date ranges are compared in sorted order, the input array is not modified.
+   * Returns true if any two of the given date ranges overlap.
+   * The date ranges are sorted by start date and each one is compared with the one before it,
+   * which finds every overlap. A date range that covers no days because of excludeStart or
+   * excludeEnd can still count as overlapping a date range around it. The input array is not
+   * modified.
    */
   static hasOverlap(values: CalendarDateRange[], options?: DateRangeExcludeOptions): boolean {
     const sortedValues = sortByStartAndEnd(values);

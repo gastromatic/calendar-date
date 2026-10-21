@@ -381,8 +381,8 @@ new CalendarDateRange(date1, date2).getDifferenceInMonths();  // 21
 ```
 
 #### hasOverlap
-For an array of CalendarDateRanges it returns true if there is an overlap between a range and one of its neighbours.
-Values will be compared in sorted order, the input array is not modified.
+For an array of CalendarDateRanges it returns true if any two ranges overlap.
+The ranges are sorted by start date and each range is compared with the one before it, which finds every overlap. A range that covers no days because of `excludeStart` or `excludeEnd`, e.g. a single-day range with `excludeEnd`, can still count as overlapping a range around it. The input array is not modified.
 
 ```typescript
 import { CalendarDateRange } from 'calendar-date';
@@ -395,8 +395,8 @@ CalendarDateRange.hasOverlap([dateRange1, dateRange3]);  // false
 ```
 
 #### hasGaps
-For an array of CalendarDateRanges it returns true if there is a gap between a range and one of its neighbours.
-Values will be compared in sorted order, the input array is not modified.
+For an array of CalendarDateRanges it returns true if there is a gap between two neighbouring ranges.
+The ranges are sorted by start date, and each range is compared only with the one before it. A range inside a longer range is still a neighbour, so a gap after it counts even if the longer range covers those days. The input array is not modified.
 
 ```typescript
 import { CalendarDateRange } from 'calendar-date';
@@ -408,6 +408,12 @@ const dateRange4 = new CalendarDateRange(new CalendarDate('2021-01-02'), new Cal
 CalendarDateRange.hasGaps([dateRange1, dateRange2]);  // false
 CalendarDateRange.hasGaps([dateRange1, dateRange3]);  // false
 CalendarDateRange.hasGaps([dateRange1, dateRange4]);  // true
+
+// The gap between February and March counts, although the whole year covers it.
+const year = new CalendarDateRange(new CalendarDate('2020-01-01'), new CalendarDate('2020-12-31'));
+const february = new CalendarDateRange(new CalendarDate('2020-02-01'), new CalendarDate('2020-02-05'));
+const march = new CalendarDateRange(new CalendarDate('2020-03-01'), new CalendarDate('2020-03-05'));
+CalendarDateRange.hasGaps([year, february, march]);  // true
 ```
 
 ### Iteration Methods

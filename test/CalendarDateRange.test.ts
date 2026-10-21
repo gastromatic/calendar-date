@@ -663,6 +663,29 @@ describe('CalendarDateRange', () => {
       expect(result).toBe(false);
     });
 
+    test('Should compare a date range only with its neighbour, even if an earlier date range covers the gap', () => {
+      // Arrange
+      const year = new CalendarDateRange(
+        new CalendarDate('2020-01-01'),
+        new CalendarDate('2020-12-31'),
+      );
+      const february = new CalendarDateRange(
+        new CalendarDate('2020-02-01'),
+        new CalendarDate('2020-02-05'),
+      );
+      const march = new CalendarDateRange(
+        new CalendarDate('2020-03-01'),
+        new CalendarDate('2020-03-05'),
+      );
+
+      // Act
+      const result = CalendarDateRange.hasGaps([year, february, march]);
+
+      // Assert
+      // Sorted by start, february and march are neighbours with a gap between them.
+      expect(result).toBe(true);
+    });
+
     test('Should return false for adjacent date ranges', () => {
       // Arrange
       const dateRange1 = new CalendarDateRange(
@@ -956,6 +979,47 @@ describe('CalendarDateRange', () => {
       // Assert
       expect(result1).toBe(false);
       expect(result2).toBe(true);
+    });
+
+    test('Should find every overlap, also between date ranges that are not neighbours', () => {
+      fc.assert(
+        fc.property(
+          fc.array(fc.tuple(fc.integer({ min: 0, max: 60 }), fc.integer({ min: 0, max: 20 })), {
+            maxLength: 6,
+          }),
+          fc.boolean(),
+          fc.boolean(),
+          (offsetsAndLengths, excludeStart, excludeEnd) => {
+            // Arrange
+            const excludedDays = (excludeStart ? 1 : 0) + (excludeEnd ? 1 : 0);
+            const base = new CalendarDate(2020, 1, 1);
+            // Every range covers at least one day after excluding its start or end.
+            const ranges = offsetsAndLengths.map(
+              ([offset, length]) =>
+                new CalendarDateRange(
+                  base.addDays(offset),
+                  base.addDays(offset + length + excludedDays),
+                ),
+            );
+            const coveredDays = ranges.map((range) => ({
+              first: range.start.addDays(excludeStart ? 1 : 0).valueOf(),
+              last: range.end.addDays(excludeEnd ? -1 : 0).valueOf(),
+            }));
+            const hasOverlappingPair = coveredDays.some((a, i) =>
+              coveredDays.some(
+                (b, j) => i < j && Math.max(a.first, b.first) <= Math.min(a.last, b.last),
+              ),
+            );
+
+            // Act
+            const result = CalendarDateRange.hasOverlap(ranges, { excludeStart, excludeEnd });
+
+            // Assert
+            expect(result).toBe(hasOverlappingPair);
+          },
+        ),
+        { numRuns: 1000 },
+      );
     });
 
     test('Should not modify the input array', () => {
