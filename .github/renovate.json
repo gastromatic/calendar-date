@@ -1,6 +1,52 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>gastromatic/renovate-config"],
+  "extends": ["config:recommended"],
   "reviewers": ["co-sic", "dimitriSaplatkin"],
-  "reviewersSampleSize": 1
+  "reviewersSampleSize": 1,
+  "labels": ["dependencies"],
+  "rebaseWhen": "conflicted",
+  "minimumReleaseAge": "3 days",
+  "packageRules": [
+    {
+      "addLabels": ["devDependencies"],
+      "matchDepTypes": ["devDependencies"]
+    },
+    {
+      "groupName": "devDependencies (non-major)",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "groupName": "devDependencies (workflow)",
+      "addLabels": ["devDependencies", "technical"],
+      "matchFileNames": ["**/*.yml", "**/*.yaml"],
+      "separateMajorMinor": false,
+      "reviewers": ["team:technical"],
+      "reviewersSampleSize": 2
+    },
+    {
+      "groupName": "semantic-release",
+      "addLabels": ["semantic-release"],
+      "matchPackageNames": ["/semantic-release/"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["major"],
+      "reviewers": ["team:technical"],
+      "reviewersSampleSize": 2
+    },
+    {
+      "groupName": "typescript",
+      "addLabels": ["typescript"],
+      "matchPackageNames": ["typescript"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["major", "minor", "patch"]
+    },
+    {
+      "description": "Bun rewrote its codebase from Zig to Rust starting after v1.3.14. Pinned until the new Rust-based versions have proven to be reliable.",
+      "matchPackageNames": ["bun", "oven/bun"],
+      "allowedVersions": "<=1.3.14"
+    }
+  ],
+  "timezone": "Europe/Berlin",
+  "schedule": ["* 20-23 * * 0"]
 }
