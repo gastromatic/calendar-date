@@ -5,6 +5,16 @@ type DateRangeExcludeOptions = {
   excludeEnd?: boolean;
 };
 
+/**
+ * Returns a sorted copy, by start date and by end date for equal starts. Sorting equal starts by
+ * end keeps the results of hasGaps and hasOverlap independent of the order of the input array.
+ */
+function sortByStartAndEnd(values: CalendarDateRange[]): CalendarDateRange[] {
+  return [...values].sort(
+    (a, b) => a.start.valueOf() - b.start.valueOf() || a.end.valueOf() - b.end.valueOf(),
+  );
+}
+
 export class CalendarDateRange {
   readonly start: CalendarDate;
 
@@ -52,7 +62,7 @@ export class CalendarDateRange {
    * The date ranges are compared in sorted order, the input array is not modified.
    */
   static hasGaps(values: CalendarDateRange[], options?: DateRangeExcludeOptions): boolean {
-    const sortedValues = [...values].sort((a, b) => a.start.valueOf() - b.start.valueOf());
+    const sortedValues = sortByStartAndEnd(values);
     for (let i = 1; i < sortedValues.length; i++) {
       let differenceInDays = sortedValues[i].start.getDifferenceInDays(sortedValues[i - 1].end);
       if (options?.excludeStart) {
@@ -73,7 +83,7 @@ export class CalendarDateRange {
    * The date ranges are compared in sorted order, the input array is not modified.
    */
   static hasOverlap(values: CalendarDateRange[], options?: DateRangeExcludeOptions): boolean {
-    const sortedValues = [...values].sort((a, b) => a.start.valueOf() - b.start.valueOf());
+    const sortedValues = sortByStartAndEnd(values);
     for (let i = 1; i < sortedValues.length; i++) {
       let differenceInDays = sortedValues[i].start.getDifferenceInDays(sortedValues[i - 1].end);
       if (options?.excludeStart) {
