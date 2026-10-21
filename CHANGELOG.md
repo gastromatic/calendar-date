@@ -44,9 +44,9 @@ enforceEndOfMonth = false, getDifferenceInDays takes { absolute: true }
 instead of true, and the CalendarDateRange constructor takes
 { autoArrange: true } instead of true. TypeScript rejects the old boolean
 arguments; plain JavaScript ignores them.
-* addMonths and addYears default enforceEndOfMonth to
-true, so 2020-01-31 plus one month is 2020-02-29 instead of 2020-03-02.
-Pass false as the second parameter to keep the old behaviour.
+* addMonths and addYears clamp to the end of the month by
+default, so 2020-01-31 plus one month is 2020-02-29 instead of 2020-03-02.
+Pass { overflow: true } as the second parameter to keep the old behaviour.
 * toFormat(pattern) treats single quotes as quoted literal
 text and throws if quoted text has no closing quote. Escape a literal
 single quote as ''.
