@@ -508,9 +508,10 @@ export class CalendarDate {
    * Throws an Error if the amount is not an integer.
    *
    * @param amount
-   * @param enforceEndOfMonth If set to true the addition will never cause an overflow to the next month.
+   * @param enforceEndOfMonth If true (the default), a day that doesn't exist in the new month is set
+   * to the last day of that month. If false, the remaining days overflow into the next month.
    */
-  addMonths(amount: number, enforceEndOfMonth = false): CalendarDate {
+  addMonths(amount: number, enforceEndOfMonth = true): CalendarDate {
     assertIntegerAmount(amount);
     const totalMonths = this.month + amount - 1;
     let year = this.year + Math.floor(totalMonths / 12);
@@ -535,9 +536,10 @@ export class CalendarDate {
    * Throws an Error if the amount is not an integer.
    *
    * @param amount
-   * @param enforceEndOfMonth If set to true the addition will never cause an overflow to the next month.
+   * @param enforceEndOfMonth If true (the default), February 29 becomes February 28 in a year that is
+   * not a leap year. If false, it overflows to March 1.
    */
-  addYears(amount: number, enforceEndOfMonth = false): CalendarDate {
+  addYears(amount: number, enforceEndOfMonth = true): CalendarDate {
     assertIntegerAmount(amount);
     return this.addMonths(amount * 12, enforceEndOfMonth);
   }

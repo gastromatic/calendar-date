@@ -1787,12 +1787,12 @@ describe('CalendarDate', () => {
       );
     });
 
-    test('If the base day is greater than the max day of the new month the difference should overflow into the next month', () => {
+    test('If the base day is greater than the max day of the new month the difference should overflow into the next month if enforceEndOfMonth is set to false', () => {
       // Arrange
       const baseDate = new CalendarDate(2021, 1, 31);
 
       // Act
-      const newDate = baseDate.addMonths(1);
+      const newDate = baseDate.addMonths(1, false);
 
       // Assert
       expect(newDate.month).toBe(3);
@@ -1800,16 +1800,54 @@ describe('CalendarDate', () => {
       expect(newDate.year).toBe(2021);
     });
 
-    test('The day should not overflow into the next month if enforceEndOfMonth is set to true', () => {
+    test('The day should not overflow into the next month by default', () => {
       // Arrange
       const baseDate = new CalendarDate(2021, 1, 31);
 
       // Act
-      const newDate = baseDate.addMonths(1, true);
+      const newDate = baseDate.addMonths(1);
 
       // Assert
-      expect(newDate.month).toBe(2);
-      expect(newDate.day).toBe(28);
+      expect(newDate.toString()).toBe('2021-02-28');
+      expect(newDate.equals(baseDate.addMonths(1, true))).toBe(true);
+    });
+
+    test.each([
+      ['2020-01-31', 1, '2020-02-29'],
+      ['2020-03-31', -1, '2020-02-29'],
+      ['2020-03-31', 1, '2020-04-30'],
+      ['2020-12-31', 2, '2021-02-28'],
+      ['2021-03-31', -13, '2020-02-29'],
+      ['2020-05-31', 0, '2020-05-31'],
+    ])('Adding months to %s with amount %i returns %s by default', (base, amount, expected) => {
+      expect(new CalendarDate(base).addMonths(amount).toString()).toBe(expected);
+    });
+
+    test('By default the new date is in the target month on the same day or the last day of that month', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 100, max: 9899 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: -1000, max: 1000 }),
+          (year, month, day, monthsAdded) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
+
+            // Act
+            const newDate = baseDate.addMonths(monthsAdded);
+
+            // Assert
+            const differenceMonths = newDate.month - baseDate.month;
+            const differenceYears = newDate.year - baseDate.year;
+            expect(differenceMonths + 12 * differenceYears).toBe(monthsAdded);
+            expect(newDate.day).toBe(
+              Math.min(day, CalendarDate.getMaxDayOfMonth(newDate.year, newDate.month)),
+            );
+          },
+        ),
+      );
     });
   });
 
@@ -1840,7 +1878,18 @@ describe('CalendarDate', () => {
       );
     });
 
-    test('The day overflows into the next month if the new date is not in a leap year', () => {
+    test('The day overflows into the next month if the new date is not in a leap year and enforceEndOfMonth is set to false', () => {
+      // Arrange
+      const baseDate = new CalendarDate(2020, 2, 29);
+
+      // Act
+      const newDate = baseDate.addYears(1, false);
+
+      // Assert
+      expect(newDate.toString()).toBe('2021-03-01');
+    });
+
+    test('The day should not overflow into the next month by default', () => {
       // Arrange
       const baseDate = new CalendarDate(2020, 2, 29);
 
@@ -1848,18 +1897,30 @@ describe('CalendarDate', () => {
       const newDate = baseDate.addYears(1);
 
       // Assert
-      expect(newDate.toString()).toBe('2021-03-01');
+      expect(newDate.toString()).toBe('2021-02-28');
+      expect(newDate.equals(baseDate.addYears(1, true))).toBe(true);
     });
 
-    test('The day should not overflow into the next month if enforceEndOfMonth is set to true', () => {
-      // Arrange
-      const baseDate = new CalendarDate(2020, 2, 29);
+    test('Behaves the same as adding the equivalent amount of months by default', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 200, max: 9800 }),
+          fc.integer({ min: 1, max: 12 }),
+          fc.integer({ min: 1, max: 31 }),
+          fc.integer({ min: -100, max: 100 }),
+          (year, month, day, yearsAdded) => {
+            // Arrange
+            day = ensureValidDay(year, month, day);
+            const baseDate = new CalendarDate(year, month, day);
 
-      // Act
-      const newDate = baseDate.addYears(1, true);
+            // Act
+            const newDate = baseDate.addYears(yearsAdded);
 
-      // Assert
-      expect(newDate.toString()).toBe('2021-02-28');
+            // Assert
+            expect(newDate.equals(baseDate.addMonths(yearsAdded * 12))).toBe(true);
+          },
+        ),
+      );
     });
 
     test('Works with negative amounts', () => {

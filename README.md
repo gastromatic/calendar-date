@@ -127,9 +127,13 @@ new CalendarDate('2020-01-01').isSameMonth(new CalendarDate('2021-01-01')); // f
 #### addMonths, addDays
 Returns a new CalendarDate with the specified amount of months or days added. The amount must be an integer, otherwise an Error is thrown.
 
+If the day doesn't exist in the new month, `addMonths` returns the last day of that month. Pass `false` as the second parameter (`enforceEndOfMonth`) to let the remaining days overflow into the next month instead.
+
 ```typescript
-new CalendarDate('2020-01-01').addMonths(3);    // 2020-04-01
-new CalendarDate('2020-01-01').addDays(15);     // 2020-01-16
+new CalendarDate('2020-01-01').addMonths(3);          // 2020-04-01
+new CalendarDate('2020-01-31').addMonths(1);          // 2020-02-29
+new CalendarDate('2020-01-31').addMonths(1, false);   // 2020-03-02
+new CalendarDate('2020-01-01').addDays(15);           // 2020-01-16
 ```
 
 #### addYears, addWeeks
@@ -138,8 +142,8 @@ Adding years behaves like adding the equivalent amount of months, so the optiona
 
 ```typescript
 new CalendarDate('2020-06-15').addYears(2);         // 2022-06-15
-new CalendarDate('2020-02-29').addYears(1);         // 2021-03-01
-new CalendarDate('2020-02-29').addYears(1, true);   // 2021-02-28
+new CalendarDate('2020-02-29').addYears(1);         // 2021-02-28
+new CalendarDate('2020-02-29').addYears(1, false);  // 2021-03-01
 new CalendarDate('2020-01-01').addWeeks(2);         // 2020-01-15
 ```
 
@@ -484,6 +488,7 @@ Since version 3 the instances are no longer frozen with `Object.freeze`, which m
 - The deprecated `toDate` method was removed, use `toDateUTC` instead.
 - `toFormat(locale, options)` formats the date in UTC, so the output no longer depends on the process time zone. A `timeZone` in the options, which the TypeScript type doesn't allow, is ignored. Before, it was applied to local midnight and could print the previous or next day.
 - `toFormat(pattern)` treats single quotes as quoted literal text, see [toFormat](#toformat). Escape a literal single quote as `''`. Before, quotes were printed as they were and letters inside of text were replaced by date values.
+- `addMonths` and `addYears` return the last day of the month if the day doesn't exist in the new month, e.g. `2020-01-31` plus one month is `2020-02-29`. Before, the remaining days overflowed into the next month (`2020-03-02`). Pass `false` as the second parameter to keep the old behaviour.
 - `weekday` is typed as `DayOfTheWeek` instead of `number`. Its values don't change, but TypeScript now rejects comparisons with numbers outside of 1 to 7.
 - CalendarDate and CalendarDateRange instances are no longer frozen with `Object.freeze`. Assigning to a property doesn't throw anymore, but TypeScript still rejects it because the properties are `readonly`.
 
