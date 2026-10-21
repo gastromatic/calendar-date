@@ -127,24 +127,24 @@ new CalendarDate('2020-01-01').isSameMonth(new CalendarDate('2021-01-01')); // f
 #### addMonths, addDays
 Returns a new CalendarDate with the specified amount of months or days added. The amount must be an integer, otherwise an Error is thrown.
 
-If the day doesn't exist in the new month, `addMonths` returns the last day of that month. Pass `false` as the second parameter (`enforceEndOfMonth`) to let the remaining days overflow into the next month instead.
+If the day doesn't exist in the new month, `addMonths` returns the last day of that month. Pass `{ overflow: true }` to let the remaining days overflow into the next month instead.
 
 ```typescript
-new CalendarDate('2020-01-01').addMonths(3);          // 2020-04-01
-new CalendarDate('2020-01-31').addMonths(1);          // 2020-02-29
-new CalendarDate('2020-01-31').addMonths(1, false);   // 2020-03-02
-new CalendarDate('2020-01-01').addDays(15);           // 2020-01-16
+new CalendarDate('2020-01-01').addMonths(3);                       // 2020-04-01
+new CalendarDate('2020-01-31').addMonths(1);                       // 2020-02-29
+new CalendarDate('2020-01-31').addMonths(1, { overflow: true });   // 2020-03-02
+new CalendarDate('2020-01-01').addDays(15);                        // 2020-01-16
 ```
 
 #### addYears, addWeeks
 Returns a new CalendarDate with the specified amount of years or weeks added. The amount must be an integer, otherwise an Error is thrown.
-Adding years behaves like adding the equivalent amount of months, so the optional `enforceEndOfMonth` parameter is supported as well.
+Adding years behaves like adding the equivalent amount of months, so the `overflow` option is supported as well.
 
 ```typescript
-new CalendarDate('2020-06-15').addYears(2);         // 2022-06-15
-new CalendarDate('2020-02-29').addYears(1);         // 2021-02-28
-new CalendarDate('2020-02-29').addYears(1, false);  // 2021-03-01
-new CalendarDate('2020-01-01').addWeeks(2);         // 2020-01-15
+new CalendarDate('2020-06-15').addYears(2);                       // 2022-06-15
+new CalendarDate('2020-02-29').addYears(1);                       // 2021-02-28
+new CalendarDate('2020-02-29').addYears(1, { overflow: true });   // 2021-03-01
+new CalendarDate('2020-01-01').addWeeks(2);                       // 2020-01-15
 ```
 
 #### getFirstDayOfMonth, getLastDayOfMonth
@@ -203,13 +203,13 @@ new CalendarDate('2020-06-29').isLastDayOfQuarter();    // false
 
 #### getDifferenceInDays
 Returns the difference in days between to CalendarDate objects.
-It will subtract the input date from the base date. If you supply the optional `absolute` parameter it will always return a positive value.
+It will subtract the input date from the base date. With `{ absolute: true }` it never returns a negative value.
 
 ```typescript
 const date1 = new CalendarDate('2020-01-01');
 const date2 = new CalendarDate('2020-02-01');
-date1.getDifferenceInDays(date2);       // -31
-date1.getDifferenceInDays(date2, true); // 31
+date1.getDifferenceInDays(date2);                       // -31
+date1.getDifferenceInDays(date2, { absolute: true });   // 31
 ```
 
 #### max, min
@@ -311,7 +311,7 @@ Returns true if the CalendarDate is the first day of the week / last day of the 
 ### CalendarDateRange
 You need two CalendarDate objects to construct a new CalendarDateRange.
 The first CalendarDate needs to be before or equal to the second CalendarDate.
-If you set the optional `autoArrange` to true the constructor will determine the correct order of the passed CalendarDates.
+With `{ autoArrange: true }` the constructor puts the passed CalendarDates in the correct order.
 
 ```typescript
 const start = new CalendarDate('2020-01-01');
@@ -320,7 +320,7 @@ new CalendarDateRange(start, end);
 
 // OR
 
-new CalendarDateRange(end, start, true);
+new CalendarDateRange(end, start, { autoArrange: true });
 
 // This will throw an error
 new CalendarDateRange(end, start)
@@ -494,7 +494,8 @@ Since version 3 the instances are no longer frozen with `Object.freeze`, which m
 - The deprecated `toDate` method was removed, use `toDateUTC` instead.
 - `toFormat(locale, options)` formats the date in UTC, so the output no longer depends on the process time zone. A `timeZone` in the options, which the TypeScript type doesn't allow, is ignored. Before, it was applied to local midnight and could print the previous or next day.
 - `toFormat(pattern)` treats single quotes as quoted literal text, see [toFormat](#toformat). Escape a literal single quote as `''`. Before, quotes were printed as they were and letters inside of text were replaced by date values.
-- `addMonths` and `addYears` return the last day of the month if the day doesn't exist in the new month, e.g. `2020-01-31` plus one month is `2020-02-29`. Before, the remaining days overflowed into the next month (`2020-03-02`). Pass `false` as the second parameter to keep the old behaviour.
+- `addMonths` and `addYears` return the last day of the month if the day doesn't exist in the new month, e.g. `2020-01-31` plus one month is `2020-02-29`. Before, the remaining days overflowed into the next month (`2020-03-02`). Pass `{ overflow: true }` to keep the old behaviour.
+- The boolean parameters became options objects, so calls say what they do: `addMonths(n, true)` and `addYears(n, true)` are now the default, and `addMonths(n, false)` becomes `addMonths(n, { overflow: true })`. `getDifferenceInDays(date, true)` becomes `getDifferenceInDays(date, { absolute: true })` and `new CalendarDateRange(start, end, true)` becomes `new CalendarDateRange(start, end, { autoArrange: true })`. In plain JavaScript a boolean is ignored, so check these calls when you upgrade.
 - `weekday` is typed as `DayOfTheWeek` instead of `number`. Its values don't change, but TypeScript now rejects comparisons with numbers outside of 1 to 7.
 - CalendarDate and CalendarDateRange instances are no longer frozen with `Object.freeze`. Assigning to a property doesn't throw anymore, but TypeScript still rejects it because the properties are `readonly`.
 

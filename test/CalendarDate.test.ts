@@ -1103,7 +1103,9 @@ describe('CalendarDate', () => {
     test('Adding months up to the edges of the representable range works', () => {
       expect(CalendarDate.MAX_VALUE.addMonths(0).toString()).toBe('9999-12-31');
       expect(new CalendarDate(9999, 10, 31).addMonths(2).toString()).toBe('9999-12-31');
-      expect(new CalendarDate(9999, 10, 31).addMonths(2, false).toString()).toBe('9999-12-31');
+      expect(new CalendarDate(9999, 10, 31).addMonths(2, { overflow: true }).toString()).toBe(
+        '9999-12-31',
+      );
       expect(new CalendarDate(1, 3, 31).addMonths(-2).toString()).toBe('0001-01-31');
     });
   });
@@ -1694,12 +1696,12 @@ describe('CalendarDate', () => {
       );
     });
 
-    test('If the base day is greater than the max day of the new month the difference should overflow into the next month if enforceEndOfMonth is set to false', () => {
+    test('If the base day is greater than the max day of the new month the difference should overflow into the next month with the overflow option', () => {
       // Arrange
       const baseDate = new CalendarDate(2021, 1, 31);
 
       // Act
-      const newDate = baseDate.addMonths(1, false);
+      const newDate = baseDate.addMonths(1, { overflow: true });
 
       // Assert
       expect(newDate.month).toBe(3);
@@ -1707,7 +1709,7 @@ describe('CalendarDate', () => {
       expect(newDate.year).toBe(2021);
     });
 
-    test('Matches Date.setUTCMonth if enforceEndOfMonth is set to false', () => {
+    test('Matches Date.setUTCMonth with the overflow option', () => {
       fc.assert(
         fc.property(
           // With at most 100 years added or subtracted, the results stay within 1-9999.
@@ -1720,7 +1722,7 @@ describe('CalendarDate', () => {
             date.setUTCMonth(date.getUTCMonth() + monthsAdded);
 
             // Act
-            const newDate = baseDate.addMonths(monthsAdded, false);
+            const newDate = baseDate.addMonths(monthsAdded, { overflow: true });
 
             // Assert
             expect(newDate.year).toBe(date.getUTCFullYear());
@@ -1741,7 +1743,7 @@ describe('CalendarDate', () => {
 
       // Assert
       expect(newDate.toString()).toBe('2021-02-28');
-      expect(newDate.equals(baseDate.addMonths(1, true))).toBe(true);
+      expect(newDate.equals(baseDate.addMonths(1, { overflow: false }))).toBe(true);
     });
 
     test.each([
@@ -1792,30 +1794,28 @@ describe('CalendarDate', () => {
           fc.integer({ min: 1, max: 31 }),
           fc.integer({ min: -100, max: 100 }),
           fc.boolean(),
-          (year, month, day, yearsAdded, enforceEndOfMonth) => {
+          (year, month, day, yearsAdded, overflow) => {
             // Arrange
             day = ensureValidDay(year, month, day);
             const baseDate = new CalendarDate(year, month, day);
 
             // Act
-            const newDate = baseDate.addYears(yearsAdded, enforceEndOfMonth);
+            const newDate = baseDate.addYears(yearsAdded, { overflow });
 
             // Assert
             expect(newDate).not.toBe(baseDate);
-            expect(newDate.equals(baseDate.addMonths(yearsAdded * 12, enforceEndOfMonth))).toBe(
-              true,
-            );
+            expect(newDate.equals(baseDate.addMonths(yearsAdded * 12, { overflow }))).toBe(true);
           },
         ),
       );
     });
 
-    test('The day overflows into the next month if the new date is not in a leap year and enforceEndOfMonth is set to false', () => {
+    test('The day overflows into the next month if the new date is not in a leap year with the overflow option', () => {
       // Arrange
       const baseDate = new CalendarDate(2020, 2, 29);
 
       // Act
-      const newDate = baseDate.addYears(1, false);
+      const newDate = baseDate.addYears(1, { overflow: true });
 
       // Assert
       expect(newDate.toString()).toBe('2021-03-01');
@@ -1830,7 +1830,7 @@ describe('CalendarDate', () => {
 
       // Assert
       expect(newDate.toString()).toBe('2021-02-28');
-      expect(newDate.equals(baseDate.addYears(1, true))).toBe(true);
+      expect(newDate.equals(baseDate.addYears(1, { overflow: false }))).toBe(true);
     });
 
     test('Works with negative amounts', () => {
@@ -1990,7 +1990,7 @@ describe('CalendarDate', () => {
             const baseDate = new CalendarDate(year, month, day);
 
             // Act
-            const difference = baseDate.getDifferenceInDays(baseDate, absolute);
+            const difference = baseDate.getDifferenceInDays(baseDate, { absolute });
 
             // Assert
             expect(difference).toBe(0);
@@ -2056,7 +2056,7 @@ describe('CalendarDate', () => {
 
             // Act
             const difference = otherDate.getDifferenceInDays(date);
-            const absoluteDifference = date.getDifferenceInDays(otherDate, true);
+            const absoluteDifference = date.getDifferenceInDays(otherDate, { absolute: true });
 
             // Assert
             expect(difference).toBe(days);
@@ -2066,7 +2066,7 @@ describe('CalendarDate', () => {
       );
     });
 
-    test('Result is never negative if absolute parameter is true', () => {
+    test('Result is never negative with the absolute option', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 200, max: 9900 }),
@@ -2083,7 +2083,7 @@ describe('CalendarDate', () => {
             const inputDate = new CalendarDate(year2, month2, day2);
 
             // Act
-            const difference = baseDate.getDifferenceInDays(inputDate, true);
+            const difference = baseDate.getDifferenceInDays(inputDate, { absolute: true });
 
             // Assert
             expect(difference).toBeGreaterThanOrEqual(0);

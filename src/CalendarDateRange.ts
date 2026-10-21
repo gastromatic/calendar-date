@@ -1,5 +1,10 @@
 import { CalendarDate } from './CalendarDate';
 
+type CalendarDateRangeOptions = {
+  /** If true, the start and end dates are swapped if the end is before the start. */
+  autoArrange?: boolean;
+};
+
 type DateRangeExcludeOptions = {
   excludeStart?: boolean;
   excludeEnd?: boolean;
@@ -20,10 +25,13 @@ export class CalendarDateRange {
 
   readonly end: CalendarDate;
 
-  constructor(start: CalendarDate, end: CalendarDate, autoArrange = false) {
+  /**
+   * Throws an Error if the end is before the start, unless `{ autoArrange: true }` is passed.
+   */
+  constructor(start: CalendarDate, end: CalendarDate, options?: CalendarDateRangeOptions) {
     // Comparing valueOf() directly avoids the much slower implicit conversion of `<` on objects.
     const isInOrder = start.valueOf() <= end.valueOf();
-    if (!autoArrange && !isInOrder) {
+    if (!options?.autoArrange && !isInOrder) {
       throw new Error(
         "CalendarDateRange Validation Error: end date can't be before the start date.",
       );
