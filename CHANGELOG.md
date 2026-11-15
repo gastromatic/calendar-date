@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/gastromatic/calendar-date/compare/v3.0.0...v3.0.1) (2026-11-15)
+
+
+### Bug Fixes
+
+* keep CalendarDate and CalendarDateRange assignable from mapped types ([#465](https://github.com/gastromatic/calendar-date/issues/465)) ([7b1f201](https://github.com/gastromatic/calendar-date/commit/7b1f201cf3603e8e5a6759abbcb861794ba8f378))
+
 # [3.0.0](https://github.com/gastromatic/calendar-date/compare/v2.14.0...v3.0.0) (2026-10-21)
 
 
