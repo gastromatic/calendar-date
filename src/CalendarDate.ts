@@ -30,6 +30,14 @@ export enum DayOfTheWeek {
   SUNDAY = 7,
 }
 
+/**
+ * Returns the Thursday of the week of the date as days since the unix epoch.
+ * The year of this Thursday decides the ISO 8601 week-numbering year.
+ */
+function getThursdayOfWeek(date: CalendarDate): number {
+  return date.valueOf() / DAY_IN_SECONDS + 4 - date.weekday;
+}
+
 /** Adds the formatter to the cache and deletes the oldest entry first if the cache is full. */
 function cacheFormatter(
   cache: Map<string, Intl.DateTimeFormat>,
@@ -712,7 +720,7 @@ export class CalendarDate {
    * [source: https://www.postgresql.org/docs/8.1/functions-datetime.html]
    */
   public get week(): number {
-    const thursday = this.getThursdayOfWeek();
+    const thursday = getThursdayOfWeek(this);
     const firstDayOfWeekYear = daysFromCivil(civilFromDays(thursday).year, 1, 1);
     return Math.floor((thursday - firstDayOfWeekYear) / 7) + 1;
   }
@@ -723,15 +731,7 @@ export class CalendarDate {
    * and 2025-12-29 is in week 1 of the week-numbering year 2026.
    */
   public get weekYear(): number {
-    return civilFromDays(this.getThursdayOfWeek()).year;
-  }
-
-  /**
-   * Returns the Thursday of the week of this date as days since the unix epoch.
-   * The year of this Thursday decides the ISO 8601 week-numbering year.
-   */
-  private getThursdayOfWeek(): number {
-    return this.valueOf() / DAY_IN_SECONDS + 4 - this.weekday;
+    return civilFromDays(getThursdayOfWeek(this)).year;
   }
 
   /**
