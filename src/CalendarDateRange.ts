@@ -11,6 +11,21 @@ type DateRangeExcludeOptions = {
 };
 
 /**
+ * Returns the first date and the number of dates in the range. Callers step forward exactly
+ * count - 1 times, so ranges at CalendarDate.MIN_VALUE or MAX_VALUE never leave the valid years.
+ */
+function getDatesInRange(
+  range: CalendarDateRange,
+  options?: DateRangeExcludeOptions,
+): { first: CalendarDate; count: number } {
+  const count =
+    range.getTotalDays() - (options?.excludeStart ? 1 : 0) - (options?.excludeEnd ? 1 : 0);
+  // With count > 0 and excludeStart, start is before end, so start + 1 is a valid date.
+  const first = options?.excludeStart && count > 0 ? range.start.addDays(1) : range.start;
+  return { first, count };
+}
+
+/**
  * Returns a sorted copy, by start date and by end date for equal starts. Sorting equal starts by
  * end keeps the results of hasGaps and hasOverlap independent of the order of the input array.
  */
@@ -143,7 +158,9 @@ export class CalendarDateRange {
   includes(calendarDateRange: CalendarDateRange, options?: DateRangeExcludeOptions): boolean;
 
   includes(input: CalendarDate | CalendarDateRange, options?: DateRangeExcludeOptions): boolean {
-    if (input instanceof CalendarDateRange) {
+    // Not instanceof: the classes are structurally typed, so a range from another copy of the
+    // package type-checks here and has to be treated as a range too.
+    if ('start' in input) {
       return this.includes(input.start, options) && this.includes(input.end, options);
     }
     const value = input.valueOf();
@@ -157,7 +174,7 @@ export class CalendarDateRange {
    * Creates an iterator that yields each CalendarDate in the range from start to end (inclusive).
    */
   *iterateDatesInRange(options?: DateRangeExcludeOptions): IterableIterator<CalendarDate> {
-    const { first, count } = this.getDatesInRange(options);
+    const { first, count } = getDatesInRange(this, options);
     let current = first;
     for (let i = 0; i < count; i++) {
       yield current;
@@ -179,7 +196,7 @@ export class CalendarDateRange {
    * Returns an array of all CalendarDate objects in the range.
    */
   toDatesArrayInRange(options?: DateRangeExcludeOptions): CalendarDate[] {
-    const { first, count } = this.getDatesInRange(options);
+    const { first, count } = getDatesInRange(this, options);
     const dates: CalendarDate[] = [];
     let current = first;
     for (let i = 0; i < count; i++) {
@@ -189,20 +206,5 @@ export class CalendarDateRange {
       }
     }
     return dates;
-  }
-
-  /**
-   * Returns the first date and the number of dates in the range. Callers step forward exactly
-   * count - 1 times, so ranges at CalendarDate.MIN_VALUE or MAX_VALUE never leave the valid years.
-   */
-  private getDatesInRange(options?: DateRangeExcludeOptions): {
-    first: CalendarDate;
-    count: number;
-  } {
-    const count =
-      this.getTotalDays() - (options?.excludeStart ? 1 : 0) - (options?.excludeEnd ? 1 : 0);
-    // With count > 0 and excludeStart, start is before end, so start + 1 is a valid date.
-    const first = options?.excludeStart && count > 0 ? this.start.addDays(1) : this.start;
-    return { first, count };
   }
 }

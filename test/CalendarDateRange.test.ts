@@ -501,6 +501,15 @@ describe('CalendarDateRange', () => {
           }),
         );
       });
+
+      test('Treats a range that is not an instance of this CalendarDateRange class as a range', () => {
+        const base = dateRange('2026-01-01', '2026-01-31');
+        const copyOf = (range: CalendarDateRange): CalendarDateRange =>
+          Object.assign(Object.create(null), range);
+
+        expect(base.includes(copyOf(dateRange('2026-01-10', '2026-01-20')))).toBe(true);
+        expect(base.includes(copyOf(dateRange('2026-01-10', '2026-02-01')))).toBe(false);
+      });
     });
   });
 
