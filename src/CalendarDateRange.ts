@@ -158,7 +158,9 @@ export class CalendarDateRange {
   includes(calendarDateRange: CalendarDateRange, options?: DateRangeExcludeOptions): boolean;
 
   includes(input: CalendarDate | CalendarDateRange, options?: DateRangeExcludeOptions): boolean {
-    if (input instanceof CalendarDateRange) {
+    // Not instanceof: the classes are structurally typed, so a range from another copy of the
+    // package type-checks here and has to be treated as a range too.
+    if ('start' in input) {
       return this.includes(input.start, options) && this.includes(input.end, options);
     }
     const value = input.valueOf();
