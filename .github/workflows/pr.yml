@@ -29,6 +29,8 @@ jobs:
         run: bun run format
       - name: Lint
         run: bun run lint
+      - name: Type check
+        run: bun run tsc:check
   test-with-node:
     runs-on: ubuntu-latest
     strategy:
