@@ -1,0 +1,23 @@
+# agent-config.yml (Master)
+# Controls which artifacts are synced to target repositories.
+# Items under `include` will be synced. Move to `exclude` to opt out.
+
+agents:
+  include: []
+  exclude: []
+
+skills:
+  include:
+    - agent-scratchpad
+    - context7
+    - graphql
+    - kafka
+  exclude: []
+
+workflows:
+  include:
+    - copilot-setup-steps.example.yaml
+    - daily-doc-updater.lock.yml
+    - daily-doc-updater.md
+    - shared/mood.md
+  exclude: []
